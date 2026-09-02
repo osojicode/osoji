@@ -262,3 +262,44 @@ def test_npm_script_aliases_stay_decidable_under_every_package_manager():
     assert [(c.name, c.explicit_run) for c in claims if c.kind == "script_exists"] == [
         ("test", True), ("start", True),
     ]
+
+
+# --- rulings fix wave: doc-relative resolution -------------------------------
+
+
+def test_claim_carries_the_doc_directory():
+    # `_claims` fixes doc_path at "docs/guide.md" -- every claim it produces
+    # should know its doc lives under "docs", so the verifier can resolve a
+    # relative token against that directory instead of only the repo root.
+    claims = _claims("See `src/server.ts`.\n")
+    (claim,) = [c for c in claims if c.kind == "path_exists"]
+    assert claim.doc_dir == "docs"
+
+
+def test_claim_at_the_repo_root_has_an_empty_doc_dir():
+    claims = extract_doc_claims("README.md", "See `src/server.ts`.\n")
+    (claim,) = [c for c in claims if c.kind == "path_exists"]
+    assert claim.doc_dir == ""
+
+
+def test_claim_at_a_nested_doc_path_has_the_full_parent_as_doc_dir():
+    claims = extract_doc_claims(
+        "packages/adapter-dotnet/docs/README.md", "See `src/DotnetDebugAdapter.ts`.\n"
+    )
+    (claim,) = [c for c in claims if c.kind == "path_exists"]
+    assert claim.doc_dir == "packages/adapter-dotnet/docs"
+
+
+def test_markdown_link_target_is_marked_from_link():
+    claims = _claims(
+        "For the refactoring history, see "
+        "[refactoring-summary.md](./refactoring-summary.md).\n"
+    )
+    (claim,) = [c for c in claims if c.kind == "path_exists"]
+    assert claim.from_link is True
+
+
+def test_backtick_path_claim_is_not_marked_from_link():
+    claims = _claims("See `src/server.ts`.\n")
+    (claim,) = [c for c in claims if c.kind == "path_exists"]
+    assert claim.from_link is False

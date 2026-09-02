@@ -185,3 +185,101 @@ def test_bare_alias_word_is_still_contradicted_when_no_script_declares_it(temp_d
     (packet,) = _verify_line(temp_dir, "Run `pnpm test`.\n", {"build": "tsc"})
 
     assert packet.verdict == "contradicted"
+
+
+# --- rulings fix wave: doc-relative resolution --------------------------------
+
+
+def _verify_doc(temp_dir, doc_path, line, files):
+    """Write `files` under temp_dir, then run the real extract -> verify pipeline."""
+    from osoji.claims_docs import extract_doc_claims
+
+    for rel, content in files.items():
+        p = temp_dir / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(content, encoding="utf-8")
+    config = Config(root_path=temp_dir, respect_gitignore=False)
+    paths, scripts = PathRegistry.from_config(config), ScriptRegistry.from_config(config)
+    claims = [c for c in extract_doc_claims(doc_path, line) if c.kind == "path_exists"]
+    return verify_doc_claims(claims, paths, scripts)
+
+
+def test_dot_relative_link_resolves_against_the_doc_directory_first(temp_dir):
+    """docs/guide.md naming `./api.md`, with docs/api.md present -> supported."""
+    (packet,) = _verify_doc(
+        temp_dir, "docs/guide.md",
+        "See [the API doc](./api.md) for details.\n",
+        {"docs/guide.md": "x\n", "docs/api.md": "# API\n"},
+    )
+
+    assert packet.verdict == "supported"
+    assert packet.locations[0].path == "docs/api.md"
+
+
+def test_dot_relative_link_to_a_missing_doc_sibling_is_contradicted(temp_dir):
+    """Same doc, `./api.md` absent but docs/ is real -> contradicted, doc-relative candidate noted."""
+    (packet,) = _verify_doc(
+        temp_dir, "docs/guide.md",
+        "See [the API doc](./api.md) for details.\n",
+        {"docs/guide.md": "x\n"},
+    )
+
+    assert packet.verdict == "contradicted"
+    assert "docs/api.md" in packet.note
+    assert "resolved relative to docs" in packet.note
+
+
+def test_plain_token_falls_back_to_doc_relative_resolution(temp_dir):
+    """docs/guide.md naming `src/x.ts`, only docs/src/x.ts exists -> supported (fallback)."""
+    (packet,) = _verify_doc(
+        temp_dir, "docs/guide.md",
+        "See `src/x.ts` for the implementation.\n",
+        {"docs/guide.md": "x\n", "docs/src/x.ts": "export {}\n"},
+    )
+
+    assert packet.verdict == "supported"
+    assert packet.locations[0].path == "docs/src/x.ts"
+    assert "resolved relative to docs" in packet.note
+
+
+def test_root_relative_resolution_still_works_from_a_nested_doc(temp_dir):
+    """docs/guide.md naming `src/server.ts`, which exists at the repo root -> supported."""
+    (packet,) = _verify_doc(
+        temp_dir, "docs/guide.md",
+        "See `src/server.ts` for the entry point.\n",
+        {"docs/guide.md": "x\n", "src/server.ts": "export {}\n"},
+    )
+
+    assert packet.verdict == "supported"
+    assert packet.locations[0].path == "src/server.ts"
+    assert packet.note == ""
+
+
+def test_foreign_looking_token_in_a_nested_doc_stays_undecidable(temp_dir):
+    """Signal conservation: doc-relative fallback must not anchor a foreign token.
+
+    `src/dapDebugServer.js` names another project's layout on the line; there
+    is no `src/` at the repo root and no `docs/src/` under this doc's own
+    directory either, so neither candidate is anchored -- the claim must stay
+    undecidable, not be promoted to `contradicted` just because `docs/`
+    itself is real.
+    """
+    (packet,) = _verify_doc(
+        temp_dir, "docs/architecture/README.md",
+        "Upstream js-debug lays out `src/dapDebugServer.js` for its transport.\n",
+        {"docs/architecture/README.md": "x\n"},
+    )
+
+    assert packet.verdict == "undecidable"
+
+
+def test_markdown_link_without_a_dot_prefix_is_still_doc_relative(temp_dir):
+    """A markdown link target is doc-relative by convention, dot-prefix or not."""
+    (packet,) = _verify_doc(
+        temp_dir, "docs/guide.md",
+        "See [the sub doc](sub/foo.md) for details.\n",
+        {"docs/guide.md": "x\n"},
+    )
+
+    assert packet.verdict == "contradicted"
+    assert "resolved relative to docs" in packet.note
