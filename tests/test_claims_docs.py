@@ -62,3 +62,41 @@ def test_claim_carries_source_span_and_text():
     assert claim.line == 1
     assert claim.text == "packages/shared/README.md"
     assert claim.in_fence is False
+
+
+def test_prose_command_words_outside_backticks_are_not_script_claims():
+    # Regression for fix round 1, finding 1: "make sure" and "pnpm -r" are
+    # ordinary English, not commands, when they appear un-backticked in prose.
+    claims = _claims(
+        "Always make sure the cache is warm, then pnpm -r build.\n"
+    )
+    assert claims == []
+
+
+def test_backticked_prose_command_is_still_extracted():
+    # Companion to the above: a *backticked* command in prose is still a
+    # claim -- only raw, un-backticked prose is excluded.
+    claims = _claims("Then run `npm run build`.\n")
+    scripts = [(c.name, c.ecosystem) for c in claims if c.kind == "script_exists"]
+    assert scripts == [("build", "npm")]
+
+
+def test_strips_line_and_anchor_suffixes_from_path_claim_name():
+    # Regression for fix round 1, finding 2: a `:line` or `#anchor` suffix
+    # is part of how the doc points at the file, not part of the path
+    # itself -- `name` should match what a path registry holds, while
+    # `text` keeps the literal token as written.
+    claims = _claims("See `src/a.ts:42` and `docs/guide.md#usage`.\n")
+    by_name = {c.name: c.text for c in claims if c.kind == "path_exists"}
+    assert by_name == {
+        "src/a.ts": "src/a.ts:42",
+        "docs/guide.md": "docs/guide.md#usage",
+    }
+
+
+def test_strips_line_range_and_trailing_slash_before_anchor():
+    claims = _claims(
+        "See `src/a.ts:10-20` and `docs/architecture/#overview`.\n"
+    )
+    names = sorted(c.name for c in claims if c.kind == "path_exists")
+    assert names == ["docs/architecture", "src/a.ts"]
