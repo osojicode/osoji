@@ -283,3 +283,27 @@ def test_markdown_link_without_a_dot_prefix_is_still_doc_relative(temp_dir):
 
     assert packet.verdict == "contradicted"
     assert "resolved relative to docs" in packet.note
+
+
+def test_dot_relative_token_in_a_fenced_shell_command_is_not_trusted_as_doc_relative(temp_dir):
+    """A fenced `./x` resolves against the shell transcript's CWD, not the doc's directory.
+
+    Real corpus case (mcp-debugger examples/go/README.md:160): a fenced
+    ```bash block does `cd examples/go/fibonacci` on one line, then names
+    `./fibonacci.test` on the next -- the dot-relative token is CWD-relative
+    to wherever the transcript's `cd` left it, which the doc-relative
+    resolution has no way to know. Treating it as doc-relative-authoritative
+    turned this into a false positive; it must stay undecidable, not be
+    promoted to contradicted just because the doc's own directory is real.
+    """
+    line = (
+        "```bash\n"
+        "mcp-debugger start_debugging --script ./fibonacci.test\n"
+        "```\n"
+    )
+    (packet,) = _verify_doc(
+        temp_dir, "examples/go/README.md", line,
+        {"examples/go/README.md": "x\n"},
+    )
+
+    assert packet.verdict == "undecidable"

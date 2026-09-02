@@ -43,15 +43,27 @@ def _verdict(answer: RegistryAnswer) -> str:
 def _doc_relative_authoritative(claim: DocClaim) -> bool:
     """True when the token is unambiguous about being relative to its own doc.
 
-    A dot-relative token (``./x``, ``../x``) has no other reading. A
-    markdown link target resolves relative to the file that names it by
+    A markdown link target resolves relative to the file that names it by
     convention, dot-prefix or not (``[x](sub/y.md)`` is still relative to
-    the doc, the same as ``[x](./sub/y.md)``). A plain backticked or
-    fenced-command token has no such convention behind it -- it is
-    ambiguous between "relative to this doc" and "relative to the repo
-    root" until the verifier tries both (see `_path_candidates`).
+    the doc, the same as ``[x](./sub/y.md)``) -- markdown link resolution
+    is a fixed rule, so this always holds.
+
+    A dot-relative token (``./x``, ``../x``) written in prose or a backtick
+    span has no other reading either -- *unless* it was read from a fenced
+    shell command (``claim.in_fence``): there, ``./x`` resolves against the
+    transcript's working directory, which an earlier line in the same block
+    may have ``cd``-shifted away from the doc's own directory (real corpus
+    cases: ``cd examples/go/fibonacci`` before ``./fibonacci.test``; a
+    locally-built ``./pause_test`` binary; a downloaded ``./bin/act`` moved
+    from wherever the install script extracted it) -- so a fenced dot-token
+    is left to the plain fallback (`_path_candidates`, `_candidate_anchored`)
+    like any other ambiguous token instead of being trusted outright.
     """
-    return claim.text.strip().startswith(("./", "../")) or claim.from_link
+    if claim.from_link:
+        return True
+    if claim.in_fence:
+        return False
+    return claim.text.strip().startswith(("./", "../"))
 
 
 def _path_candidates(claim: DocClaim) -> list[tuple[str, bool]]:
