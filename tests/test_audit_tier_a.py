@@ -83,3 +83,27 @@ def test_phase_2a_failure_degrades_without_aborting_the_audit(temp_dir):
     assert config.audit_degradations == [{"phase": "doc-claims", "error": "boom"}]
     assert result.scorecard.degraded_phases == ["doc-claims"]
     assert "doc-claims" in format_audit_report(result)
+
+
+def test_ignored_prefix_claim_produces_no_error_issue(temp_dir):
+    """The whole point of the undecidable outlet: it must not reach the report.
+
+    A doc naming a real, git-tracked file that the walker's discovery filter
+    drops must not become an `error`-severity, confidence-1.0 issue that flips
+    ``AuditResult.has_errors`` and propagates through export/push.
+    """
+    (temp_dir / ".github" / "workflows").mkdir(parents=True)
+    (temp_dir / ".github" / "workflows" / "ci.yml").write_text("on: push\n", encoding="utf-8")
+    (temp_dir / "README.md").write_text(
+        "CI lives in `.github/workflows/ci.yml`; the missing one is `src/nope.ts`.\n",
+        encoding="utf-8",
+    )
+    config = Config(root_path=temp_dir, respect_gitignore=False)
+
+    issues, packets = tier_a_issues(config)
+
+    by_name = {p.claim.name: p.verdict for p in packets}
+    assert by_name[".github/workflows/ci.yml"] == "undecidable"
+    assert by_name["src/nope.ts"] == "contradicted"
+    assert [i.message for i in issues if ".github" in i.message] == []
+    assert len(issues) == 1

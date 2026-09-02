@@ -161,3 +161,118 @@ def test_script_registry_ignores_manifests_under_default_ignored_dirs(temp_dir):
     assert reg.exists("postinstall", "npm").found is False
     assert reg.exists("build", "npm").found is True
     assert reg.manifests == ["package.json"]
+
+
+# --- fix round 4: the index is narrower than the checkout ---------------------
+
+
+def test_path_registry_marks_ignore_filtered_paths_undecidable_not_absent(temp_dir):
+    """A miss inside an ignored prefix is a gap in the index, not an absence.
+
+    ``node_modules`` (and ``.github``, ``build``, ``dist``, ...) are dropped by
+    the *source-discovery* filter, which is narrower than the checkout. Calling
+    such a miss complete would let the verifier report `contradicted` against a
+    file anyone can ``ls`` -- a commission error.
+    """
+    config = _repo(temp_dir, {"node_modules/x/index.js": "x\n", "src/a.ts": "x\n"})
+    reg = PathRegistry.from_config(config)
+
+    answer = reg.exists("node_modules/x/index.js")
+    assert answer.found is False
+    assert answer.complete is False
+    assert "node_modules" in answer.note
+    assert answer.near == []
+
+
+def test_path_registry_marks_osojiignore_filtered_paths_undecidable(temp_dir):
+    config = _repo(temp_dir, {
+        ".osojiignore": "tests/fixtures\n",
+        "tests/fixtures/corpus/README.md": "x\n",
+        "src/a.ts": "x\n",
+    })
+    reg = PathRegistry.from_config(config)
+
+    answer = reg.exists("tests/fixtures/corpus/README.md")
+    assert answer.found is False
+    assert answer.complete is False
+    assert ".osojiignore" in answer.note
+
+
+def test_path_registry_marks_audit_excluded_globs_undecidable(temp_dir):
+    config = _repo(temp_dir, {
+        ".osoji.toml": '[audit]\nexclude = ["generated/*"]\n',
+        "generated/api.ts": "x\n",
+        "src/a.ts": "x\n",
+    })
+    reg = PathRegistry.from_config(config)
+
+    answer = reg.exists("generated/api.ts")
+    assert answer.found is False
+    assert answer.complete is False
+    assert "[audit] exclude" in answer.note
+
+
+def test_path_registry_marks_corpus_snapshot_paths_undecidable(temp_dir):
+    config = _repo(temp_dir, {
+        "cases/case_001/case.json": '{"schema": "corpus-case/1"}',
+        "cases/case_001/snapshot/app.py": "x\n",
+        "src/a.ts": "x\n",
+    })
+    reg = PathRegistry.from_config(config)
+
+    answer = reg.exists("cases/case_001/snapshot/app.py")
+    assert answer.found is False
+    assert answer.complete is False
+    assert "corpus-case snapshot" in answer.note
+
+
+def test_path_registry_treats_a_file_on_disk_but_unindexed_as_undecidable(temp_dir):
+    """The catch-all: .gitignore hides files from ``git ls-files`` entirely.
+
+    Those cannot be re-derived from a pattern, so the registry falls back to
+    asking the checkout directly. A path that is *there* can never be a
+    commission error, whatever the index says.
+    """
+    (temp_dir / "generated").mkdir()
+    (temp_dir / "generated" / "api.ts").write_text("x\n", encoding="utf-8")
+    reg = PathRegistry({"README.md"}, root=temp_dir)
+
+    answer = reg.exists("generated/api.ts")
+    assert answer.found is False
+    assert answer.complete is False
+    assert "working tree" in answer.note
+
+
+def test_path_registry_does_not_stat_outside_the_repository_root(temp_dir):
+    reg = PathRegistry({"README.md"}, root=temp_dir)
+
+    answer = reg.exists("../secrets/token.txt")
+    assert answer.found is False
+    assert answer.complete is False
+    assert "escapes the repository root" in answer.note
+
+
+def test_path_registry_still_contradicts_a_genuinely_absent_path(temp_dir):
+    """Signal conservation: the undecidable outlets must not swallow real misses."""
+    config = _repo(temp_dir, {"src/server.ts": "x\n"})
+    reg = PathRegistry.from_config(config)
+
+    answer = reg.exists("src/servr.ts")
+    assert answer.found is False
+    assert answer.complete is True
+    assert answer.note == ""
+    assert "src/server.ts" in answer.near
+
+
+def test_path_registry_near_match_candidate_set_is_bounded_on_a_large_tree():
+    """difflib cost is O(candidates); the candidate set must not be O(tree)."""
+    entries = {f"pkg/{i // 100}/mod{i}.ts" for i in range(50_000)}
+    reg = PathRegistry(entries)
+
+    candidates = reg.near_candidates("pkg/7/mod7000.ts")
+
+    assert len(candidates) <= 2000
+    assert len(candidates) < len(entries) // 10
+    # Bounding must not cost the near match itself: same-directory siblings
+    # are exactly what a typo'd path is near.
+    assert reg.exists("pkg/7/mod7000.ts").near

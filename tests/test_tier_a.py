@@ -66,3 +66,38 @@ def test_packet_serializes_to_plain_dict(temp_dir):
     assert d["claim"]["name"] == "test:ui" and d["verdict"] == "contradicted"
     assert isinstance(d["searched"], list) and isinstance(d["near"], list)
     json.dumps(d)  # must be JSON-serializable
+
+
+def test_path_claim_inside_an_ignored_prefix_is_undecidable_not_contradicted(temp_dir):
+    """Global constraint 3, applied to paths: an absent namespace never contradicts.
+
+    ``.github`` is in DEFAULT_IGNORE_PATTERNS, so the registry never indexes
+    the workflow even though git tracks it. Reporting `contradicted` here is a
+    commission error against a file that demonstrably exists.
+    """
+    (temp_dir / ".github" / "workflows").mkdir(parents=True)
+    (temp_dir / ".github" / "workflows" / "ci.yml").write_text("on: push\n", encoding="utf-8")
+    (temp_dir / "README.md").write_text("x\n", encoding="utf-8")
+    config = Config(root_path=temp_dir, respect_gitignore=False)
+    paths, scripts = PathRegistry.from_config(config), ScriptRegistry.from_config(config)
+
+    (packet,) = verify_doc_claims([_claim("path_exists", ".github/workflows/ci.yml")], paths, scripts)
+
+    assert packet.verdict == "undecidable"
+    assert ".github" in packet.note
+    assert "manifest" not in packet.note  # the script registry's note, not this one
+    assert packet_message(packet).endswith(packet.note)
+
+
+def test_undecidable_path_claim_carries_no_remediation(temp_dir):
+    from osoji.tier_a import packet_remediation
+
+    (temp_dir / "node_modules").mkdir()
+    (temp_dir / "node_modules" / "dep.js").write_text("x\n", encoding="utf-8")
+    config = Config(root_path=temp_dir, respect_gitignore=False)
+    paths, scripts = PathRegistry.from_config(config), ScriptRegistry.from_config(config)
+
+    (packet,) = verify_doc_claims([_claim("path_exists", "node_modules/dep.js")], paths, scripts)
+
+    assert packet.verdict == "undecidable"
+    assert packet_remediation(packet) == ""

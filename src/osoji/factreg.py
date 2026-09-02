@@ -13,7 +13,12 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from .config import Config
-from .walker import _matches_ignore, list_repo_files
+from .walker import (
+    _matches_exclude_pattern,
+    _matches_ignore,
+    is_under_corpus_snapshot,
+    list_repo_files,
+)
 
 
 @dataclass(frozen=True)
@@ -31,6 +36,10 @@ class RegistryAnswer:
     namespace: str = ""
     searched: list[str] = field(default_factory=list)
     complete: bool = True  # False when the namespace could not be built
+    # Why the namespace is incomplete for *this* query, in the registry's own
+    # words. An incomplete answer is a statement about the index, not about
+    # the world, and the caller has to be able to say which.
+    note: str = ""
 
 
 def _norm_rel(p: str) -> str:
@@ -44,19 +53,57 @@ def _near(name: str, universe: list[str], n: int = 3) -> list[str]:
     return difflib.get_close_matches(name, universe, n=n, cutoff=0.6)
 
 
+# difflib scores the query against every candidate handed to it, so the
+# candidate set -- not the tree -- is what bounds a near-match lookup.
+_NEAR_CANDIDATE_CAP = 2000
+
+
 class PathRegistry:
-    """Every tracked file and every ancestor directory, walker-filtered."""
+    """Every tracked file and every ancestor directory, walker-filtered.
+
+    The walker's filter is a *source-discovery* filter, not the checkout: it
+    drops ignored prefixes, ``.osojiignore`` and ``[audit] exclude`` matches,
+    corpus-case snapshots, and (via git) everything ``.gitignore`` hides. Those
+    regions hold real, tracked files, so a miss inside one is a gap in the
+    index rather than evidence of absence. The registry therefore carries the
+    filter that built it and reports such a miss as an *incomplete* answer --
+    the caller renders it ``undecidable``, never ``contradicted``.
+    """
 
     namespace = "paths"
 
-    def __init__(self, entries: set[str]) -> None:
+    def __init__(
+        self,
+        entries: set[str],
+        root: Path | None = None,
+        ignore_patterns: set[str] | None = None,
+        osojiignore: list[str] | None = None,
+        exclude_globs: list[str] | None = None,
+    ) -> None:
         self._entries = entries
-        self._sorted = sorted(entries)
+        self._root = root
+        self._ignore_patterns: set[str] = set(ignore_patterns or ())
+        self._osojiignore: list[str] = list(osojiignore or ())
+        self._exclude_globs: list[str] = list(exclude_globs or ())
+        self._corpus_cache: dict[Path, bool] = {}
+        # Buckets for bounded near-match candidates (see near_candidates).
+        self._by_parent: dict[str, list[str]] = {}
+        self._by_basename: dict[str, list[str]] = {}
+        for entry in sorted(entries):
+            parent, _, base = entry.rpartition("/")
+            self._by_parent.setdefault(parent, []).append(entry)
+            self._by_basename.setdefault(base.lower(), []).append(entry)
 
     @classmethod
     def from_config(cls, config: Config) -> "PathRegistry":
         entries: set[str] = set()
         osojiignore = config.load_osojiignore()
+        try:
+            exclude_globs = config.load_audit_exclude()
+        except RuntimeError:
+            # A malformed `[audit] exclude` is the walker's problem to report;
+            # here it only means "no glob filter to re-derive".
+            exclude_globs = []
         paths, _used_git = list_repo_files(config)
         for path in paths:
             p = path if path.is_absolute() else config.root_path / path
@@ -80,22 +127,100 @@ class PathRegistry:
             while str(parent) not in ("", "."):
                 entries.add(_norm_rel(str(parent)))
                 parent = parent.parent
-        return cls(entries)
+        return cls(
+            entries,
+            root=config.root_path,
+            ignore_patterns=set(config.ignore_patterns),
+            osojiignore=osojiignore,
+            exclude_globs=exclude_globs,
+        )
 
     @property
     def size(self) -> int:
         return len(self._entries)
 
+    def near_candidates(self, name: str) -> list[str]:
+        """The bounded candidate set a near-match lookup is scored against.
+
+        ``difflib`` scores the query against every candidate it is given, so
+        handing it the whole tree makes each miss cost O(tree) -- and misses
+        are what this layer produces in bulk. A path that differs from a real
+        one by a typo shares either its parent directory or its basename, so
+        those two buckets are the whole useful search space; they are bounded
+        by directory width instead of tree size, and capped besides.
+        """
+        parent, _, base = name.rpartition("/")
+        seen: set[str] = set()
+        out: list[str] = []
+        for bucket in (self._by_parent.get(parent, ()), self._by_basename.get(base.lower(), ())):
+            for entry in bucket:
+                if entry in seen:
+                    continue
+                seen.add(entry)
+                out.append(entry)
+                if len(out) >= _NEAR_CANDIDATE_CAP:
+                    return out
+        return out
+
+    def outside_index(self, name: str) -> str | None:
+        """Why ``name`` is outside the index, or None if the index covers it.
+
+        A returned reason means the registry cannot speak to this path: the
+        region it lives in was filtered out before indexing, so "not in the
+        entries set" carries no information about whether the file exists.
+        """
+        relative = Path(name)
+        if ".." in relative.parts:
+            return "path escapes the repository root"
+        matched = _matches_ignore(relative, self._ignore_patterns)
+        if matched:
+            return f"path lies under the ignored prefix '{matched}'"
+        if self._osojiignore:
+            matched = _matches_ignore(relative, self._osojiignore)
+            if matched:
+                return f"path is excluded by the .osojiignore pattern '{matched}'"
+        if self._exclude_globs and _matches_exclude_pattern(name, self._exclude_globs):
+            return "path is excluded by an [audit] exclude glob"
+        if self._root is None:
+            return None
+        candidate = self._root / relative
+        try:
+            if is_under_corpus_snapshot(candidate, self._root, self._corpus_cache):
+                return "path lies under a corpus-case snapshot"
+            if candidate.exists():
+                return "path is present in the working tree but outside the indexed universe"
+        except (OSError, ValueError):
+            return None
+        return None
+
     def exists(self, rel_path: str) -> RegistryAnswer:
         name = _norm_rel(rel_path)
-        found = name in self._entries
+        searched = ["git-tracked tree (walker-filtered)"]
+        if name in self._entries:
+            return RegistryAnswer(
+                name=name,
+                found=True,
+                locations=[Location(path=name)],
+                namespace=self.namespace,
+                searched=searched,
+                complete=True,
+            )
+        reason = self.outside_index(name)
+        if reason is not None:
+            return RegistryAnswer(
+                name=name,
+                found=False,
+                namespace=self.namespace,
+                searched=searched,
+                complete=False,
+                note=f"{reason}; absence cannot be established",
+            )
         return RegistryAnswer(
             name=name,
-            found=found,
-            locations=[Location(path=name)] if found else [],
-            near=[] if found else _near(name, self._sorted),
+            found=False,
+            near=_near(name, self.near_candidates(name)),
             namespace=self.namespace,
-            searched=["git-tracked tree (walker-filtered)"],
+            searched=searched,
             complete=True,
         )
 
