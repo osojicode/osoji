@@ -94,6 +94,10 @@ def test_ignored_prefix_claim_produces_no_error_issue(temp_dir):
     """
     (temp_dir / ".github" / "workflows").mkdir(parents=True)
     (temp_dir / ".github" / "workflows" / "ci.yml").write_text("on: push\n", encoding="utf-8")
+    # A real `src/` so the missing file is anchored in the tree and stays
+    # decidable (the anchor rule); the assertion under test is the .github one.
+    (temp_dir / "src").mkdir()
+    (temp_dir / "src" / "index.ts").write_text("export {}\n", encoding="utf-8")
     (temp_dir / "README.md").write_text(
         "CI lives in `.github/workflows/ci.yml`; the missing one is `src/nope.ts`.\n",
         encoding="utf-8",

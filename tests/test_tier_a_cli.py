@@ -9,6 +9,11 @@ from osoji.cli import main
 
 def _repo(temp_dir):
     (temp_dir / "package.json").write_text(json.dumps({"scripts": {"build": "tsc"}}), encoding="utf-8")
+    # A real `src/`: the anchor rule only decides path claims whose first
+    # segment exists in the tree, and `src/missing.ts` is the contradicted
+    # path claim this module asserts on.
+    (temp_dir / "src").mkdir()
+    (temp_dir / "src" / "index.ts").write_text("export {}\n", encoding="utf-8")
     (temp_dir / "docs").mkdir()
     (temp_dir / "docs" / "guide.md").write_text(
         "Run `npm run build` then `npm run test:ui`. See `src/missing.ts`.\n", encoding="utf-8"

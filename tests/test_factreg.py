@@ -300,7 +300,52 @@ def test_path_registry_case_exact_unindexed_file_is_still_undecidable(temp_dir):
     """The case check must not undo the fix it is guarding."""
     (temp_dir / "generated").mkdir()
     (temp_dir / "generated" / "api.ts").write_text("x\n", encoding="utf-8")
-    reg = PathRegistry({"README.md"}, root=temp_dir)
+    # `generated` is indexed (the anchor rule needs the root segment in the
+    # tree) while `generated/api.ts` itself is not -- the case this guards.
+    reg = PathRegistry({"README.md", "generated", "generated/other.ts"}, root=temp_dir)
 
     assert reg.exists("generated/api.ts").complete is False
     assert reg.exists("generated/API.ts").complete is True
+
+
+# --- rulings wave: the anchor rule -------------------------------------------
+
+
+def test_path_claim_whose_root_segment_is_absent_from_the_tree_is_undecidable(temp_dir):
+    """A repo-relative claim is only decidable when its root is in the repo.
+
+    `tools/list` is an MCP RPC method name, `osojicode/osoji` an org slug,
+    `openai/gpt-5-mini` a model id -- none of them addresses this checkout, and
+    the registry cannot contradict a claim that was never about the tree. The
+    test is the first segment, because that is what a repo-relative path and a
+    foreign namespace disagree about.
+    """
+    config = _repo(temp_dir, {"src/server.ts": "x\n", "README.md": "# x\n"})
+    reg = PathRegistry.from_config(config)
+
+    answer = reg.exists("tools/list")
+
+    assert answer.found is False
+    assert answer.complete is False
+    assert answer.note == "root segment not in the tree; not a repo-relative claim"
+    assert answer.near == []
+
+
+def test_path_claim_under_a_real_top_level_directory_still_contradicts(temp_dir):
+    """Signal conservation: the anchor rule must not swallow real misses."""
+    config = _repo(temp_dir, {"src/server.ts": "x\n"})
+    reg = PathRegistry.from_config(config)
+
+    answer = reg.exists("src/nope.ts")
+
+    assert answer.found is False
+    assert answer.complete is True
+    assert answer.note == ""
+
+
+def test_anchor_rule_accepts_a_top_level_file_as_the_root_segment(temp_dir):
+    """A root segment may be a file as well as a directory (`README.md#x`)."""
+    config = _repo(temp_dir, {"README.md": "# x\n"})
+    reg = PathRegistry.from_config(config)
+
+    assert reg.exists("README.md/nope").complete is True
