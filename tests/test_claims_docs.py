@@ -120,3 +120,46 @@ def test_package_manager_flag_after_pm_name_is_not_a_script_claim():
     # never a script name in any package manager.
     claims = _claims("Run `pnpm --filter @debugmcp/mcp-debugger build`.\n")
     assert [c for c in claims if c.kind == "script_exists"] == []
+
+
+def test_extracts_path_claim_from_markdown_link_target():
+    # Real doc line (mcp-debugger docs/architecture/README.md:278): a footer
+    # pointer written as a markdown link, not a backtick span.
+    claims = _claims(
+        "For the refactoring history, see "
+        "[refactoring-summary.md](./refactoring-summary.md).\n"
+    )
+    names = [(c.name, c.kind) for c in claims if c.kind == "path_exists"]
+    assert ("refactoring-summary.md", "path_exists") in names
+
+
+def test_markdown_link_to_url_or_anchor_is_not_a_path_claim():
+    claims = _claims(
+        "See the [project homepage](https://example.com/docs) or "
+        "[jump to usage](#usage).\n"
+    )
+    assert [c for c in claims if c.kind == "path_exists"] == []
+
+
+def test_extracts_bare_path_argument_from_fenced_shell_line():
+    # Real doc line (mcp-debugger CONTRIBUTING.md:189): a fenced ```bash```
+    # block naming a test file with no backticks around it.
+    claims = _claims("""\
+        ```bash
+        npx vitest run tests/unit/session/session-manager.test.ts
+        ```
+        """)
+    names = [(c.name, c.kind, c.in_fence) for c in claims if c.kind == "path_exists"]
+    assert ("tests/unit/session/session-manager.test.ts", "path_exists", True) in names
+
+
+def test_fenced_shell_flag_or_assignment_token_is_not_a_path_claim():
+    # A `VAR=value` assignment or `--flag=value` token that happens to
+    # contain a "/" is not a path argument -- same principle as excluding
+    # `-`-prefixed flags from script names.
+    claims = _claims("""\
+        ```bash
+        MCP_WORKSPACE_ROOT=/workspace/project run.sh
+        ```
+        """)
+    assert [c for c in claims if c.kind == "path_exists"] == []

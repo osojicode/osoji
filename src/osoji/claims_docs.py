@@ -18,7 +18,19 @@ _SCRIPT_RE = re.compile(
 )
 _MAKE_RE = re.compile(r"\bmake\s+(?P<target>[A-Za-z_][\w.\-]*)")
 _BACKTICK_RE = re.compile(r"`([^`\n]+)`")
-_FENCE_RE = re.compile(r"^\s*(```|~~~)")
+_FENCE_RE = re.compile(r"^\s*(```|~~~)\s*(\S*)")
+# `[label](target)` -- an inline markdown link. The target is everything up
+# to whitespace (a link title, if any, follows a space) or the closing paren.
+_MD_LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)")
+# A bare, unquoted whitespace-delimited token on a fenced command line --
+# the same shape a backtick span already looks for, applied to code that
+# marks itself as a command without also quoting the path in backticks.
+_FENCE_TOKEN_RE = re.compile(r"\S+")
+# Fence languages that are shell transcripts, where a bare argument is a
+# command the reader is told to run -- not a language whose own syntax
+# (an object literal, a JSON value, a type signature) would otherwise be
+# misread as a path argument.
+_SHELL_FENCE_LANGS = {"bash", "sh", "shell", "zsh", "console", "cmd", "bat", "powershell", "ps1"}
 
 # Package-manager verbs that are never project scripts. Principle: a bare
 # `pm <word>` is a script claim only when the word is not a verb the package
@@ -66,6 +78,11 @@ def _looks_like_repo_path(token: str) -> bool:
         return False
     if t.startswith("-") or " " in t:
         return False
+    # `KEY=value` (an env-var assignment) or `--flag=value` is a name/value
+    # pair, not a path argument, even when the value side contains a "/" --
+    # same principle as excluding a bare `-`-prefixed flag.
+    if "=" in t:
+        return False
     # A separator is required. Bare `name.ext` tokens are ambiguous with dotted
     # identifiers (`process.env`, `Client.close`) and would produce false
     # "nonexistent path" findings; they are left to a later, registry-aware
@@ -93,6 +110,7 @@ def extract_doc_claims(doc_path: str, content: str) -> list[DocClaim]:
     claims: list[DocClaim] = []
     seen: set[tuple[str, str, int]] = set()
     in_fence = False
+    fence_lang = ""
 
     def add(kind: str, name: str, line: int, text: str, eco: str | None) -> None:
         key = (kind, name, line)
@@ -102,8 +120,10 @@ def extract_doc_claims(doc_path: str, content: str) -> list[DocClaim]:
         claims.append(DocClaim(kind, name, doc_path, line, text, eco, in_fence))
 
     for i, raw in enumerate(content.splitlines(), start=1):
-        if _FENCE_RE.match(raw):
+        fence_m = _FENCE_RE.match(raw)
+        if fence_m:
             in_fence = not in_fence
+            fence_lang = fence_m.group(2).lower() if in_fence else ""
             continue
 
         # A command is "a script a doc tells the reader to run" — that's a
@@ -133,4 +153,34 @@ def extract_doc_claims(doc_path: str, content: str) -> list[DocClaim]:
                 continue  # already handled as a command
             if _looks_like_repo_path(token):
                 add("path_exists", _norm_path(token), i, token, None)
+
+        if in_fence:
+            if fence_lang in _SHELL_FENCE_LANGS:
+                # A fenced command line marks its whole content as code the
+                # same way a backtick span marks a prose token as code -- a
+                # bare (unquoted) argument here is as much a literal claim as
+                # a backticked one, just without the extra punctuation.
+                # Scoped to shell-transcript languages: an undeclared fence
+                # is as likely to be an ASCII directory tree as a command,
+                # and a typed-language fence (`typescript`, `json`) has its
+                # own token grammar that reads nothing like a shell argument.
+                for tok_m in _FENCE_TOKEN_RE.finditer(raw):
+                    token = tok_m.group(0).strip("\"'(),;")
+                    if _SCRIPT_RE.search(token) or _MAKE_RE.search(token):
+                        continue  # already handled as a command
+                    if _looks_like_repo_path(token):
+                        add("path_exists", _norm_path(token), i, token, None)
+        else:
+            # A markdown link target is a claim about where the file lives,
+            # the same as a backticked path -- just wrapped in `[label](...)`
+            # instead of backticks. Only scanned in prose: fenced code has
+            # its own syntax (e.g. array literals) that can coincidentally
+            # look like `[...](...)`. URLs and in-page anchors are excluded
+            # by the same repo-path heuristic and an explicit anchor check.
+            for m in _MD_LINK_RE.finditer(raw):
+                target = m.group(1).strip()
+                if target.startswith("#"):
+                    continue
+                if _looks_like_repo_path(target):
+                    add("path_exists", _norm_path(target), i, target, None)
     return claims
