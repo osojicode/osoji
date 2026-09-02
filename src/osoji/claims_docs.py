@@ -78,6 +78,18 @@ class DocClaim:
     # declared, so the doc line does not by itself claim a script exists.
     # True for every explicit `run` form, npm's script aliases and make.
     explicit_run: bool = True
+    # The doc's own parent directory ("" at the repo root). A path claim
+    # resolves relative to this directory before it resolves relative to the
+    # repo root -- see tier_a.py's doc-relative candidate resolution.
+    # Appended with a default so the positional order above is unchanged.
+    doc_dir: str = ""
+    # True when the claim was read from a markdown link target
+    # (`[label](target)`) rather than a backtick span or fenced command
+    # line. A markdown link resolves relative to the file that contains it
+    # by convention, dot-prefix or not -- unlike a bare backticked path,
+    # which is ambiguous between "relative to this doc" and "relative to
+    # the repo root" until the verifier tries both.
+    from_link: bool = False
 
 
 def is_placeholder(token: str) -> bool:
@@ -135,6 +147,11 @@ def _norm_path(token: str) -> str:
 
 def extract_doc_claims(doc_path: str, content: str) -> list[DocClaim]:
     claims: list[DocClaim] = []
+    # The parent directory of the doc itself, forward-slashed and rooted at
+    # "" -- the base a relative path claim on this doc resolves against
+    # before it resolves against the repo root.
+    norm_doc_path = doc_path.replace("\\", "/")
+    doc_dir = norm_doc_path.rsplit("/", 1)[0] if "/" in norm_doc_path else ""
     # The ecosystem is part of the claim's identity: `make test` and `npm test`
     # on one line are two claims against two different namespaces, and a key
     # that omits it silently drops whichever came second.
@@ -145,13 +162,14 @@ def extract_doc_claims(doc_path: str, content: str) -> list[DocClaim]:
     modality = "exact"
 
     def add(kind: str, name: str, line: int, text: str, eco: str | None,
-            explicit_run: bool = True) -> None:
+            explicit_run: bool = True, from_link: bool = False) -> None:
         key = (kind, name, line, eco)
         if key in seen:
             return
         seen.add(key)
         claims.append(
-            DocClaim(kind, name, doc_path, line, text, eco, in_fence, modality, explicit_run)
+            DocClaim(kind, name, doc_path, line, text, eco, in_fence, modality,
+                     explicit_run, doc_dir, from_link)
         )
 
     for i, raw in enumerate(content.splitlines(), start=1):
@@ -223,5 +241,5 @@ def extract_doc_claims(doc_path: str, content: str) -> list[DocClaim]:
                 if target.startswith("#"):
                     continue
                 if _looks_like_repo_path(target):
-                    add("path_exists", _norm_path(target), i, target, None)
+                    add("path_exists", _norm_path(target), i, target, None, from_link=True)
     return claims

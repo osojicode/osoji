@@ -225,6 +225,16 @@ class PathRegistry:
             current = current / segment
         return True
 
+    def has_entry(self, name: str) -> bool:
+        """O(1) membership check against the indexed entries.
+
+        Used by doc-relative anchor checks (tier_a.py), which only need to
+        know "is this directory real" -- not the full `exists()` answer
+        (found/near/locations/searched), so they should not pay for a
+        difflib near-match search on every miss.
+        """
+        return _norm_rel(name) in self._entries
+
     def anchored(self, name: str) -> bool:
         """True when ``name``'s first segment is a top-level entry of the tree.
 

@@ -6,6 +6,7 @@ what was found, and the nearest declared names when nothing was. No LLM.
 
 from __future__ import annotations
 
+import posixpath
 import subprocess
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -39,6 +40,107 @@ def _verdict(answer: RegistryAnswer) -> str:
     return "supported" if answer.found else "contradicted"
 
 
+def _doc_relative_authoritative(claim: DocClaim) -> bool:
+    """True when the token is unambiguous about being relative to its own doc.
+
+    A dot-relative token (``./x``, ``../x``) has no other reading. A
+    markdown link target resolves relative to the file that names it by
+    convention, dot-prefix or not (``[x](sub/y.md)`` is still relative to
+    the doc, the same as ``[x](./sub/y.md)``). A plain backticked or
+    fenced-command token has no such convention behind it -- it is
+    ambiguous between "relative to this doc" and "relative to the repo
+    root" until the verifier tries both (see `_path_candidates`).
+    """
+    return claim.text.strip().startswith(("./", "../")) or claim.from_link
+
+
+def _path_candidates(claim: DocClaim) -> list[tuple[str, bool]]:
+    """Root-relative and doc-relative candidates for a path claim, in priority order.
+
+    Each entry is ``(candidate_path, is_doc_relative)``. When the token is
+    doc-relative-authoritative (see above) the doc-relative candidate is
+    tried first: rule 2a. Otherwise the root-relative form is tried first,
+    with the doc-relative form as a fallback: rules 2b/2c -- most doc paths
+    in this corpus are written root-relative, and a doc nested under a
+    subdirectory sometimes names a sibling path as if its own directory
+    were the repo root (the doc-relative residual class in
+    rulings-fix-report.md).
+    """
+    root_relative = claim.name
+    if not claim.doc_dir:
+        return [(root_relative, False)]
+    doc_relative = posixpath.normpath(posixpath.join(claim.doc_dir, claim.name))
+    if doc_relative == root_relative:
+        return [(root_relative, False)]
+    if _doc_relative_authoritative(claim):
+        return [(doc_relative, True), (root_relative, False)]
+    return [(root_relative, False), (doc_relative, True)]
+
+
+def _candidate_anchored(paths: PathRegistry, claim: DocClaim, candidate: str) -> bool:
+    """Whether a doc-relative candidate's root is real -- the doc-relative anchor rule.
+
+    A doc-relative candidate reached through an unambiguous relative
+    reference (`_doc_relative_authoritative`) is anchored as soon as the
+    doc's own directory is real -- there is no other reading of ``./x`` or
+    a markdown link target. A doc-relative *fallback* candidate for a plain
+    token stays unanchored unless the token's own first segment genuinely
+    exists under doc_dir; otherwise a foreign-namespace token merely named
+    in a nested doc (an upstream repo's `src/` layout, an RPC method name)
+    would be promoted to `contradicted` just because the doc's own
+    directory happens to be real -- which would defeat the anchor rule for
+    every claim below the repo root.
+    """
+    if _doc_relative_authoritative(claim):
+        return paths.has_entry(claim.doc_dir)
+    first_seg = claim.name.split("/", 1)[0]
+    return paths.has_entry(f"{claim.doc_dir}/{first_seg}")
+
+
+def _verify_path_claim(claim: DocClaim, paths: PathRegistry, index_revision: str) -> EvidencePacket:
+    candidates = _path_candidates(claim)
+    tried: list[tuple[str, bool, RegistryAnswer]] = []
+    for candidate, is_doc_relative in candidates:
+        answer = paths.exists(candidate)
+        tried.append((candidate, is_doc_relative, answer))
+        if answer.found:
+            note = f"resolved relative to {claim.doc_dir}: {candidate}" if is_doc_relative else answer.note
+            return EvidencePacket(
+                claim=claim, verdict="supported", namespace=answer.namespace,
+                searched=list(answer.searched), locations=list(answer.locations),
+                near=list(answer.near), index_revision=index_revision, note=note,
+            )
+
+    # Nothing found. `PathRegistry.exists()` already folds "not
+    # outside_index and anchored" into `complete=True` on a miss -- for the
+    # root-relative candidate that *is* the anchor rule. It is not for a
+    # doc-relative candidate (the registry has no notion of doc_dir, and its
+    # own naive check would trivially pass on the doc's own root segment),
+    # so a doc-relative candidate is re-checked with the doc-relative anchor
+    # rule instead of trusting `complete`.
+    for candidate, is_doc_relative, answer in tried:
+        if not answer.complete:
+            continue
+        if is_doc_relative and not _candidate_anchored(paths, claim, candidate):
+            continue
+        note = f"resolved relative to {claim.doc_dir}: {candidate}" if is_doc_relative else answer.note
+        return EvidencePacket(
+            claim=claim, verdict="contradicted", namespace=answer.namespace,
+            searched=list(answer.searched), locations=list(answer.locations),
+            near=list(answer.near), index_revision=index_revision, note=note,
+        )
+
+    # Undecidable: report the most informative miss, preferring a candidate
+    # with a specific outside_index-style note over the generic anchor note.
+    chosen = next((a for _, _, a in tried if a.note), tried[0][2])
+    note = chosen.note or "no manifest of this ecosystem in the tree; absence cannot be established"
+    return EvidencePacket(
+        claim=claim, verdict="undecidable", namespace=chosen.namespace,
+        searched=list(chosen.searched), locations=list(chosen.locations),
+        near=list(chosen.near), index_revision=index_revision, note=note,
+    )
+
+
 def verify_doc_claims(
     claims: list[DocClaim],
     paths: PathRegistry,
@@ -58,6 +160,9 @@ def verify_doc_claims(
                 note="creation instruction, existence not asserted",
             ))
             continue
+        if claim.kind == "path_exists":
+            packets.append(_verify_path_claim(claim, paths, index_revision))
+            continue
         if claim.kind == "script_exists":
             answer = scripts.exists(claim.name, claim.ecosystem)
             if not claim.explicit_run and not answer.found:
@@ -71,8 +176,6 @@ def verify_doc_claims(
                     note="bare package-manager word may be a binary, not a script",
                 ))
                 continue
-        elif claim.kind == "path_exists":
-            answer = paths.exists(claim.name)
         else:
             continue
         # A registry that knows *why* it cannot answer says so itself; the
