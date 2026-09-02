@@ -193,3 +193,35 @@ def test_bare_directory_name_with_only_a_trailing_slash_is_not_a_path_claim():
 def test_directory_claim_with_a_real_separator_survives_the_trailing_slash_rule():
     claims = _claims("See the `docs/architecture/` folder.\n")
     assert [c.name for c in claims if c.kind == "path_exists"] == ["docs/architecture"]
+
+
+# --- rulings wave: the creation-instruction guard ----------------------------
+
+
+def test_creation_instruction_marks_the_claim_creation_modality():
+    # An instruction to create the artifact does not assert that it exists;
+    # a how-to that says "Create `x` with:" is right precisely while `x` is
+    # absent, so verifying it against the checkout inverts its meaning.
+    claims = _claims("Create `src/handlers/new_tool.ts` with:\n")
+    (claim,) = [c for c in claims if c.kind == "path_exists"]
+    assert claim.name == "src/handlers/new_tool.ts"
+    assert claim.modality == "creation"
+
+
+def test_a_pointer_to_an_existing_artifact_keeps_exact_modality():
+    claims = _claims("See `src/handlers/tool.ts`\n")
+    (claim,) = [c for c in claims if c.kind == "path_exists"]
+    assert claim.modality == "exact"
+
+
+def test_creation_verbs_are_matched_as_whole_words_case_insensitively():
+    for line in ("Add `docs/new-page.md` to the index.\n",
+                 "Then SAVE `config/local.json` alongside it.\n",
+                 "Run mkdir and put `assets/logo/icon.svg` there.\n"):
+        claims = [c for c in _claims(line) if c.kind == "path_exists"]
+        assert claims and all(c.modality == "creation" for c in claims), line
+    # "created"/"describes" are not the imperative: past tense and prose
+    # describe a state, they do not instruct the reader to make something.
+    claims = [c for c in _claims("The generator created `dist/out.js` already.\n")
+              if c.kind == "path_exists"]
+    assert [c.modality for c in claims] == ["exact"]
