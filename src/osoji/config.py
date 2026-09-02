@@ -795,6 +795,12 @@ class Config:
         relative = self._to_relative(doc_path)
         return self.analysis_root / "docs" / (str(relative) + ".analysis.json")
 
+    def analysis_claims_path_for(self, doc_path: Path) -> Path:
+        """Return the Tier A evidence-packet JSON path for a given doc file."""
+
+        relative = self._to_relative(doc_path)
+        return self.analysis_root / "claims" / (str(relative) + ".claims.json")
+
     def analysis_deadcode_path_for(self, source_path: Path) -> Path:
         """Return the dead-code analysis JSON path for a given source file."""
 

@@ -529,6 +529,36 @@ def verify(
 
 
 @main.command()
+@click.argument("path", type=click.Path(exists=True, file_okay=False, path_type=Path), default=".")
+@click.option("--format", "output_format", type=click.Choice(["text", "json"]), default="text", help="Output format")
+@click.option("--all", "show_all", is_flag=True, help="Show supported and undecidable claims too")
+@click.option("--no-gitignore", is_flag=True, help="Do not use git ls-files / .gitignore for discovery")
+@click.pass_context
+def claims(ctx: click.Context, path: Path, output_format: str, show_all: bool, no_gitignore: bool) -> None:
+    """Verify literal doc claims (scripts, paths) against the checkout. No LLM calls."""
+    from .tier_a import packet_message, run_tier_a
+
+    state = _cli_state(ctx)
+    config = Config(
+        root_path=path.resolve(),
+        respect_gitignore=not no_gitignore,
+        verbose=state.verbose,
+        quiet=state.quiet,
+    )
+    packets = run_tier_a(config)
+    contradicted = [p for p in packets if p.verdict == "contradicted"]
+    shown = packets if show_all else contradicted
+    if output_format == "json":
+        summary = {v: sum(1 for p in packets if p.verdict == v) for v in ("contradicted", "supported", "undecidable")}
+        click.echo(json.dumps({"packets": [p.to_dict() for p in shown], "summary": summary}, indent=2))
+    else:
+        for p in shown:
+            click.echo(f"{p.claim.doc_path}:{p.claim.line} [{p.verdict}] {packet_message(p)}")
+        click.echo(f"{len(contradicted)} contradicted, {len(packets)} claims checked")
+    ctx.exit(1 if contradicted else 0)
+
+
+@main.command()
 @click.option("--project", help="Project slug (default: from config or git remote)")
 @click.option("--token", help="API token (default: OSOJI_TOKEN env var)")
 @click.option("--endpoint", help="API endpoint URL (default: OSOJI_ENDPOINT env var)")
