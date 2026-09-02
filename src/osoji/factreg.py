@@ -143,7 +143,13 @@ def _scripts_from_pyproject(content: str, path: str) -> list[tuple[str, Location
         data = tomllib.loads(content)
     except tomllib.TOMLDecodeError:
         return []
-    scripts = (data.get("project") or {}).get("scripts") or {}
+    # `[project]` need not be a table in syntactically-valid TOML (``project =
+    # "foo"`` parses fine), so mirror _scripts_from_package_json's shape check
+    # rather than assuming a mapping.
+    project = data.get("project")
+    scripts = project.get("scripts") if isinstance(project, dict) else None
+    if not isinstance(scripts, dict):
+        return []
     lines = content.splitlines()
     out: list[tuple[str, Location]] = []
     for name in scripts:

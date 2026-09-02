@@ -110,6 +110,23 @@ def test_script_registry_reads_makefile_targets_and_pyproject_scripts(temp_dir):
     assert reg.exists("deploy", "make").found is False
 
 
+def test_script_registry_survives_pyproject_where_project_is_not_a_table(temp_dir):
+    """Valid TOML, wrong shape: ``project = "demo"`` must not raise.
+
+    The registry sits on the audit's critical path (phase 2a), so a manifest
+    that parses but is not shaped as expected has to degrade to "declares
+    nothing", the way the package.json parser already does.
+    """
+    config = _repo(temp_dir, {
+        "pyproject.toml": 'project = "demo"\n',
+        "package.json": json.dumps({"scripts": {"build": "tsc"}}),
+    })
+    reg = ScriptRegistry.from_config(config)
+
+    assert reg.exists("build", "npm").found is True
+    assert reg.exists("demo-cli", "python").found is False
+
+
 def test_script_registry_is_undecidable_when_no_manifest_of_that_ecosystem_exists(temp_dir):
     config = _repo(temp_dir, {"README.md": "# no manifests\n"})
     reg = ScriptRegistry.from_config(config)
