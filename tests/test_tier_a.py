@@ -143,3 +143,38 @@ def test_creation_modality_is_undecidable_even_when_the_path_exists(temp_dir):
     (packet,) = verify_doc_claims([claim], paths, scripts)
 
     assert packet.verdict == "undecidable"
+
+
+# --- rulings wave: bare package-manager words --------------------------------
+
+
+def _verify_line(temp_dir, line, scripts_declared):
+    from osoji.claims_docs import extract_doc_claims
+
+    (temp_dir / "package.json").write_text(json.dumps({"scripts": scripts_declared}), encoding="utf-8")
+    config = Config(root_path=temp_dir, respect_gitignore=False)
+    paths, scripts = PathRegistry.from_config(config), ScriptRegistry.from_config(config)
+    claims = [c for c in extract_doc_claims("README.md", line) if c.kind == "script_exists"]
+    return verify_doc_claims(claims, paths, scripts)
+
+
+def test_bare_package_manager_word_without_a_matching_script_is_undecidable(temp_dir):
+    """`pnpm vitest` may be a node_modules/.bin binary the registry never sees."""
+    (packet,) = _verify_line(temp_dir, "Run `pnpm vitest`.\n", {"build": "tsc"})
+
+    assert packet.verdict == "undecidable"
+    assert packet.note == "bare package-manager word may be a binary, not a script"
+
+
+def test_explicit_run_form_stays_decidable(temp_dir):
+    """`pnpm run vitest` can only mean a declared script, so absence contradicts."""
+    (packet,) = _verify_line(temp_dir, "Run `pnpm run vitest`.\n", {"build": "tsc"})
+
+    assert packet.verdict == "contradicted"
+
+
+def test_bare_package_manager_word_that_is_a_declared_script_is_supported(temp_dir):
+    (packet,) = _verify_line(temp_dir, "Run `pnpm test:e2e`.\n", {"test:e2e": "playwright"})
+
+    assert packet.verdict == "supported"
+    assert packet.locations[0].path == "package.json"

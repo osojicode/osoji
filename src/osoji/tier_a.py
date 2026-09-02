@@ -60,6 +60,17 @@ def verify_doc_claims(
             continue
         if claim.kind == "script_exists":
             answer = scripts.exists(claim.name, claim.ecosystem)
+            if not claim.explicit_run and not answer.found:
+                # A bare `pnpm x` / `yarn x` runs a node_modules/.bin binary
+                # when no script `x` is declared, and the registry indexes
+                # manifests, not installed binaries -- so "not declared" is
+                # not evidence that the command fails.
+                packets.append(EvidencePacket(
+                    claim=claim, verdict="undecidable", namespace=answer.namespace,
+                    searched=list(answer.searched), index_revision=index_revision,
+                    note="bare package-manager word may be a binary, not a script",
+                ))
+                continue
         elif claim.kind == "path_exists":
             answer = paths.exists(claim.name)
         else:

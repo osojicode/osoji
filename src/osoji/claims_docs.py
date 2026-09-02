@@ -73,6 +73,11 @@ class DocClaim:
     # line asserts nothing about the current checkout (see _CREATION_RE).
     # Appended with a default so the positional order above is unchanged.
     modality: str = "exact"
+    # False for a bare `pnpm <word>` / `yarn <word>`: those package managers
+    # fall back to a node_modules/.bin binary when no script of that name is
+    # declared, so the doc line does not by itself claim a script exists.
+    # True for every explicit `run` form, npm's script aliases and make.
+    explicit_run: bool = True
 
 
 def is_placeholder(token: str) -> bool:
@@ -139,12 +144,15 @@ def extract_doc_claims(doc_path: str, content: str) -> list[DocClaim]:
 
     modality = "exact"
 
-    def add(kind: str, name: str, line: int, text: str, eco: str | None) -> None:
+    def add(kind: str, name: str, line: int, text: str, eco: str | None,
+            explicit_run: bool = True) -> None:
         key = (kind, name, line, eco)
         if key in seen:
             return
         seen.add(key)
-        claims.append(DocClaim(kind, name, doc_path, line, text, eco, in_fence, modality))
+        claims.append(
+            DocClaim(kind, name, doc_path, line, text, eco, in_fence, modality, explicit_run)
+        )
 
     for i, raw in enumerate(content.splitlines(), start=1):
         modality = "creation" if _CREATION_RE.search(raw) else "exact"
@@ -171,7 +179,11 @@ def extract_doc_claims(doc_path: str, content: str) -> list[DocClaim]:
                     continue
                 if name in _PM_BUILTINS:
                     continue
-                add("script_exists", name, i, name, "npm")
+                # `npm test` is an alias for a declared script; a bare
+                # `pnpm x` / `yarn x` is not -- it resolves to a script if one
+                # is declared and to a node_modules/.bin binary otherwise.
+                bare_word = bool(m.group("bare")) and m.group("pm") != "npm"
+                add("script_exists", name, i, name, "npm", explicit_run=not bare_word)
             for m in _MAKE_RE.finditer(source):
                 add("script_exists", m.group("target"), i, m.group("target"), "make")
 
