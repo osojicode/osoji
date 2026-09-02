@@ -74,14 +74,16 @@ def _norm_path(token: str) -> str:
     s = token.replace("\\", "/").strip()
     while s.startswith("./"):
         s = s[2:]
-    s = s.rstrip("/")
     # A doc that names `src/a.ts:42` or `docs/guide.md#usage` is still making
     # a claim about the file, not about a token that happens to include the
     # line/anchor suffix — strip the suffix so the claim's `name` matches the
     # registry entry. `text` (the literal token as written) is left alone.
+    # Suffix-stripping runs before the trailing-slash strip so a trailing
+    # slash left behind by an anchor (`docs/architecture/#overview`) is
+    # still removed.
     s = re.sub(r":\d+(-\d+)?$", "", s)
     s = re.sub(r"#[^/]*$", "", s)
-    return s
+    return s.rstrip("/")
 
 
 def extract_doc_claims(doc_path: str, content: str) -> list[DocClaim]:
