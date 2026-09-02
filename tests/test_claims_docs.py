@@ -163,3 +163,33 @@ def test_fenced_shell_flag_or_assignment_token_is_not_a_path_claim():
         ```
         """)
     assert [c for c in claims if c.kind == "path_exists"] == []
+
+
+def test_same_name_in_two_ecosystems_on_one_line_yields_two_claims():
+    # Fix round 4, finding 4: the dedup key omitted the ecosystem, so `make
+    # test` and `npm test` on one line collapsed into a single claim and the
+    # other was never verified -- a silent coverage hole, not a visible error.
+    claims = _claims("Run `make test` or `npm test`.\n")
+    assert sorted((c.name, c.ecosystem) for c in claims if c.kind == "script_exists") == [
+        ("test", "make"),
+        ("test", "npm"),
+    ]
+
+
+def test_bare_directory_name_with_only_a_trailing_slash_is_not_a_path_claim():
+    # Fix round 4: `_looks_like_repo_path` required a "/" but tested the raw
+    # token, while `_norm_path` strips a trailing slash -- so ASCII-tree
+    # entries like `shadow/` became bare-word path claims, exactly the shape
+    # the module's own comment says is too ambiguous to check.
+    claims = _claims("""\
+        The layout is:
+
+        - `shadow/` -- generated docs
+        - `facts/` -- extracted facts
+        """)
+    assert [c for c in claims if c.kind == "path_exists"] == []
+
+
+def test_directory_claim_with_a_real_separator_survives_the_trailing_slash_rule():
+    claims = _claims("See the `docs/architecture/` folder.\n")
+    assert [c.name for c in claims if c.kind == "path_exists"] == ["docs/architecture"]

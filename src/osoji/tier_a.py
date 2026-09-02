@@ -53,7 +53,11 @@ def verify_doc_claims(
             answer = paths.exists(claim.name)
         else:
             continue
-        note = "" if answer.complete else "no manifest of this ecosystem in the tree; absence cannot be established"
+        # A registry that knows *why* it cannot answer says so itself; the
+        # fallback covers the script registry's "no manifest at all" case.
+        note = answer.note
+        if not note and not answer.complete:
+            note = "no manifest of this ecosystem in the tree; absence cannot be established"
         packets.append(EvidencePacket(
             claim=claim, verdict=_verdict(answer), namespace=answer.namespace,
             searched=list(answer.searched), locations=list(answer.locations),

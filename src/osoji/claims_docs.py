@@ -87,7 +87,12 @@ def _looks_like_repo_path(token: str) -> bool:
     # identifiers (`process.env`, `Client.close`) and would produce false
     # "nonexistent path" findings; they are left to a later, registry-aware
     # extraction. Losing `README.md`-style bare claims costs little recall.
-    return "/" in t
+    # The separator has to survive normalization: a trailing slash is
+    # punctuation marking "this is a directory" (`shadow/`, `findings/` in an
+    # ASCII tree), not a path separator, and `_norm_path` strips it -- so a
+    # token whose only "/" is the trailing one is a bare word by the time it
+    # reaches the registry, and is excluded by the same principle.
+    return "/" in t.rstrip("/")
 
 
 def _norm_path(token: str) -> str:
@@ -108,12 +113,15 @@ def _norm_path(token: str) -> str:
 
 def extract_doc_claims(doc_path: str, content: str) -> list[DocClaim]:
     claims: list[DocClaim] = []
-    seen: set[tuple[str, str, int]] = set()
+    # The ecosystem is part of the claim's identity: `make test` and `npm test`
+    # on one line are two claims against two different namespaces, and a key
+    # that omits it silently drops whichever came second.
+    seen: set[tuple[str, str, int, str | None]] = set()
     in_fence = False
     fence_lang = ""
 
     def add(kind: str, name: str, line: int, text: str, eco: str | None) -> None:
-        key = (kind, name, line)
+        key = (kind, name, line, eco)
         if key in seen:
             return
         seen.add(key)
