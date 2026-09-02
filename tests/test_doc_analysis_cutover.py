@@ -25,6 +25,7 @@ import pytest
 from osoji import doc_analysis
 from osoji.claim_builder import CLAIM_BUILDER_SCHEMA, build_claims, category_of
 from osoji.config import Config
+from osoji.doc_cache import DocCacheSession
 from osoji.doc_analysis import (
     DocAnalysisResult,
     DocFinding,
@@ -413,3 +414,150 @@ def test_doc_categories_resolve_to_description_schema():
         key = category_of(finding)
         assert key == cat                       # unprefixed
         assert key in CLAIM_BUILDER_SCHEMA      # explicit hit, not the gap-type fallback
+
+
+# --- osojicode/work#106: doc-analysis result cache ------------------------------
+
+
+class _RoutingProvider:
+    """Routes on the forced tool: analyze_document proposes one finding (or
+    fails when told the cache must serve it); submit_triage_verdicts dismisses
+    everything, so a post-triage result differs from the cached proposal."""
+
+    def __init__(self, *, fail_analyze: bool = False):
+        self.analyze_calls = 0
+        self.triage_calls = 0
+        self._fail_analyze = fail_analyze
+
+    async def complete(self, messages, system, options):
+        name = (options.tool_choice or {}).get("name")
+        if name == "analyze_document":
+            self.analyze_calls += 1
+            if self._fail_analyze:
+                raise RuntimeError("analyze_document must be served from the cache")
+            return CompletionResult(
+                content=None,
+                tool_calls=[ToolCall(id="a1", name="analyze_document", input={
+                    "classification": "reference",
+                    "confidence": 0.9,
+                    "classification_reason": "doc",
+                    "findings": [{
+                        "confirmed": True,
+                        "category": "stale_content",
+                        "severity": "error",
+                        "description": "says X, code does Y",
+                        "evidence_shadow_path": "src/x.py",
+                        "evidence_quote": "q",
+                        "remediation": "fix",
+                        "search_terms": ["X"],
+                    }],
+                })],
+                input_tokens=10, output_tokens=5, model="test", stop_reason="tool_use",
+            )
+        if name == "submit_triage_verdicts":
+            self.triage_calls += 1
+            validator = options.tool_input_validators[0]
+            n = len(validator("submit_triage_verdicts", {"verdicts": []}))
+            return CompletionResult(
+                content=None,
+                tool_calls=[ToolCall(id="t1", name="submit_triage_verdicts", input={
+                    "verdicts": [
+                        {"batch_index": i, "verdict": "dismissed", "confidence": 0.9,
+                         "reasoning": "not a real drift"}
+                        for i in range(n)
+                    ],
+                })],
+                input_tokens=10, output_tokens=5, model="test", stop_reason="tool_use",
+            )
+        raise AssertionError(f"unexpected forced tool {name!r}")
+
+    async def close(self):
+        pass
+
+
+def _cache_env(temp_dir) -> Config:
+    _write(temp_dir, "README.md", "# Project\n\nSee `src/x.py` for the entry point.\n")
+    _write(temp_dir, "src/x.py", "def f():\n    pass\n")
+    _write(temp_dir, ".osoji/shadow/src/x.py.shadow.md", "# x\n\nshadow of x\n")
+    config = Config(root_path=temp_dir, respect_gitignore=False)
+    config.audit_degradations = []
+    return config
+
+
+@pytest.mark.asyncio
+async def test_doc_cache_stores_the_pre_triage_proposal(temp_dir):
+    config = _cache_env(temp_dir)
+    session = DocCacheSession(read_enabled=False)
+    config.doc_cache_session = session
+    provider = _RoutingProvider()
+
+    results = await analyze_docs_async(provider, config)
+
+    assert provider.analyze_calls == 1
+    assert results[0].findings == []                    # dismissed by triage
+    stored = session.current["README.md"]["result"]
+    assert len(stored["findings"]) == 1                 # captured before triage ran
+    assert stored["findings"][0]["verdict"] is None
+    assert stored["findings"][0]["search_terms"] == ["X"]
+
+
+@pytest.mark.asyncio
+async def test_doc_cache_hit_skips_the_large_call(temp_dir):
+    config = _cache_env(temp_dir)
+    first = DocCacheSession(read_enabled=False)
+    config.doc_cache_session = first
+    day_zero = await analyze_docs_async(_RoutingProvider(), config)
+
+    second = DocCacheSession(previous=first.current, read_enabled=True)
+    config.doc_cache_session = second
+    provider = _RoutingProvider(fail_analyze=True)
+    again = await analyze_docs_async(provider, config)
+
+    assert provider.analyze_calls == 0
+    assert provider.triage_calls == 1                   # cached proposals still go through triage
+    assert (second.lookups, second.hits) == (1, 1)
+    assert again == day_zero
+
+
+@pytest.mark.asyncio
+async def test_doc_cache_read_disabled_reanalyzes(temp_dir):
+    config = _cache_env(temp_dir)
+    first = DocCacheSession(read_enabled=False)
+    config.doc_cache_session = first
+    await analyze_docs_async(_RoutingProvider(), config)
+
+    second = DocCacheSession(previous=first.current, read_enabled=False)
+    config.doc_cache_session = second
+    provider = _RoutingProvider()
+    await analyze_docs_async(provider, config)
+
+    assert provider.analyze_calls == 1
+    assert (second.lookups, second.hits) == (0, 0)
+
+
+@pytest.mark.asyncio
+async def test_doc_cache_misses_when_a_sent_shadow_changes(temp_dir):
+    config = _cache_env(temp_dir)
+    first = DocCacheSession(read_enabled=False)
+    config.doc_cache_session = first
+    await analyze_docs_async(_RoutingProvider(), config)
+    _write(temp_dir, ".osoji/shadow/src/x.py.shadow.md", "# x\n\nregenerated\n")
+
+    second = DocCacheSession(previous=first.current, read_enabled=True)
+    config.doc_cache_session = second
+    provider = _RoutingProvider()
+    await analyze_docs_async(provider, config)
+
+    assert provider.analyze_calls == 1
+    assert (second.lookups, second.hits) == (1, 0)
+
+
+@pytest.mark.asyncio
+async def test_no_session_means_no_caching(temp_dir):
+    config = _cache_env(temp_dir)
+    provider = _RoutingProvider()
+
+    results = await analyze_docs_async(provider, config)
+
+    assert provider.analyze_calls == 1
+    assert len(results) == 1

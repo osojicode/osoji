@@ -25,6 +25,7 @@ from .junk_orphan import OrphanedFilesAnalyzer
 from .rate_limiter import RateLimiter, get_config_with_overrides
 from .shadow import check_shadow_docs, generate_shadow_docs_async
 from .doc_analysis import analyze_docs_async
+from .doc_cache import DocCacheSession, load_doc_cache, write_doc_cache
 from .junk_cicd import discover_cicd_files
 from .llm.runtime import create_runtime
 from .llm.errors import ProviderCircuitBreaker, classify_permanent_error
@@ -451,6 +452,20 @@ async def run_audit_async(
             verdict_cache = cache_from_verdicts(previous_manifest["verdicts"])
     session = VerdictSession(cache=verdict_cache)
     config.verdict_session = session
+    # osojicode/work#106: doc-analysis result cache, under the same gates as
+    # the verdict cache (opt-in read via --incremental/--since, --force wins,
+    # the osoji_version stamp as the coarse fast-path; the per-entry key is
+    # the real gate). Always written back when doc analysis ran.
+    previous_doc_cache = load_doc_cache(config.doc_analysis_cache_path)
+    doc_cache_current = (
+        previous_doc_cache is not None
+        and previous_doc_cache.get("osoji_version") == current_version()
+    )
+    doc_session = DocCacheSession(
+        previous=previous_doc_cache["entries"] if (use_cache and doc_cache_current) else {},
+        read_enabled=use_cache and doc_cache_current,
+    )
+    config.doc_cache_session = doc_session
     # Every best-effort Triage/manifest seam appends here on failure instead
     # of swallowing the exception silently.
     config.audit_degradations = []
@@ -729,6 +744,10 @@ async def run_audit_async(
     scorecard.verdict_cache_hit_rate = session.hit_rate
     if use_cache and session.claims_seen:
         _emit(config, f"Verdict cache: {session.cache_hits}/{session.claims_seen} hit(s)")
+    # osojicode/work#106: large-tier doc analyses served from the doc cache
+    scorecard.doc_cache_hit_rate = doc_session.hit_rate
+    if use_cache and doc_session.lookups:
+        _emit(config, f"Doc-analysis cache: {doc_session.hits}/{doc_session.lookups} hit(s)")
     # Surface any best-effort degradation recorded so far (debris-triage,
     # obligations-triage — both run before this phase). manifest-write runs
     # after the scorecard is first serialized below, so this gets refreshed
@@ -840,6 +859,22 @@ async def run_audit_async(
         _record_degradation(config, "manifest-write", exc)
         _emit(config, f"[warn] manifest-write failed; findings kept unverified: {exc}")
 
+    # osojicode/work#106: rewrite the doc-analysis cache whenever the phase
+    # ran (always-write; reading is opt-in). Wholesale replacement from this
+    # run's docs prunes docs that vanished. Best-effort like the manifest.
+    if not skip_doc_analysis:
+        try:
+            write_doc_cache(
+                config.doc_analysis_cache_path,
+                doc_session.current,
+                commit=get_head_commit(config.root_path),
+                version=current_version(),
+            )
+        except Exception as exc:
+            _record_degradation(config, "doc-cache-write", exc)
+            _emit(config, f"[warn] doc-cache-write failed; the next --incremental "
+                          f"re-analyzes every doc: {exc}")
+
     # manifest-write can add a degradation after the scorecard and audit
     # result were first serialized above; refresh and re-serialize both so
     # this run's persisted output agrees with the in-memory result returned
@@ -919,7 +954,11 @@ async def _run_phase2_async(config, rate_limiter, progress_cb, verbose):
         await logging_provider.close()
     elapsed = time_module.monotonic() - phase_start
     tok_str = _format_tokens_short(phase_tokens[0], phase_tokens[1])
-    _emit(config, f"  [phase 2 doc analysis: {elapsed:.1f}s] {tok_str}")
+    doc_session = getattr(config, "doc_cache_session", None)
+    cached = ""
+    if doc_session is not None and doc_session.lookups:
+        cached = f" (cached: {doc_session.hits}/{doc_session.lookups} docs)"
+    _emit(config, f"  [phase 2 doc analysis: {elapsed:.1f}s] {tok_str}{cached}")
     return results, phase_tokens
 
 
@@ -1237,6 +1276,7 @@ def load_audit_result(config: Config) -> AuditResult:
             contract_claims_other=sc.get("contract_claims_other"),
             debris_untriaged=sc.get("debris_untriaged"),
             verdict_cache_hit_rate=sc.get("verdict_cache_hit_rate"),
+            doc_cache_hit_rate=sc.get("doc_cache_hit_rate"),
             concept_total=sc.get("concept_total"),
             concept_fully_documented=sc.get("concept_fully_documented"),
             concept_partially_documented=sc.get("concept_partially_documented"),
