@@ -6,7 +6,7 @@ import json
 import logging
 import os
 from abc import abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
@@ -74,6 +74,18 @@ def _disable_wmi_if_needed() -> None:
 class DirectProvider(LLMProvider):
     """Abstract base for providers that call an SDK directly (no litellm)."""
 
+    # Largest max_tokens the provider's models accept; None means unknown and
+    # requests pass through unclamped. A call site that scales max_tokens
+    # with its input (osojicode/work#104: doc_prompts asked for 156_200) is
+    # bounded here, once, rather than at every call site.
+    max_output_tokens: int | None = None
+
+    def _clamp_max_tokens(self, requested: int) -> int:
+        cap = self.max_output_tokens
+        if cap is None:
+            return requested
+        return min(requested, cap)
+
     def __init__(self) -> None:
         _disable_wmi_if_needed()
         self._interaction_log_path: Path | None = None
@@ -132,6 +144,11 @@ class DirectProvider(LLMProvider):
         system: str | None,
         options: CompletionOptions,
     ) -> CompletionResult:
+        # Clamp before the request kwargs are built: every provider copies
+        # options.max_tokens verbatim into its SDK call.
+        clamped = self._clamp_max_tokens(options.max_tokens)
+        if clamped != options.max_tokens:
+            options = replace(options, max_tokens=clamped)
         request_kwargs = self._build_request_kwargs(messages, system, options)
         self._enforce_input_token_budget(messages, system, options)
         current_max_tokens = options.max_tokens
@@ -150,7 +167,15 @@ class DirectProvider(LLMProvider):
 
         while True:
             if not self._has_required_tool_call(parsed.result.tool_calls, required_tool_name):
-                if attempts >= _MAX_TOOL_VALIDATION_ATTEMPTS:
+                # A response truncated at the provider's output cap cannot be
+                # rescued by a retry under the same cap; fail now rather than
+                # billing _MAX_TOOL_VALIDATION_ATTEMPTS identical full-cap calls.
+                truncated_at_cap = (
+                    parsed.result.stop_reason in _TRUNCATION_STOP_REASONS
+                    and self.max_output_tokens is not None
+                    and current_max_tokens >= self.max_output_tokens
+                )
+                if attempts >= _MAX_TOOL_VALIDATION_ATTEMPTS or truncated_at_cap:
                     raise RequiredToolCallError(
                         tool_name=required_tool_name,
                         attempts=attempts,
@@ -444,7 +469,7 @@ class DirectProvider(LLMProvider):
             return current_max_tokens
         if current_max_tokens > base_max_tokens:
             return current_max_tokens
-        return max(current_max_tokens, base_max_tokens * 2)
+        return self._clamp_max_tokens(max(current_max_tokens, base_max_tokens * 2))
 
     def _build_tool_feedback(
         self,

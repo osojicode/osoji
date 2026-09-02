@@ -11,6 +11,7 @@ from osoji.llm.types import (
     Message,
     MessageRole,
     PromptTooLargeError,
+    RequiredToolCallError,
     ToolDefinition,
     ToolSchemaValidationError,
 )
@@ -521,3 +522,103 @@ class TestMultipleToolCalls:
         # tool_b had error
         err_result = [tr for tr in tool_results if tr["tool_use_id"] == "tc2"][0]
         assert err_result["is_error"] is True
+
+
+class TestOutputTokenCap:
+    """osojicode/work#104: a call site that scales max_tokens with its input
+    (doc_prompts asked for 156_200) gets a 400 from the API. The provider
+    clamps every request — first attempt and retries alike — to the output
+    cap it knows for its models, and stops retrying once a truncated
+    response already sat at that cap."""
+
+    def _good(self, tool_id="tc1"):
+        return _make_response([_tool_use_block(tool_id, "test_tool", {"value": {"x": "ok"}})])
+
+    def _options(self, max_tokens):
+        return CompletionOptions(
+            model="claude-test",
+            max_tokens=max_tokens,
+            tools=[TOOL_DEF],
+            tool_choice=FORCED_CHOICE,
+        )
+
+    def test_first_request_is_clamped_to_provider_cap(self, provider):
+        provider.max_output_tokens = 1000
+        provider._client.messages.create = AsyncMock(return_value=self._good())
+
+        asyncio.run(provider.complete(
+            [Message(role=MessageRole.USER, content="t")], None, self._options(5000),
+        ))
+
+        assert provider._client.messages.create.call_args.kwargs["max_tokens"] == 1000
+
+    def test_no_cap_leaves_request_unchanged(self, provider):
+        provider.max_output_tokens = None
+        provider._client.messages.create = AsyncMock(return_value=self._good())
+
+        asyncio.run(provider.complete(
+            [Message(role=MessageRole.USER, content="t")], None, self._options(5000),
+        ))
+
+        assert provider._client.messages.create.call_args.kwargs["max_tokens"] == 5000
+
+    def test_retry_expansion_never_exceeds_cap(self, provider):
+        provider.max_output_tokens = 150
+        truncated = _make_response(
+            [_tool_use_block("tc1", "test_tool", {"value": "bad"})],
+            stop_reason="max_tokens",
+        )
+        provider._client.messages.create = AsyncMock(
+            side_effect=[truncated, self._good("tc2")]
+        )
+
+        asyncio.run(provider.complete(
+            [Message(role=MessageRole.USER, content="t")], None, self._options(100),
+        ))
+
+        calls = provider._client.messages.create.call_args_list
+        assert calls[0].kwargs["max_tokens"] == 100
+        assert calls[1].kwargs["max_tokens"] == 150  # base*2 = 200, clamped
+
+    def test_expand_helper_clamps_to_cap(self, provider):
+        provider.max_output_tokens = 150
+        expanded = provider._maybe_expand_missing_tool_max_tokens(
+            current_max_tokens=100, base_max_tokens=100, stop_reason="max_tokens",
+        )
+        assert expanded == 150
+
+    def test_truncation_at_cap_raises_after_one_call(self, provider):
+        # A response truncated at the cap cannot be fixed by a retry with the
+        # same cap; burning _MAX_TOOL_VALIDATION_ATTEMPTS identical full-cap
+        # calls just multiplies the bill.
+        provider.max_output_tokens = 100
+        truncated = _make_response([_text_block("partial")], stop_reason="max_tokens")
+        provider._client.messages.create = AsyncMock(return_value=truncated)
+
+        with pytest.raises(RequiredToolCallError) as excinfo:
+            asyncio.run(provider.complete(
+                [Message(role=MessageRole.USER, content="t")], None, self._options(100),
+            ))
+
+        assert provider._client.messages.create.call_count == 1
+        assert excinfo.value.stop_reason == "max_tokens"
+
+    def test_truncation_below_cap_still_retries(self, provider):
+        provider.max_output_tokens = 1000
+        truncated = _make_response([_text_block("partial")], stop_reason="max_tokens")
+        provider._client.messages.create = AsyncMock(
+            side_effect=[truncated, self._good("tc2")]
+        )
+
+        result = asyncio.run(provider.complete(
+            [Message(role=MessageRole.USER, content="t")], None, self._options(100),
+        ))
+
+        assert provider._client.messages.create.call_count == 2
+        assert result.tool_calls[0].name == "test_tool"
+
+    def test_anthropic_cap_is_the_smallest_tier_cap(self):
+        # Haiku 4.5 allows 64K output tokens; Sonnet/Opus 4.6 allow 128K. One
+        # provider-wide constant at the binding (smallest) tier beats a
+        # per-model catalog that drifts.
+        assert AnthropicProvider.max_output_tokens == 64_000

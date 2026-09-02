@@ -129,7 +129,7 @@ Schema validation errors - please re-call the tool with corrected values:
 
 Because the error messages use plain language and dot-path notation, the LLM can understand exactly which fields failed and how to fix them. This is why `_err()` produces prose-like strings (`"expected integer, got string"`) rather than machine-structured error objects -- the LLM is the consumer.
 
-The retry loop in `LiteLLMProvider.complete()` also handles the case where the LLM fails to call the required tool at all. If `tool_choice` forces a specific tool but the response lacks that tool call, the provider sends a reminder message and optionally doubles `max_tokens` if the stop reason was `"length"` (the LLM may have run out of output space before emitting the tool call). The `_build_tool_feedback()` helper constructs the validation error messages for tool calls that were made but contained schema violations.
+The retry loop in `LiteLLMProvider.complete()` also handles the case where the LLM fails to call the required tool at all. If `tool_choice` forces a specific tool but the response lacks that tool call, the provider sends a reminder message and optionally doubles `max_tokens` if the stop reason was `"length"` (the LLM may have run out of output space before emitting the tool call). Both the first request and any doubled retry are clamped to the provider's `max_output_tokens` (the largest value its models accept; Anthropic's is the Haiku tier's 64K), and a response truncated while already at that cap fails immediately rather than retrying under the same cap. The `_build_tool_feedback()` helper constructs the validation error messages for tool calls that were made but contained schema violations.
 
 ### Custom validators beyond schema
 

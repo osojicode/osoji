@@ -125,7 +125,10 @@ Osoji: Building concept inventory and writing prompts...
 Phase 5.5 runs only when `--doc-prompts` is passed. It builds a concept
 inventory from topic signatures, maps documentation coverage at the concept
 level, and generates writing prompts for documentation gaps. This requires
-the scorecard from Phase 5, so it runs after it.
+the scorecard from Phase 5, so it runs after it. It is best-effort: the
+audit result, scorecard, verdict manifest and decided-findings ledger are
+already written before it starts, and a failure here is recorded under the
+scorecard's degraded phases instead of aborting the audit.
 
 ### Verbose output
 

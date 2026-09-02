@@ -17,6 +17,7 @@ from .config import Config, SHADOW_DIR
 from .facts import FactsDB
 from .junk import load_shadow_content
 from .llm.base import LLMProvider
+from .llm.budgets import input_budget_for_config
 from .llm.runtime import create_runtime
 from .llm.types import CompletionOptions, Message, MessageRole
 from .rate_limiter import RateLimiter
@@ -243,6 +244,7 @@ async def _build_concept_inventory_async(
         options=CompletionOptions(
             model=config.model_for("medium"),
             max_tokens=max(4096, len(metadata) * 200),
+            max_input_tokens=input_budget_for_config(config),
             reservation_key="doc_prompts.concept_inventory",
             tools=get_concept_inventory_tool_definitions(),
             tool_choice={"type": "tool", "name": "build_concept_inventory"},
@@ -564,6 +566,7 @@ async def _generate_writing_prompts_async(
         options=CompletionOptions(
             model=config.model_for("medium"),
             max_tokens=max(4096, len(gaps) * 2000),
+            max_input_tokens=input_budget_for_config(config),
             reservation_key="doc_prompts.writing_prompts",
             tools=get_writing_prompts_tool_definitions(),
             tool_choice={"type": "tool", "name": "generate_writing_prompts"},
