@@ -111,3 +111,30 @@ def test_ignored_prefix_claim_produces_no_error_issue(temp_dir):
     assert by_name["src/nope.ts"] == "contradicted"
     assert [i.message for i in issues if ".github" in i.message] == []
     assert len(issues) == 1
+
+
+def test_contradicted_path_claim_ships_as_a_warning_not_an_error(temp_dir):
+    """Grade by kind (0027: masking grades severity, never gates).
+
+    A missing npm script is a command that fails the moment a reader runs it;
+    a path token in prose can be illustrative, quoted from another repo, or
+    simply a shape the extractor over-reads. Both stay findings -- the path
+    one is graded a warning so residual noise never flips ``has_errors`` on
+    its own, and carries a confidence that says so.
+    """
+    (temp_dir / "src").mkdir()
+    (temp_dir / "src" / "index.ts").write_text("export {}\n", encoding="utf-8")
+    (temp_dir / "package.json").write_text(json.dumps({"scripts": {"build": "tsc"}}), encoding="utf-8")
+    (temp_dir / "README.md").write_text(
+        "Run `npm run test:ui`. See `src/nope.ts`.\n", encoding="utf-8"
+    )
+    config = Config(root_path=temp_dir, respect_gitignore=False)
+
+    issues, _ = tier_a_issues(config)
+
+    by_kind = {("script" if "script" in i.message else "path"): i for i in issues}
+    assert by_kind["script"].severity == "error"
+    assert by_kind["script"].confidence == 1.0
+    assert by_kind["path"].severity == "warning"
+    assert by_kind["path"].confidence == 0.8
+    assert by_kind["path"].verdict == "confirmed"  # still a finding, just graded
