@@ -355,10 +355,16 @@ def tier_a_issues(config: Config, exclude: set[str] | None = None) -> tuple[list
     for doc, doc_packets in by_doc.items():
         _serialize_json(config.analysis_claims_path_for(config.root_path / doc),
                         {"doc": doc, "packets": [p.to_dict() for p in doc_packets]})
+    # Grade by kind (decisions/0027: masking grades severity, it never gates).
+    # A missing script is a command that fails the moment a reader runs it; a
+    # path token in prose can be illustrative or over-read by the extractor,
+    # so it ships graded rather than suppressed -- and never flips
+    # ``has_errors`` on its own.
+    grade = {"script_exists": ("error", 1.0), "path_exists": ("warning", 0.8)}
     issues = [
         AuditIssue(
             path=config.root_path / p.claim.doc_path,
-            severity="error",
+            severity=grade.get(p.claim.kind, ("warning", 0.8))[0],
             category="doc_nonexistent_artifact",
             message=packet_message(p),
             remediation=packet_remediation(p),
@@ -367,7 +373,7 @@ def tier_a_issues(config: Config, exclude: set[str] | None = None) -> tuple[list
             origin={"source": "static", "plugin": "tier_a"},
             exclude_key="doc-claims",
             verdict="confirmed",
-            confidence=1.0,
+            confidence=grade.get(p.claim.kind, ("warning", 0.8))[1],
             triage_reasoning=f"Deterministic: {p.namespace} namespace searched ({', '.join(p.searched)}); index {p.index_revision}",
         )
         for p in packets if p.verdict == "contradicted"
