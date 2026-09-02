@@ -225,3 +225,30 @@ def test_creation_verbs_are_matched_as_whole_words_case_insensitively():
     claims = [c for c in _claims("The generator created `dist/out.js` already.\n")
               if c.kind == "path_exists"]
     assert [c.modality for c in claims] == ["exact"]
+
+
+# --- rulings wave: bare package-manager words --------------------------------
+
+
+def test_bare_pnpm_or_yarn_word_is_marked_not_explicitly_run():
+    # `pnpm vitest` may run a node_modules/.bin binary rather than a declared
+    # script -- the two are indistinguishable from the doc line alone.
+    claims = _claims("Run `pnpm vitest` or `yarn tsc`.\n")
+    assert [(c.name, c.explicit_run) for c in claims if c.kind == "script_exists"] == [
+        ("vitest", False), ("tsc", False),
+    ]
+
+
+def test_explicit_run_and_npm_aliases_stay_decidable():
+    claims = _claims("Run `pnpm run vitest`, `yarn run lint`, `npm run build` or `npm test`.\n")
+    assert all(c.explicit_run for c in claims if c.kind == "script_exists")
+    assert sorted(c.name for c in claims if c.kind == "script_exists") == [
+        "build", "lint", "test", "vitest",
+    ]
+
+
+def test_make_target_is_explicitly_run():
+    claims = _claims("Type `make docker-e2e`.\n")
+    assert [(c.name, c.explicit_run) for c in claims if c.kind == "script_exists"] == [
+        ("docker-e2e", True),
+    ]
