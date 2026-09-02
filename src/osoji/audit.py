@@ -590,7 +590,17 @@ async def run_audit_async(
 
     # Phase 2a: mechanical doc claims (Tier A, zero LLM)
     tier_a_start = time_module.monotonic()
-    tier_a_list, _tier_a_packets = tier_a_issues(config, exclude=_exclude)
+    try:
+        tier_a_list, _tier_a_packets = tier_a_issues(config, exclude=_exclude)
+    except Exception as exc:
+        # #160, extended to phase 2a: Tier A runs outside the phases 2-4
+        # gather, so a registry/parser failure here (a manifest that parses as
+        # valid but is shaped wrongly, an unreadable tree) would abort the run
+        # and discard every other phase's completed work. Degrade to no claims
+        # instead — recorded and visible, like every other best-effort seam.
+        _record_degradation(config, "doc-claims", exc)
+        _emit(config, f"[warn] doc-claims failed; no claims verified: {exc}")
+        tier_a_list, _tier_a_packets = [], []
     issues.extend(tier_a_list)
     _emit(config, f"  [phase 2a doc claims: {time_module.monotonic() - tier_a_start:.1f}s] {len(tier_a_list)} contradicted")
 
