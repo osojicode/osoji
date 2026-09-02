@@ -80,7 +80,7 @@ export analysis, and string contract checking.
 
 ## Key architecture
 
-- `src/osoji/cli.py` — Click CLI with subcommands: `init`, `shadow`, `check` (`--dry-run`), `diff`, `stats`, `audit`, `report`, `export`, `push`, `hooks`, `safety`, `config show`, `skills list|show`
+- `src/osoji/cli.py` — Click CLI with subcommands: `init`, `shadow`, `check` (`--dry-run`), `diff`, `stats`, `audit`, `claims`, `report`, `export`, `push`, `hooks`, `safety`, `config show`, `skills list|show`
 - `src/osoji/init.py` — Interactive project setup (gitignore, .env, .osoji.toml merge)
 - `src/osoji/config.py` — Configuration, path helpers, model tier constants
 - `src/osoji/shadow.py` — Core shadow doc generation engine
@@ -110,6 +110,7 @@ export analysis, and string contract checking.
 - `src/osoji/plugins/` — Language-specific AST extraction plugins (Python, TypeScript)
 - `src/osoji/skills/` — Bundled AI agent skill prompts (markdown files with YAML frontmatter); also mirrored at `.claude/skills/<name>/SKILL.md` for Claude Code agents working on this repo (parity enforced by `tests/test_skills_parity.py`)
 - `src/osoji/osoji-observatory.schema.json` — JSON Schema (Draft 2020-12) for the observatory bundle
+- `src/osoji/factreg.py`, `src/osoji/claims_docs.py`, `src/osoji/tier_a.py` — Tier A: mechanical fact registries (paths, manifest scripts), markdown claim extraction, deterministic verification with evidence packets; runs as audit phase 2a and as `osoji claims`
 
 ## Observatory bundle schema
 

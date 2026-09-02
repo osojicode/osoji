@@ -81,7 +81,7 @@ JUNK_ANALYZERS: list[type[JunkAnalyzer]] = [
 
 # Valid phase identifiers for --exclude (discoverable via --help).
 EXCLUDABLE_PHASES: list[str] = [
-    "shadow", "doc-analysis", "debris", "obligations", "doc-prompts",
+    "shadow", "doc-analysis", "doc-claims", "debris", "obligations", "doc-prompts",
 ] + [cls().cli_flag for cls in JUNK_ANALYZERS]
 
 # Map junk analyzer .name → .cli_flag for exclude_key tagging and display names.
@@ -342,6 +342,45 @@ def _serialize_junk_results(config: Config, analyzer_name: str, result: JunkAnal
         })
 
 
+def tier_a_issues(config: Config, exclude: set[str] | None = None) -> tuple[list[AuditIssue], list["EvidencePacket"]]:
+    """Phase 2a: mechanical doc-claim verification (decisions/0031 Tier A). Zero LLM."""
+    from .tier_a import packet_message, packet_remediation, run_tier_a
+
+    if exclude and "doc-claims" in exclude:
+        return [], []
+    packets = run_tier_a(config)
+    by_doc: dict[str, list] = {}
+    for p in packets:
+        by_doc.setdefault(p.claim.doc_path, []).append(p)
+    for doc, doc_packets in by_doc.items():
+        _serialize_json(config.analysis_claims_path_for(config.root_path / doc),
+                        {"doc": doc, "packets": [p.to_dict() for p in doc_packets]})
+    # Grade by kind (decisions/0027: masking grades severity, it never gates).
+    # A missing script is a command that fails the moment a reader runs it; a
+    # path token in prose can be illustrative or over-read by the extractor,
+    # so it ships graded rather than suppressed -- and never flips
+    # ``has_errors`` on its own.
+    grade = {"script_exists": ("error", 1.0), "path_exists": ("warning", 0.8)}
+    issues = [
+        AuditIssue(
+            path=config.root_path / p.claim.doc_path,
+            severity=grade.get(p.claim.kind, ("warning", 0.8))[0],
+            category="doc_nonexistent_artifact",
+            message=packet_message(p),
+            remediation=packet_remediation(p),
+            line_start=p.claim.line,
+            line_end=p.claim.line,
+            origin={"source": "static", "plugin": "tier_a"},
+            exclude_key="doc-claims",
+            verdict="confirmed",
+            confidence=grade.get(p.claim.kind, ("warning", 0.8))[1],
+            triage_reasoning=f"Deterministic: {p.namespace} namespace searched ({', '.join(p.searched)}); index {p.index_revision}",
+        )
+        for p in packets if p.verdict == "contradicted"
+    ]
+    return issues, packets
+
+
 def run_audit(
     config: Config,
     fix_shadow: bool = True,
@@ -554,6 +593,22 @@ async def run_audit_async(
     junk_results, phase4_tokens = phase4_raw
 
     suppressed_indices: set[int] = debris_result
+
+    # Phase 2a: mechanical doc claims (Tier A, zero LLM)
+    tier_a_start = time_module.monotonic()
+    try:
+        tier_a_list, _tier_a_packets = tier_a_issues(config, exclude=_exclude)
+    except Exception as exc:
+        # #160, extended to phase 2a: Tier A runs outside the phases 2-4
+        # gather, so a registry/parser failure here (a manifest that parses as
+        # valid but is shaped wrongly, an unreadable tree) would abort the run
+        # and discard every other phase's completed work. Degrade to no claims
+        # instead — recorded and visible, like every other best-effort seam.
+        _record_degradation(config, "doc-claims", exc)
+        _emit(config, f"[warn] doc-claims failed; no claims verified: {exc}")
+        tier_a_list, _tier_a_packets = [], []
+    issues.extend(tier_a_list)
+    _emit(config, f"  [phase 2a doc claims: {time_module.monotonic() - tier_a_start:.1f}s] {len(tier_a_list)} contradicted")
 
     # Collect issues from Phase 2 (doc analysis)
     for item in analysis_results:
