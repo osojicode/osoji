@@ -51,3 +51,82 @@ def test_path_registry_marks_ignored_paths_absent(temp_dir):
 
     assert reg.exists("node_modules/x/index.js").found is False
     assert reg.size >= 2
+
+
+import json
+import textwrap
+
+from osoji.factreg import ScriptRegistry
+
+
+def test_script_registry_reads_package_json_scripts_across_workspaces(temp_dir):
+    config = _repo(temp_dir, {
+        "package.json": json.dumps({"name": "root", "scripts": {"build": "tsc -b", "test:unit": "vitest run"}}),
+        "packages/api/package.json": json.dumps({"name": "api", "scripts": {"dev:server": "node dist/server.js"}}),
+    })
+    reg = ScriptRegistry.from_config(config)
+
+    assert reg.exists("test:unit", "npm").found is True
+    assert reg.exists("dev:server", "npm").found is True
+    assert reg.exists("test:unit", "npm").locations[0].path == "package.json"
+    assert sorted(reg.manifests) == ["package.json", "packages/api/package.json"]
+
+
+def test_script_registry_absent_script_reports_near_matches_and_namespace(temp_dir):
+    config = _repo(temp_dir, {
+        "package.json": json.dumps({"scripts": {"test": "vitest", "test:unit": "vitest run", "test:e2e": "playwright"}}),
+    })
+    reg = ScriptRegistry.from_config(config)
+
+    answer = reg.exists("test:ui", "npm")
+    assert answer.found is False
+    assert answer.complete is True
+    assert answer.namespace == "scripts"
+    assert answer.searched == ["package.json#scripts"]
+    assert "test:unit" in answer.near
+
+
+def test_script_registry_reads_makefile_targets_and_pyproject_scripts(temp_dir):
+    config = _repo(temp_dir, {
+        "Makefile": textwrap.dedent("""\
+            .PHONY: lint
+            lint:
+            \truff check .
+            build: lint
+            \tpython -m build
+            """),
+        "pyproject.toml": textwrap.dedent("""\
+            [project]
+            name = "demo"
+            [project.scripts]
+            demo-cli = "demo.cli:main"
+            """),
+    })
+    reg = ScriptRegistry.from_config(config)
+
+    assert reg.exists("lint", "make").found is True
+    assert reg.exists("build", "make").found is True
+    assert reg.exists("demo-cli", "python").found is True
+    assert reg.exists("deploy", "make").found is False
+
+
+def test_script_registry_is_undecidable_when_no_manifest_of_that_ecosystem_exists(temp_dir):
+    config = _repo(temp_dir, {"README.md": "# no manifests\n"})
+    reg = ScriptRegistry.from_config(config)
+
+    answer = reg.exists("build", "npm")
+    assert answer.found is False
+    assert answer.complete is False
+    assert answer.searched == []
+
+
+def test_script_registry_any_ecosystem_lookup(temp_dir):
+    config = _repo(temp_dir, {
+        "package.json": json.dumps({"scripts": {"build": "tsc"}}),
+        "Makefile": "test:\n\tpytest\n",
+    })
+    reg = ScriptRegistry.from_config(config)
+
+    assert reg.exists("build").found is True
+    assert reg.exists("test").found is True
+    assert reg.exists("nope").found is False
