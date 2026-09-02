@@ -74,7 +74,14 @@ def _norm_path(token: str) -> str:
     s = token.replace("\\", "/").strip()
     while s.startswith("./"):
         s = s[2:]
-    return s.rstrip("/")
+    s = s.rstrip("/")
+    # A doc that names `src/a.ts:42` or `docs/guide.md#usage` is still making
+    # a claim about the file, not about a token that happens to include the
+    # line/anchor suffix — strip the suffix so the claim's `name` matches the
+    # registry entry. `text` (the literal token as written) is left alone.
+    s = re.sub(r":\d+(-\d+)?$", "", s)
+    s = re.sub(r"#[^/]*$", "", s)
+    return s
 
 
 def extract_doc_claims(doc_path: str, content: str) -> list[DocClaim]:
@@ -93,17 +100,24 @@ def extract_doc_claims(doc_path: str, content: str) -> list[DocClaim]:
         if _FENCE_RE.match(raw):
             in_fence = not in_fence
             continue
-        line = raw
-        for m in _SCRIPT_RE.finditer(line):
-            name = m.group("run") or m.group("bare")
-            if m.group("bare") and (name in _PM_BUILTINS or (m.group("pm") == "npm" and name not in _NPM_SCRIPT_ALIASES)):
-                continue
-            if name in _PM_BUILTINS:
-                continue
-            add("script_exists", name, i, name, "npm")
-        for m in _MAKE_RE.finditer(line):
-            add("script_exists", m.group("target"), i, m.group("target"), "make")
-        for m in _BACKTICK_RE.finditer(line):
+
+        # A command is "a script a doc tells the reader to run" — that's a
+        # fenced code line, or a backtick span in prose. Ordinary prose
+        # ("make sure", "pnpm monorepo") is never scanned for commands; only
+        # what the doc marks as code is.
+        command_sources = [raw] if in_fence else [m.group(1) for m in _BACKTICK_RE.finditer(raw)]
+        for source in command_sources:
+            for m in _SCRIPT_RE.finditer(source):
+                name = m.group("run") or m.group("bare")
+                if m.group("bare") and (name in _PM_BUILTINS or (m.group("pm") == "npm" and name not in _NPM_SCRIPT_ALIASES)):
+                    continue
+                if name in _PM_BUILTINS:
+                    continue
+                add("script_exists", name, i, name, "npm")
+            for m in _MAKE_RE.finditer(source):
+                add("script_exists", m.group("target"), i, m.group("target"), "make")
+
+        for m in _BACKTICK_RE.finditer(raw):
             token = m.group(1).strip()
             if _SCRIPT_RE.search(token) or _MAKE_RE.search(token):
                 continue  # already handled as a command
