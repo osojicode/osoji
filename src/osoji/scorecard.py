@@ -83,6 +83,12 @@ class Scorecard:
     # cache this run (None when no claims reached a Triage seam)
     verdict_cache_hit_rate: float | None = None
 
+    # osojicode/work#106: fraction of analyzed docs whose large-tier analysis
+    # was served from the doc-analysis result cache this run (None when
+    # nothing was looked up — a plain run, or --incremental with no usable
+    # cache file)
+    doc_cache_hit_rate: float | None = None
+
     # Concept-centric coverage (None if --doc-prompts not run)
     concept_total: int | None = None
     concept_fully_documented: int | None = None
