@@ -179,10 +179,11 @@ def extract_doc_claims(doc_path: str, content: str) -> list[DocClaim]:
                     continue
                 if name in _PM_BUILTINS:
                     continue
-                # `npm test` is an alias for a declared script; a bare
-                # `pnpm x` / `yarn x` is not -- it resolves to a script if one
-                # is declared and to a node_modules/.bin binary otherwise.
-                bare_word = bool(m.group("bare")) and m.group("pm") != "npm"
+                # `test`/`start` are `run` aliases in every package manager,
+                # so they name a script wherever they appear. Any other bare
+                # `pnpm x` / `yarn x` resolves to a script if one is declared
+                # and to a node_modules/.bin binary otherwise.
+                bare_word = bool(m.group("bare")) and name not in _NPM_SCRIPT_ALIASES
                 add("script_exists", name, i, name, "npm", explicit_run=not bare_word)
             for m in _MAKE_RE.finditer(source):
                 add("script_exists", m.group("target"), i, m.group("target"), "make")

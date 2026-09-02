@@ -252,3 +252,13 @@ def test_make_target_is_explicitly_run():
     assert [(c.name, c.explicit_run) for c in claims if c.kind == "script_exists"] == [
         ("docker-e2e", True),
     ]
+
+
+def test_npm_script_aliases_stay_decidable_under_every_package_manager():
+    # `test`/`start` are `run` aliases in pnpm and yarn exactly as in npm --
+    # they cannot resolve to a node_modules/.bin binary, so they stay
+    # decidable whichever package manager the doc names.
+    claims = _claims("Run `pnpm test` or `yarn start`.\n")
+    assert [(c.name, c.explicit_run) for c in claims if c.kind == "script_exists"] == [
+        ("test", True), ("start", True),
+    ]

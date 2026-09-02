@@ -178,3 +178,10 @@ def test_bare_package_manager_word_that_is_a_declared_script_is_supported(temp_d
 
     assert packet.verdict == "supported"
     assert packet.locations[0].path == "package.json"
+
+
+def test_bare_alias_word_is_still_contradicted_when_no_script_declares_it(temp_dir):
+    """`pnpm test` is a `run` alias, not a binary lookup -- absence contradicts."""
+    (packet,) = _verify_line(temp_dir, "Run `pnpm test`.\n", {"build": "tsc"})
+
+    assert packet.verdict == "contradicted"
