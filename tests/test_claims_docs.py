@@ -100,3 +100,23 @@ def test_strips_line_range_and_trailing_slash_before_anchor():
     )
     names = sorted(c.name for c in claims if c.kind == "path_exists")
     assert names == ["docs/architecture", "src/a.ts"]
+
+
+def test_scoped_package_name_is_not_a_path_claim():
+    # A leading `@` marks a package scope/handle in every ecosystem (npm,
+    # some Python/Go tooling) -- never a relative repo path. Same principle
+    # as the existing `~` exclusion.
+    claims = _claims(
+        "The image vendors CodeLLDB under `@debugmcp/codelldb-common`, "
+        "resolved via `CODELLDB_PATH`.\n"
+    )
+    assert [c for c in claims if c.kind == "path_exists"] == []
+
+
+def test_package_manager_flag_after_pm_name_is_not_a_script_claim():
+    # `pnpm --filter <pkg> build` -- `--filter` is a pnpm CLI flag, not a
+    # script name. Only npm requires `run`; pnpm/yarn allow a bare script
+    # name directly after the package manager, but a `-`-prefixed token is
+    # never a script name in any package manager.
+    claims = _claims("Run `pnpm --filter @debugmcp/mcp-debugger build`.\n")
+    assert [c for c in claims if c.kind == "script_exists"] == []

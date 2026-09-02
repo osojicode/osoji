@@ -59,7 +59,10 @@ def _looks_like_repo_path(token: str) -> bool:
     t = token.strip()
     if not t or is_placeholder(t):
         return False
-    if "://" in t or t.startswith(("/", "~", "\\")) or re.match(r"^[A-Za-z]:[\\/]", t):
+    # A leading `@` marks a package scope/handle in every ecosystem (npm,
+    # several Python/Go tools) -- never a relative repo path, same principle
+    # as the `~` (home dir) exclusion below.
+    if "://" in t or t.startswith(("/", "~", "\\", "@")) or re.match(r"^[A-Za-z]:[\\/]", t):
         return False
     if t.startswith("-") or " " in t:
         return False
@@ -111,6 +114,11 @@ def extract_doc_claims(doc_path: str, content: str) -> list[DocClaim]:
         for source in command_sources:
             for m in _SCRIPT_RE.finditer(source):
                 name = m.group("run") or m.group("bare")
+                # A `-`-prefixed bare token right after the package manager
+                # (`pnpm --filter x`) is a CLI flag, never a script name --
+                # true in every package manager, not just npm.
+                if m.group("bare") and name.startswith("-"):
+                    continue
                 if m.group("bare") and (name in _PM_BUILTINS or (m.group("pm") == "npm" and name not in _NPM_SCRIPT_ALIASES)):
                     continue
                 if name in _PM_BUILTINS:
