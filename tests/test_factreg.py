@@ -276,3 +276,31 @@ def test_path_registry_near_match_candidate_set_is_bounded_on_a_large_tree():
     # Bounding must not cost the near match itself: same-directory siblings
     # are exactly what a typo'd path is near.
     assert reg.exists("pkg/7/mod7000.ts").near
+
+
+def test_path_registry_case_error_is_contradicted_on_every_host(temp_dir):
+    """Zero-LLM means reproducible from the checkout -- across hosts too.
+
+    ``Path.exists()`` is case-insensitive on Windows and default macOS while
+    the entry set is case-sensitive, so the on-disk fallback would answer
+    `undecidable` on a dev box and `contradicted` on Linux CI for the same
+    claim. A case-error path is also exactly the doc drift that works on one
+    filesystem and breaks the build on another.
+    """
+    config = _repo(temp_dir, {"docs/guide.md": "x\n"})
+    reg = PathRegistry.from_config(config)
+
+    answer = reg.exists("docs/Guide.md")
+    assert answer.found is False
+    assert answer.complete is True
+    assert answer.note == ""
+
+
+def test_path_registry_case_exact_unindexed_file_is_still_undecidable(temp_dir):
+    """The case check must not undo the fix it is guarding."""
+    (temp_dir / "generated").mkdir()
+    (temp_dir / "generated" / "api.ts").write_text("x\n", encoding="utf-8")
+    reg = PathRegistry({"README.md"}, root=temp_dir)
+
+    assert reg.exists("generated/api.ts").complete is False
+    assert reg.exists("generated/API.ts").complete is True
