@@ -90,5 +90,10 @@ python scripts/bench/cost.py  --since <run start, UTC> --until <run end, UTC>
 `runs/` directories are committed only as adjudicated evidence of record
 (ablation rule 6); raw runs stay local.
 
+```bash
+python scripts/bench/stats.py  --reader sonnet-r1 --markdown        # rows, labels, counting rows by split/kind/shape
+python scripts/bench/sample.py --reader sonnet-r1 --n 30 --seed 35   # owner spot-check checklist (reader agreement)
+```
+
 The design and the phase gates this benchmark serves are in
 `osojicode/wiki specs/0005`.
