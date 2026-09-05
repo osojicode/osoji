@@ -96,6 +96,32 @@ def snapshot_plan(
     return plan, selected
 
 
+def best_snapshot(
+    repo: Path, rows: list[dict], *, reader: str | None, candidates: list[str] | None = None,
+) -> tuple[str | None, int, dict[str, int]]:
+    """Pick the candidate snapshot at which the most counting rows are present.
+
+    Candidates default to the distinct parent commits of the counting rows,
+    oldest first (ties go to the older state, where more drift coexists).
+    Returns ``(sha, rows_present, {sha: rows_present})``.
+    """
+
+    counted = counting_rows(rows, reader)
+    if candidates is None:
+        seen: dict[str, str] = {}
+        for r in sorted(counted, key=lambda r: r.get("commit_date", "")):
+            seen.setdefault(r["parent"], r.get("commit_date", ""))
+        candidates = list(seen)
+    tried: dict[str, int] = {}
+    for sha in candidates:
+        _, selected = snapshot_plan(repo, sha, counted, reader=reader)
+        tried[sha] = len(selected)
+    if not tried:
+        return None, 0, {}
+    best = max(candidates, key=lambda sha: tried[sha])  # first max wins: the oldest on ties
+    return best, tried[best], tried
+
+
 def issues_from_results(results) -> list[dict]:
     """DocAnalysisResults → issue dicts in the shape ``run_audit_async`` emits."""
 
@@ -230,13 +256,21 @@ def main() -> None:
 
     rows = [json.loads(l) for l in args.rows.read_text(encoding="utf-8").splitlines() if l.strip()]
     if args.snapshot:
-        snapshot = _git(args.repo.resolve(), "rev-parse", args.snapshot)
-        plan, selected = snapshot_plan(args.repo.resolve(), snapshot, rows, reader=args.reader)
+        repo = args.repo.resolve()
+        tried: dict[str, int] = {}
+        if args.snapshot == "auto":
+            snapshot, _, tried = best_snapshot(repo, rows, reader=args.reader)
+            if snapshot is None:
+                raise SystemExit("no counting rows to pick a snapshot from")
+        else:
+            snapshot = _git(repo, "rev-parse", args.snapshot)
+        plan, selected = snapshot_plan(repo, snapshot, rows, reader=args.reader)
         args.out.mkdir(parents=True, exist_ok=True)
         (args.out / "snapshot-rows.json").write_text(json.dumps(selected, indent=1), encoding="utf-8")
         counting = len(counting_rows(rows, args.reader))
         print(json.dumps({"snapshot": snapshot, "rows_present_at_snapshot": len(selected),
-                          "counting_rows": counting, "docs": len(plan[0]["docs"]) if plan else 0}, indent=2))
+                          "counting_rows": counting, "docs": len(plan[0]["docs"]) if plan else 0,
+                          "candidates_tried": len(tried)}, indent=2))
     else:
         plan = select_parents(rows, reader=args.reader, max_parents=args.max_parents)
         print(json.dumps({"parents": len(plan), "docs": sum(len(p["docs"]) for p in plan),
