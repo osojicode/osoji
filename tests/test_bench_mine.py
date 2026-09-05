@@ -75,13 +75,14 @@ def history(temp_dir):
 
 
 class TestIsDocPath:
-    @pytest.mark.parametrize("path", ["README.md", "docs/guide.rst", "a/b.mdx", "notes.txt", "x.adoc"])
+    @pytest.mark.parametrize("path", ["README.md", "docs/guide.rst", "a/b.mdx", "x.adoc"])
     def test_doc_extensions(self, path):
         assert is_doc_path(path)
 
     @pytest.mark.parametrize("path", [
         "src/app.py", "CHANGELOG.md", "changelog.d/123.md", "LICENSE.md",
         "node_modules/x/README.md", "CODE_OF_CONDUCT.md",
+        "requirements/base.txt", "notes.txt",  # .txt is manifests and fixtures more often than prose
     ])
     def test_non_docs_and_excluded_names(self, path):
         assert not is_doc_path(path)

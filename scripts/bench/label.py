@@ -44,7 +44,9 @@ LABEL_TOOL = ToolDefinition(
         "type": "object",
         "properties": {
             "partition": {"type": "string", "enum": list(PARTITIONS)},
-            "domain": {"type": ["string", "null"], "enum": list(DOMAINS) + [None]},
+            # osoji's tool validator takes single JSON types only, so "no
+            # domain" is the explicit value "none" rather than a null union.
+            "domain": {"type": "string", "enum": list(DOMAINS) + ["none"]},
             "kind": {"type": "string", "enum": list(KINDS)},
             "claim_shape": {"type": "string", "enum": list(CLAIM_SHAPES)},
             "claim": {
@@ -52,8 +54,8 @@ LABEL_TOOL = ToolDefinition(
                 "description": "One sentence: what the parent text asserted and what is actually true.",
             },
             "evidence_path": {
-                "type": ["string", "null"],
-                "description": "Repository file most likely to decide the claim, or null.",
+                "type": "string",
+                "description": "Repository file most likely to decide the claim, or an empty string.",
             },
             "reasoning": {"type": "string"},
             "confidence": {"type": "number", "minimum": 0, "maximum": 1},
@@ -74,10 +76,11 @@ SYSTEM_PROMPT = """You adjudicate one hunk group from a documentation-only commi
 
 Principles: absence of detail is not a contradiction; a claim that became false because the world changed is still a correction of that text; a fix that changes only tone, tense, or style is a restructure.
 
-## domain — what the claim's truth depends on (only for corrections and deletions)
+## domain — what the claim's truth depends on (corrections and deletions; otherwise none)
 - checkout: decidable by reading the repository at the parent commit (files, scripts, symbols, defaults, documented behaviour of the code in the tree).
 - world: depends on facts outside the repository (a registry, a third-party tool's behaviour, an external service, release history).
 - runtime: depends on observing the program run (performance figures, timings, environment-specific outcomes).
+- none: the edit is not a correction, so no claim's truth is at stake.
 
 ## kind — the correction taxonomy
 false_statement (a described behaviour or fact is wrong), nonexistent_artifact (names a file, script, command, symbol or option that does not exist), wrong_signature (parameters, types, return shape, or member names are wrong), omission_from_list (a list presented as complete omits a member the code has), stale_pointer (a reference to a location or name that moved), wrong_path (a path that is wrong but the artifact exists elsewhere), wrong_count (a number of items is wrong), stale_version (a version, date, or release requirement is wrong), inverted_semantics (says X where the truth is not-X), wrong_command (a command line that cannot work as written), other.
@@ -85,7 +88,7 @@ false_statement (a described behaviour or fact is wrong), nonexistent_artifact (
 ## claim_shape — what the claim asserts, in the checker's terms
 path (a file or directory exists at a location), script (a command, script, or task target exists or is invoked in a stated way), symbol_signature (a symbol, member, parameter, option or type exists or has a stated shape), behaviour (what the code does, in prose), enumeration (a list, set, or count presented as complete), value (a default, version, number, or configuration value), other.
 
-Write claim as one sentence in the document's own terms: what the parent text asserted, then what is actually true. Give evidence_path as the single repository file most likely to decide the claim, or null. When torn between labels, choose other and explain. Call the label_doc_fix tool exactly once."""
+Write claim as one sentence in the document's own terms: what the parent text asserted, then what is actually true. Give evidence_path as the single repository file most likely to decide the claim, or an empty string. When torn between labels, choose other and explain. Call the label_doc_fix tool exactly once."""
 
 
 def _numbered(lines: list[str], start: int, prefix: str) -> str:
@@ -216,6 +219,8 @@ def main() -> None:
     ap.add_argument("--root", type=Path, default=Path("."), help="Config root (provider, .env, logs)")
     args = ap.parse_args()
 
+    from dotenv import load_dotenv  # same convention as the CLI: .env never overrides the environment
+    load_dotenv(args.root.resolve() / ".env")
     config = Config(root_path=args.root.resolve(), respect_gitignore=False)
     model = args.model or config.model_for("medium")
     rows = _read_jsonl(args.rows)

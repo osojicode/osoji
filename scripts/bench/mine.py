@@ -26,7 +26,10 @@ from collections import Counter
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
-DOC_SUFFIXES = frozenset({".md", ".mdx", ".rst", ".txt", ".adoc"})
+# .txt is deliberately absent: in practice it is requirements/constraints
+# manifests and fixtures far more often than prose (mcp-debugger's history
+# admitted a `deps: bump pip` commit as docs-only through it).
+DOC_SUFFIXES = frozenset({".md", ".mdx", ".rst", ".adoc"})
 # Files whose doc-ness is real but whose edits are never claims about the
 # code: release notes, legal text, community boilerplate.
 _EXCLUDED_STEMS = re.compile(
