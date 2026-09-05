@@ -128,6 +128,16 @@ class TestScore:
         assert (result["rows"], result["hits"]) == (2, 1)
         assert result["parents_run"] == 1 and result["parents_total"] == 2
 
+    def test_parent_override_scores_rows_at_a_snapshot(self):
+        rows = [_row(1, parent="p1"), _row(2, parent="p2"), _row(3, parent="p3")]
+        findings = {"snap": [_finding(line_start=10)]}
+
+        result = score(rows, findings, reader="r1", window=0,
+                       parent_override={"x:p1:1": "snap", "x:p2:2": "snap"}, run_parents_only=True)
+
+        assert (result["rows"], result["hits"]) == (2, 2)
+        assert result["parents_run"] == 1
+
     def test_only_parents_with_a_run_when_requested(self):
         rows = [_row(1, parent="p1"), _row(2, parent="p2")]
         result = score(rows, {"p1": [_finding(line_start=10)]}, reader="r1", window=0, run_parents_only=True)

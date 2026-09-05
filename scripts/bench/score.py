@@ -90,10 +90,18 @@ def match_findings(row: dict, findings: list[dict], window: int = 5) -> list[dic
 def score(
     rows: list[dict], findings_by_parent: dict[str, list[dict]], *,
     reader: str | None = None, window: int = 5, run_parents_only: bool = False,
+    parent_override: dict[str, str] | None = None,
 ) -> dict:
-    """Recall over counting rows, overall and by kind / claim shape."""
+    """Recall over counting rows, overall and by kind / claim shape.
 
-    counted = counting_rows(rows, reader)
+    ``parent_override`` maps row_id → the sha the row was actually evaluated
+    at (fixed-snapshot runs, ``bench.run.snapshot_plan``).
+    """
+
+    override = parent_override or {}
+    counted = [
+        {**r, "parent": override.get(r["row_id"], r["parent"])} for r in counting_rows(rows, reader)
+    ]
     parents_total = {r["parent"] for r in counted}
     if run_parents_only:
         counted = [r for r in counted if r["parent"] in findings_by_parent]
@@ -167,12 +175,16 @@ def main() -> None:
     ap.add_argument("--reader", default=None)
     ap.add_argument("--window", type=int, default=5)
     ap.add_argument("--run-parents-only", action="store_true")
+    ap.add_argument("--snapshot-rows", type=Path, default=None,
+                    help="snapshot-rows.json written by run.py --snapshot (row_id → sha)")
     ap.add_argument("--out", type=Path, default=None, help="write the full result (with rows_detail) here")
     args = ap.parse_args()
 
     rows = [json.loads(l) for l in args.rows.read_text(encoding="utf-8").splitlines() if l.strip()]
     findings = _load_findings_dir(args.findings_dir)
-    result = score(rows, findings, reader=args.reader, window=args.window, run_parents_only=args.run_parents_only)
+    override = json.loads(args.snapshot_rows.read_text(encoding="utf-8")) if args.snapshot_rows else None
+    result = score(rows, findings, reader=args.reader, window=args.window,
+                   run_parents_only=args.run_parents_only, parent_override=override)
     if args.out:
         args.out.write_text(json.dumps(result, indent=1), encoding="utf-8")
     summary = {k: v for k, v in result.items() if k != "rows_detail"}
