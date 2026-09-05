@@ -83,23 +83,32 @@ class CommitInfo:
     deletions: int
 
 
-def _numstat_path(raw: str) -> str:
-    """Resolve git's rename notation (``dir/{old => new}.md``, ``a => b``) to the new path."""
+def _line_counts(repo: Path, sha: str) -> tuple[int, int, bool]:
+    """(insertions, deletions, has_binary) for one commit from ``--numstat``."""
 
-    m = _RENAME_RE.match(raw)
-    if m:
-        return norm_path(f"{m.group(1)}{m.group(3)}{m.group(4)}")
-    if " => " in raw:
-        return norm_path(raw.split(" => ", 1)[1])
-    return norm_path(raw)
+    ins = dels = 0
+    for line in _git(repo, "show", "--numstat", "--format=", sha).splitlines():
+        cols = line.split("\t")
+        if len(cols) < 3:
+            continue
+        if cols[0] == "-" or cols[1] == "-":
+            return ins, dels, True
+        ins += int(cols[0])
+        dels += int(cols[1])
+    return ins, dels, False
 
 
 def list_docs_only_commits(
     repo: Path, since: str | None, max_files: int = 20, until: str | None = None,
 ) -> list[CommitInfo]:
-    """Non-merge commits that touched only docs and removed or changed lines."""
+    """Non-merge commits that touched only docs and removed or changed lines.
 
-    args = ["log", "--no-merges", "--format=%x1e%H%x1f%P%x1f%cI%x1f%s", "--numstat"]
+    Two passes keep blobless partial clones cheap: ``--name-only`` walks
+    trees without fetching any file content, and line counts (which need
+    blobs) are requested only for the docs-only candidates that survive.
+    """
+
+    args = ["log", "--no-merges", "--format=%x1e%H%x1f%P%x1f%cI%x1f%s", "--name-only"]
     if since:
         args.append(f"--since={since}")
     if until:
@@ -116,26 +125,13 @@ def list_docs_only_commits(
         parent_list = parents.split()
         if len(parent_list) != 1:
             continue
-        files: list[str] = []
-        ins = dels = 0
-        binary = False
-        for line in body.splitlines():
-            if not line.strip():
-                continue
-            cols = line.split("\t")
-            if len(cols) < 3:
-                continue
-            if cols[0] == "-" or cols[1] == "-":
-                binary = True
-                break
-            ins += int(cols[0])
-            dels += int(cols[1])
-            files.append(_numstat_path(cols[2]))
-        if binary or not files or len(files) > max_files:
+        files = [norm_path(line.strip()) for line in body.splitlines() if line.strip()]
+        if not files or len(files) > max_files:
             continue
         if not all(is_doc_path(f) for f in files):
             continue
-        if dels == 0:
+        ins, dels, binary = _line_counts(repo, sha)
+        if binary or dels == 0:
             continue  # pure addition: nothing was wrong at the parent
         commits.append(CommitInfo(
             sha=sha, parent=parent_list[0], date=date, subject=subject,

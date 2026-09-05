@@ -59,13 +59,24 @@ docs_fix_commits = 149
 substantive = 112
 
 [[repo]]
-name = "axum"
-url = "https://github.com/tokio-rs/axum.git"
-language = "Rust"
+name = "rich"
+url = "https://github.com/Textualize/rich.git"
+language = "Python"
 split = "validation"
-source_files = 305
-docs_fix_commits = 32
-substantive = 18
+source_files = 213
+docs_fix_commits = 23
+substantive = 17
+notes = "rst docs; the cleanest Python history in the survey after click"
+
+[[repo]]
+name = "cli"
+url = "https://github.com/urfave/cli.git"
+language = "Go"
+split = "validation"
+source_files = 69
+docs_fix_commits = 67
+substantive = 33
+notes = "under the 100-file band; keeps Go in validation (mkdocs docs/, docs/v2 and v3 guides)"
 
 [[repo]]
 name = "vitest"
@@ -86,15 +97,17 @@ docs_fix_commits = 51
 substantive = 29
 
 [[repo]]
-name = "Polly"
-url = "https://github.com/App-vNext/Polly.git"
-language = "C#"
+name = "axum"
+url = "https://github.com/tokio-rs/axum.git"
+language = "Rust"
 split = "holdout"
-source_files = 798
-docs_fix_commits = 17
-substantive = 12
+source_files = 305
+docs_fix_commits = 32
+substantive = 18
+notes = "ECOSYSTEM.md is a third of the fixes (mostly world-domain claims); Rust has no AST plugin, so this measures the coverage gap on holdout"
 
 # Surveyed and not selected (kept in ~/projects/bench-repos for later):
-# httpx 60/7, rich 213/16, typer 638/19, hono 356/6, got 85/5, cobra 36/8,
-# chi 84/1, cli (urfave) 69/33, ripgrep 110/8, clap 331/8, bat 84/33,
-# gson 264/6, okhttp 573kt/13, mockito 1003/1  (source files / substantive).
+# httpx 60/7, typer 638/19 (mostly requirements.txt bumps), hono 356/6, got 85/5,
+# cobra 36/8, chi 84/1, ripgrep 110/8, clap 331/8, bat 84/33 (docs are test
+# fixtures), gson 264/6, okhttp 573kt/13, mockito 1003/1, Polly 798/~3 (12 of
+# 17 docs-fix commits are BenchmarkDotNet report artifacts)  (source files / substantive).
