@@ -62,6 +62,50 @@ class TestSelectParents:
         assert [p["parent"] for p in select_parents(rows, reader="r1", max_parents=1)] == ["p2"]
 
 
+class TestSnapshotPlan:
+    """One substrate per repo: rows whose removed text is still present at a
+    chosen snapshot are evaluated there instead of at their own parents."""
+
+    @pytest.fixture
+    def repo(self, temp_dir):
+        from bench.run import _git as git  # same helper the runner uses
+        repo = temp_dir / "repo"
+        repo.mkdir()
+        git(repo, "init", "-q")
+        base = _commit(repo, "base", {"README.md": "# A\n\nwrong one\nwrong two\n", "docs/x.md": "# X\n\nstale\n"})
+        fix1 = _commit(repo, "fix one", {"README.md": "# A\n\nright one\nwrong two\n"})
+        fix2 = _commit(repo, "fix x", {"docs/x.md": "# X\n\nfresh\n"})
+        return repo, base, fix1, fix2
+
+    def test_rows_present_verbatim_at_snapshot_are_selected(self, repo):
+        from bench.run import snapshot_plan
+        repo_path, base, fix1, fix2 = repo
+        rows = [
+            {**_row("a", base, "README.md", date="2026-01-01T00:00:00Z"), "minus_text": ["wrong one"]},
+            {**_row("b", fix1, "README.md", date="2026-02-01T00:00:00Z"), "minus_text": ["wrong two"]},
+            {**_row("c", fix1, "docs/x.md", date="2026-02-01T00:00:00Z"), "minus_text": ["stale"]},
+        ]
+        # snapshot = fix1: "wrong one" is already fixed there, "wrong two" and "stale" are still present
+        plan, selected = snapshot_plan(repo_path, fix1, rows, reader="r1")
+
+        assert plan == [{"parent": fix1, "date": None, "docs": ["README.md", "docs/x.md"], "rows": 2}]
+        assert selected == {"b": fix1, "c": fix1}
+
+    def test_whitespace_differences_do_not_break_presence(self, repo):
+        from bench.run import snapshot_plan
+        repo_path, base, fix1, fix2 = repo
+        rows = [{**_row("b", fix1, "README.md", date="x"), "minus_text": ["  wrong   two "]}]
+        _, selected = snapshot_plan(repo_path, fix1, rows, reader="r1")
+        assert selected == {"b": fix1}
+
+    def test_missing_doc_at_snapshot_is_skipped(self, repo):
+        from bench.run import snapshot_plan
+        repo_path, base, fix1, fix2 = repo
+        rows = [{**_row("z", fix1, "docs/gone.md", date="x"), "minus_text": ["anything"]}]
+        plan, selected = snapshot_plan(repo_path, fix1, rows, reader="r1")
+        assert plan == [] and selected == {}
+
+
 class TestIssuesFromResults:
     def test_mirrors_the_audit_issue_shape(self, temp_dir):
         result = DocAnalysisResult(

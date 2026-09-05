@@ -57,6 +57,45 @@ def select_parents(rows: list[dict], *, reader: str | None, max_parents: int | N
     return plan[:max_parents] if max_parents else plan
 
 
+def _normalize_line(text: str) -> str:
+    return " ".join(text.split())
+
+
+def snapshot_plan(
+    repo: Path, snapshot: str, rows: list[dict], *, reader: str | None,
+) -> tuple[list[dict], dict[str, str]]:
+    """One substrate per repo: counting rows whose removed text is still present
+    verbatim (whitespace-insensitive) in the document at ``snapshot`` are
+    evaluated there instead of at their own parents.
+
+    Returns ``(plan, selected)`` where ``plan`` is a single runner entry (or
+    empty) and ``selected`` maps row_id → snapshot for ``bench.score``'s
+    ``parent_override``.
+    """
+
+    cache: dict[str, set[str] | None] = {}
+    selected: dict[str, str] = {}
+    docs: list[str] = []
+    for row in counting_rows(rows, reader):
+        path = norm_path(row["path"])
+        if path not in cache:
+            try:
+                cache[path] = {_normalize_line(l) for l in _git(repo, "show", f"{snapshot}:{path}").splitlines()}
+            except subprocess.CalledProcessError:
+                cache[path] = None  # document does not exist at the snapshot
+        lines = cache[path]
+        if lines is None:
+            continue
+        minus = [m for m in (_normalize_line(l) for l in row.get("minus_text") or []) if m]
+        if not minus or not all(m in lines for m in minus):
+            continue
+        selected[row["row_id"]] = snapshot
+        if path not in docs:
+            docs.append(path)
+    plan = [{"parent": snapshot, "date": None, "docs": docs, "rows": len(selected)}] if selected else []
+    return plan, selected
+
+
 def issues_from_results(results) -> list[dict]:
     """DocAnalysisResults → issue dicts in the shape ``run_audit_async`` emits."""
 
@@ -178,6 +217,9 @@ def main() -> None:
     ap.add_argument("--reader", default=None)
     ap.add_argument("--max-parents", type=int, default=None)
     ap.add_argument("--skip-shadow", action="store_true", help="do not refresh shadow docs (cells that don't use them)")
+    ap.add_argument("--snapshot", default=None, metavar="SHA",
+                    help="fixed-snapshot mode: evaluate every counting row whose removed text is still "
+                         "present at SHA, all at SHA (one substrate per repo); writes snapshot-rows.json")
     ap.add_argument("--dry-run", action="store_true", help="print the plan and exit")
     ap.add_argument("--env-root", type=Path, default=Path("."), help="where .env lives (API keys)")
     args = ap.parse_args()
@@ -187,12 +229,21 @@ def main() -> None:
     os.environ.setdefault("PYTHONUTF8", "1")
 
     rows = [json.loads(l) for l in args.rows.read_text(encoding="utf-8").splitlines() if l.strip()]
-    plan = select_parents(rows, reader=args.reader, max_parents=args.max_parents)
-    print(json.dumps({"parents": len(plan), "docs": sum(len(p["docs"]) for p in plan),
-                      "rows": sum(p["rows"] for p in plan)}, indent=2))
+    if args.snapshot:
+        snapshot = _git(args.repo.resolve(), "rev-parse", args.snapshot)
+        plan, selected = snapshot_plan(args.repo.resolve(), snapshot, rows, reader=args.reader)
+        args.out.mkdir(parents=True, exist_ok=True)
+        (args.out / "snapshot-rows.json").write_text(json.dumps(selected, indent=1), encoding="utf-8")
+        counting = len(counting_rows(rows, args.reader))
+        print(json.dumps({"snapshot": snapshot, "rows_present_at_snapshot": len(selected),
+                          "counting_rows": counting, "docs": len(plan[0]["docs"]) if plan else 0}, indent=2))
+    else:
+        plan = select_parents(rows, reader=args.reader, max_parents=args.max_parents)
+        print(json.dumps({"parents": len(plan), "docs": sum(len(p["docs"]) for p in plan),
+                          "rows": sum(p["rows"] for p in plan)}, indent=2))
     if args.dry_run:
         for p in plan:
-            print(f"  {p['parent'][:10]} {p['date'][:10]} rows={p['rows']} docs={p['docs']}")
+            print(f"  {p['parent'][:10]} {(p.get('date') or '')[:10]} rows={p['rows']} docs={p['docs']}")
         return
     shadow = (lambda w: {"skipped": True}) if args.skip_shadow else default_shadow
     counts = run_parents(args.repo.resolve(), plan, args.out, shadow=shadow, analyze=default_analyze)
