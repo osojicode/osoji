@@ -77,7 +77,18 @@ labeled from the row's own text, never inferred from `kind`.
 git clone --filter=blob:none --no-checkout https://github.com/<owner>/<name>.git ~/projects/bench-repos/<name>
 python scripts/bench/mine.py  --repo ~/projects/bench-repos/<name> --name <name> --since "24 months ago" --out bench/<name>
 python scripts/bench/label.py --rows bench/<name>/rows.jsonl --out bench/<name>/rows.labeled.jsonl --reader sonnet-r1
+
+# a run: a working tree the runner can check parents out in, then findings per parent
+git -C ~/projects/bench-repos/<name> worktree add ~/projects/bench-work/<name> HEAD
+python scripts/bench/run.py   --repo ~/projects/bench-work/<name> --rows bench/<name>/rows.labeled.jsonl \
+                              --out bench/<name>/runs/<run-id> --reader sonnet-r1 --max-parents 10
+python scripts/bench/score.py --rows bench/<name>/rows.labeled.jsonl --findings-dir bench/<name>/runs/<run-id> \
+                              --reader sonnet-r1 --run-parents-only
+python scripts/bench/cost.py  --since <run start, UTC> --until <run end, UTC>
 ```
+
+`runs/` directories are committed only as adjudicated evidence of record
+(ablation rule 6); raw runs stay local.
 
 The design and the phase gates this benchmark serves are in
 `osojicode/wiki specs/0005`.

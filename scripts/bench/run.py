@@ -23,13 +23,17 @@ import asyncio
 import json
 import os
 import subprocess
+import sys
 import time
 import traceback
 from collections.abc import Callable
 from datetime import datetime, timezone
 from pathlib import Path
 
-from bench.score import counting_rows, norm_path
+if __package__ in (None, ""):  # run as `python scripts/bench/run.py`
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from bench.score import counting_rows, norm_path  # noqa: E402
 
 
 def _git(repo: Path, *args: str) -> str:
