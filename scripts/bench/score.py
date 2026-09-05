@@ -101,13 +101,23 @@ def score(
     by_shape: dict[str, dict[str, int]] = defaultdict(lambda: {"rows": 0, "hits": 0})
     detail = []
     matched_ids: set[tuple[str, int]] = set()
+    candidate_ids: set[tuple[str, int]] = set()
     hits = 0
+    rows_with_candidates = 0
     for row in counted:
         label = label_of(row, reader) or {}
         findings = findings_by_parent.get(row["parent"], [])
         matches = match_findings(row, findings, window=window)
+        # Same-document findings that neither overlap the lines nor quote the
+        # removed text: not a hit, not noise — the shipping doc checker emits
+        # no line numbers, so these need reader adjudication (the honesty
+        # test's "candidate_hit_file_level" bucket).
+        row_path = norm_path(row["path"])
+        candidates = [f for f in findings
+                      if norm_path(f.get("path", "")) == row_path and not any(f is m for m in matches)]
         hit = bool(matches)
         hits += hit
+        rows_with_candidates += bool(candidates)
         by_kind[label.get("kind", "other")]["rows"] += 1
         by_shape[label.get("claim_shape", "other")]["rows"] += 1
         if hit:
@@ -115,21 +125,28 @@ def score(
             by_shape[label.get("claim_shape", "other")]["hits"] += 1
             for m in matches:
                 matched_ids.add((row["parent"], id(m)))
+        for c in candidates:
+            candidate_ids.add((row["parent"], id(c)))
         detail.append({
             "row_id": row["row_id"], "parent": row["parent"], "path": row["path"],
             "old_start": row["old_start"], "kind": label.get("kind"), "claim_shape": label.get("claim_shape"),
             "hit": hit, "matched": [m.get("message", "")[:160] for m in matches],
+            "candidates": [c.get("message", "")[:160] for c in candidates],
         })
+    candidate_ids -= matched_ids
     findings_total = sum(len(v) for v in findings_by_parent.values())
     unmatched = sum(
-        1 for parent, fs in findings_by_parent.items() for f in fs if (parent, id(f)) not in matched_ids
+        1 for parent, fs in findings_by_parent.items() for f in fs
+        if (parent, id(f)) not in matched_ids and (parent, id(f)) not in candidate_ids
     )
     return {
         "rows": len(counted), "hits": hits,
         "recall": (hits / len(counted)) if counted else None,
+        "rows_with_candidates": rows_with_candidates,
         "by_kind": dict(by_kind), "by_shape": dict(by_shape),
         "parents_total": len(parents_total), "parents_run": len(parents_total & set(findings_by_parent)),
-        "findings_total": findings_total, "findings_unmatched": unmatched,
+        "findings_total": findings_total, "findings_candidate": len(candidate_ids),
+        "findings_unmatched": unmatched,
         "rows_detail": detail,
     }
 

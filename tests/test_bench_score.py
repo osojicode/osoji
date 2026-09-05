@@ -101,9 +101,26 @@ class TestScore:
         assert result["by_kind"]["wrong_path"] == {"rows": 1, "hits": 0}
         assert result["by_shape"]["script"] == {"rows": 1, "hits": 1}
         assert result["findings_total"] == 2
-        assert result["findings_unmatched"] == 1  # precision candidate
+        assert result["findings_candidate"] == 1  # same doc, no overlap: adjudicate
+        assert result["findings_unmatched"] == 0
         assert result["rows_detail"][0]["hit"] is True
         assert result["rows_detail"][1]["hit"] is False
+
+    def test_same_doc_findings_without_overlap_are_candidates_not_unmatched(self):
+        # The shipping doc checker emits no line numbers, so a finding on the
+        # right document that quotes nothing from the removed text is neither
+        # a hit nor noise: it is a candidate for reader adjudication.
+        rows = [_row(1, start=10, minus=("the old claim",))]
+        findings = {"p1": [_finding(line_start=None, message="something else about this doc"),
+                           _finding(path="other.md", line_start=None, message="elsewhere")]}
+
+        result = score(rows, findings, reader="r1", window=0)
+
+        assert result["hits"] == 0
+        assert result["rows_detail"][0]["candidates"] == ["something else about this doc"]
+        assert result["rows_with_candidates"] == 1
+        assert result["findings_candidate"] == 1
+        assert result["findings_unmatched"] == 1  # only the other-doc finding
 
     def test_parent_without_findings_counts_as_all_misses(self):
         rows = [_row(1, parent="p1"), _row(2, parent="p2")]
