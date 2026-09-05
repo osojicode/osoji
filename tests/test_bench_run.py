@@ -98,6 +98,19 @@ class TestSnapshotPlan:
         _, selected = snapshot_plan(repo_path, fix1, rows, reader="r1")
         assert selected == {"b": fix1}
 
+    def test_best_snapshot_picks_the_parent_where_most_rows_are_present(self, repo):
+        from bench.run import best_snapshot
+        repo_path, base, fix1, fix2 = repo
+        rows = [
+            {**_row("a", base, "README.md", date="2026-01-01T00:00:00Z"), "minus_text": ["wrong one"]},
+            {**_row("b", fix1, "README.md", date="2026-02-01T00:00:00Z"), "minus_text": ["wrong two"]},
+            {**_row("c", fix1, "docs/x.md", date="2026-02-01T00:00:00Z"), "minus_text": ["stale"]},
+        ]
+        # at base all three wrong lines coexist; at fix1 only two do
+        sha, present, tried = best_snapshot(repo_path, rows, reader="r1")
+        assert sha == base and present == 3
+        assert tried == {base: 3, fix1: 2}
+
     def test_missing_doc_at_snapshot_is_skipped(self, repo):
         from bench.run import snapshot_plan
         repo_path, base, fix1, fix2 = repo
