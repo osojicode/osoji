@@ -70,6 +70,7 @@ osoji gets smarter the more people use it. When your agent finds a false positiv
 - **Unused dependencies** — packages listed but never imported
 - **Dead CI/CD** — stale pipeline jobs, unused Makefile targets
 - **Orphaned files** — source files unreachable from any entry point
+- **Nonexistent artifacts** — scripts and paths that docs name but the checkout does not declare (zero LLM cost)
 
 ## How it works
 
@@ -79,7 +80,10 @@ osoji generates shadow documentation to build a semantic model of your codebase,
 
 | Command | Description |
 |---------|-------------|
+| `osoji init` | Interactive project setup (`.gitignore`, `.env`, `.osoji.toml`) |
 | `osoji audit .` | Scan for dead code, stale docs, and semantic issues |
+| `osoji verify` | Zero-LLM closure check: which baseline findings are now closed |
+| `osoji claims .` | Verify literal doc claims (scripts, paths) against the checkout, no LLM |
 | `osoji shadow .` | Generate shadow documentation |
 | `osoji check .` | Check for stale or missing shadow docs |
 | `osoji diff` | Show documentation impact of source changes |
@@ -88,6 +92,7 @@ osoji generates shadow documentation to build a semantic model of your codebase,
 | `osoji export .` | Export observatory bundle |
 | `osoji push` | Push bundle to osoji-teams |
 | `osoji skills list` | List bundled agent skill files |
+| `osoji corpus emit` | Emit adjudicated findings as regression-corpus fixture stubs |
 | `osoji config show` | Inspect resolved configuration |
 | `osoji hooks install` | Manage git hooks |
 | `osoji safety check` | Pre-commit safety checks |

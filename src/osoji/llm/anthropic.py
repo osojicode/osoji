@@ -15,6 +15,12 @@ from .types import CompletionOptions, Message, MessageRole
 class AnthropicProvider(DirectProvider):
     """Anthropic Claude provider using the anthropic SDK."""
 
+    # Haiku 4.5 accepts at most 64K output tokens; Sonnet 4.6 and Opus 4.6
+    # accept 128K. One provider-wide cap at the binding (smallest) tier keeps
+    # every tier safe without a per-model table that drifts as models change
+    # (osojicode/work#104: doc_prompts asked for 156_200 and got a 400).
+    max_output_tokens = 64_000
+
     def __init__(self) -> None:
         super().__init__()
         spec = get_provider_spec("anthropic")

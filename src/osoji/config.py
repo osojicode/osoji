@@ -657,6 +657,10 @@ class Config:
     # attaches a VerdictSession here so every Triage seam can consult the
     # incremental verdict cache. Never serialized.
     verdict_session: Any | None = field(default=None, repr=False, compare=False)
+    # osojicode/work#106: same idea for the doc-analysis result cache; the
+    # orchestrator attaches a DocCacheSession here and analyze_docs_async
+    # consults it. Never serialized.
+    doc_cache_session: Any | None = field(default=None, repr=False, compare=False)
 
     _project_policy: PolicyFileConfig | None = field(init=False, repr=False, default=None)
     _global_policy: PolicyFileConfig | None = field(init=False, repr=False, default=None)
@@ -795,6 +799,12 @@ class Config:
         relative = self._to_relative(doc_path)
         return self.analysis_root / "docs" / (str(relative) + ".analysis.json")
 
+    def analysis_claims_path_for(self, doc_path: Path) -> Path:
+        """Return the Tier A evidence-packet JSON path for a given doc file."""
+
+        relative = self._to_relative(doc_path)
+        return self.analysis_root / "claims" / (str(relative) + ".claims.json")
+
     def analysis_deadcode_path_for(self, source_path: Path) -> Path:
         """Return the dead-code analysis JSON path for a given source file."""
 
@@ -848,6 +858,16 @@ class Config:
         """
 
         return self.root_path / SHADOW_DIR / "audit-manifest.json"
+
+    @property
+    def doc_analysis_cache_path(self) -> Path:
+        """Return the path to the doc-analysis result cache (osojicode/work#106).
+
+        Lives directly under ``.osoji/`` like the audit manifest — NOT under
+        ``analysis_root``, which the audit wipes at the start of every run.
+        """
+
+        return self.root_path / SHADOW_DIR / "doc-analysis-cache.json"
 
     @property
     def audit_baseline_path(self) -> Path:

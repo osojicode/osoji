@@ -25,6 +25,7 @@ from .junk_orphan import OrphanedFilesAnalyzer
 from .rate_limiter import RateLimiter, get_config_with_overrides
 from .shadow import check_shadow_docs, generate_shadow_docs_async
 from .doc_analysis import analyze_docs_async
+from .doc_cache import DocCacheSession, load_doc_cache, write_doc_cache
 from .junk_cicd import discover_cicd_files
 from .llm.runtime import create_runtime
 from .llm.errors import ProviderCircuitBreaker, classify_permanent_error
@@ -81,7 +82,7 @@ JUNK_ANALYZERS: list[type[JunkAnalyzer]] = [
 
 # Valid phase identifiers for --exclude (discoverable via --help).
 EXCLUDABLE_PHASES: list[str] = [
-    "shadow", "doc-analysis", "debris", "obligations", "doc-prompts",
+    "shadow", "doc-analysis", "doc-claims", "debris", "obligations", "doc-prompts",
 ] + [cls().cli_flag for cls in JUNK_ANALYZERS]
 
 # Map junk analyzer .name → .cli_flag for exclude_key tagging and display names.
@@ -342,6 +343,45 @@ def _serialize_junk_results(config: Config, analyzer_name: str, result: JunkAnal
         })
 
 
+def tier_a_issues(config: Config, exclude: set[str] | None = None) -> tuple[list[AuditIssue], list["EvidencePacket"]]:
+    """Phase 2a: mechanical doc-claim verification (decisions/0031 Tier A). Zero LLM."""
+    from .tier_a import packet_message, packet_remediation, run_tier_a
+
+    if exclude and "doc-claims" in exclude:
+        return [], []
+    packets = run_tier_a(config)
+    by_doc: dict[str, list] = {}
+    for p in packets:
+        by_doc.setdefault(p.claim.doc_path, []).append(p)
+    for doc, doc_packets in by_doc.items():
+        _serialize_json(config.analysis_claims_path_for(config.root_path / doc),
+                        {"doc": doc, "packets": [p.to_dict() for p in doc_packets]})
+    # Grade by kind (decisions/0027: masking grades severity, it never gates).
+    # A missing script is a command that fails the moment a reader runs it; a
+    # path token in prose can be illustrative or over-read by the extractor,
+    # so it ships graded rather than suppressed -- and never flips
+    # ``has_errors`` on its own.
+    grade = {"script_exists": ("error", 1.0), "path_exists": ("warning", 0.8)}
+    issues = [
+        AuditIssue(
+            path=config.root_path / p.claim.doc_path,
+            severity=grade.get(p.claim.kind, ("warning", 0.8))[0],
+            category="doc_nonexistent_artifact",
+            message=packet_message(p),
+            remediation=packet_remediation(p),
+            line_start=p.claim.line,
+            line_end=p.claim.line,
+            origin={"source": "static", "plugin": "tier_a"},
+            exclude_key="doc-claims",
+            verdict="confirmed",
+            confidence=grade.get(p.claim.kind, ("warning", 0.8))[1],
+            triage_reasoning=f"Deterministic: {p.namespace} namespace searched ({', '.join(p.searched)}); index {p.index_revision}",
+        )
+        for p in packets if p.verdict == "contradicted"
+    ]
+    return issues, packets
+
+
 def run_audit(
     config: Config,
     fix_shadow: bool = True,
@@ -354,6 +394,7 @@ def run_audit(
     junk: bool = False,
     obligations: bool = False,
     doc_prompts: bool = False,
+    doc_claims: bool = False,
     verbose: bool = False,
     exclude: set[str] | None = None,
     incremental: bool = False,
@@ -372,6 +413,7 @@ def run_audit(
         junk=junk,
         obligations=obligations,
         doc_prompts=doc_prompts,
+        doc_claims=doc_claims,
         verbose=verbose,
         exclude=exclude,
         incremental=incremental,
@@ -391,6 +433,7 @@ async def run_audit_async(
     junk: bool = False,
     obligations: bool = False,
     doc_prompts: bool = False,
+    doc_claims: bool = False,
     verbose: bool = False,
     exclude: set[str] | None = None,
     incremental: bool = False,
@@ -451,6 +494,20 @@ async def run_audit_async(
             verdict_cache = cache_from_verdicts(previous_manifest["verdicts"])
     session = VerdictSession(cache=verdict_cache)
     config.verdict_session = session
+    # osojicode/work#106: doc-analysis result cache, under the same gates as
+    # the verdict cache (opt-in read via --incremental/--since, --force wins,
+    # the osoji_version stamp as the coarse fast-path; the per-entry key is
+    # the real gate). Always written back when doc analysis ran.
+    previous_doc_cache = load_doc_cache(config.doc_analysis_cache_path)
+    doc_cache_current = (
+        previous_doc_cache is not None
+        and previous_doc_cache.get("osoji_version") == current_version()
+    )
+    doc_session = DocCacheSession(
+        previous=previous_doc_cache["entries"] if (use_cache and doc_cache_current) else {},
+        read_enabled=use_cache and doc_cache_current,
+    )
+    config.doc_cache_session = doc_session
     # Every best-effort Triage/manifest seam appends here on failure instead
     # of swallowing the exception silently.
     config.audit_degradations = []
@@ -554,6 +611,25 @@ async def run_audit_async(
     junk_results, phase4_tokens = phase4_raw
 
     suppressed_indices: set[int] = debris_result
+
+    # Phase 2a: mechanical doc claims (Tier A, zero LLM). Opt-in (`--doc-claims`)
+    # until the benchmark clears it for the default run (osojicode/wiki
+    # decisions/0032 rule 1); `osoji claims` runs the same verifier on its own.
+    if doc_claims and "doc-claims" not in _exclude:
+        tier_a_start = time_module.monotonic()
+        try:
+            tier_a_list, _tier_a_packets = tier_a_issues(config, exclude=_exclude)
+        except Exception as exc:
+            # #160, extended to phase 2a: Tier A runs outside the phases 2-4
+            # gather, so a registry/parser failure here (a manifest that parses as
+            # valid but is shaped wrongly, an unreadable tree) would abort the run
+            # and discard every other phase's completed work. Degrade to no claims
+            # instead — recorded and visible, like every other best-effort seam.
+            _record_degradation(config, "doc-claims", exc)
+            _emit(config, f"[warn] doc-claims failed; no claims verified: {exc}")
+            tier_a_list, _tier_a_packets = [], []
+        issues.extend(tier_a_list)
+        _emit(config, f"  [phase 2a doc claims: {time_module.monotonic() - tier_a_start:.1f}s] {len(tier_a_list)} contradicted")
 
     # Collect issues from Phase 2 (doc analysis)
     for item in analysis_results:
@@ -729,6 +805,10 @@ async def run_audit_async(
     scorecard.verdict_cache_hit_rate = session.hit_rate
     if use_cache and session.claims_seen:
         _emit(config, f"Verdict cache: {session.cache_hits}/{session.claims_seen} hit(s)")
+    # osojicode/work#106: large-tier doc analyses served from the doc cache
+    scorecard.doc_cache_hit_rate = doc_session.hit_rate
+    if use_cache and doc_session.lookups:
+        _emit(config, f"Doc-analysis cache: {doc_session.hits}/{doc_session.lookups} hit(s)")
     # Surface any best-effort degradation recorded so far (debris-triage,
     # obligations-triage — both run before this phase). manifest-write runs
     # after the scorecard is first serialized below, so this gets refreshed
@@ -736,74 +816,16 @@ async def run_audit_async(
     scorecard.degraded_phases = _degraded_phases(config)
     _serialize_json(config.scorecard_path, asdict(scorecard))
 
-    # ── Phase 5.5: doc prompts (optional, after scorecard) ──
-    doc_prompts_result = None
-    phase55_tokens = (0, 0)
-    if doc_prompts and "doc-prompts" not in _exclude:
-        _emit(config, "Osoji: Building concept inventory and writing prompts...")
-        phase_start = time_module.monotonic()
-        from .doc_prompts import build_doc_prompts_async
-
-        def _doc_prompts_progress(stage: str, in_tok: int, out_tok: int) -> None:
-            tok_str = _format_tokens_short(in_tok, out_tok)
-            cum_in, cum_out = rate_limiter.get_cumulative_tokens()
-            cum_str = _format_tokens_short(cum_in, cum_out)
-            _emit(config, f"  [doc prompts: {stage}] {tok_str} (cumulative: {cum_str})")
-
-        doc_prompts_result, phase55_tokens = await build_doc_prompts_async(
-            config, scorecard, rate_limiter=rate_limiter,
-            on_stage_complete=_doc_prompts_progress,
-        )
-        # Populate concept-centric scorecard fields
-        scorecard.concept_total = doc_prompts_result.total_concepts
-        scorecard.concept_fully_documented = doc_prompts_result.fully_documented
-        scorecard.concept_partially_documented = doc_prompts_result.partially_documented
-        scorecard.concept_undocumented = doc_prompts_result.undocumented
-        scorecard.concept_coverage_by_type = doc_prompts_result.coverage_by_type
-        # Re-serialize scorecard with concept coverage
-        _serialize_json(config.scorecard_path, asdict(scorecard))
-        elapsed = time_module.monotonic() - phase_start
-        tok_str = _format_tokens_short(phase55_tokens[0], phase55_tokens[1])
-        _emit(config, f"  [phase 5.5 doc prompts: {elapsed:.1f}s] {tok_str} "
-                     f"{doc_prompts_result.total_concepts} concepts, "
-                     f"{doc_prompts_result.total_prompts} prompts")
-
-    # ── Token summary ──
-    # Collect per-phase token counts
-    phase_tokens: dict[str, tuple[int, int]] = {}
-    if shadow_tokens[0] + shadow_tokens[1] > 0:
-        phase_tokens["Shadow docs"] = shadow_tokens
-    if phase2_tokens[0] + phase2_tokens[1] > 0:
-        phase_tokens["Doc analysis"] = phase2_tokens
-    if phase3_tokens[0] + phase3_tokens[1] > 0:
-        phase_tokens["Debris"] = phase3_tokens
-    if phase3_5_tokens[0] + phase3_5_tokens[1] > 0:
-        phase_tokens["Obligations"] = phase3_5_tokens
-    for name, toks in phase4_tokens.items():
-        display_name = _JUNK_NAME_TO_CLI_FLAG.get(name, name)
-        if toks[0] + toks[1] > 0:
-            phase_tokens[display_name] = toks
-    if phase55_tokens[0] + phase55_tokens[1] > 0:
-        phase_tokens["Doc prompts"] = phase55_tokens
-
-    in_tok, out_tok = rate_limiter.get_cumulative_tokens()
-    total_tok = in_tok + out_tok
-    if total_tok > 0:
-        _emit(config, f"API tokens: {in_tok:,}^ {out_tok:,}v ({total_tok:,} total)")
-    if len(phase_tokens) > 1:
-        _emit(config, "Token consumption by phase:")
-        max_name_len = max(len(n) for n in phase_tokens)
-        for name, (pt_in, pt_out) in phase_tokens.items():
-            pt_total = pt_in + pt_out
-            _emit(config, f"  {name:<{max_name_len}}  {pt_in:>10,}^ {pt_out:>8,}v  ({pt_total:,})")
-        _emit(config, f"  {'-' * (max_name_len + 35)}")
-        _emit(config, f"  {'Total':<{max_name_len}}  {in_tok:>10,}^ {out_tok:>8,}v  ({total_tok:,})")
-
+    # ── Persist the completed analysis BEFORE the optional doc-prompts phase ──
+    # (osojicode/work#104): a Phase 5.5 failure used to propagate out of this
+    # function before audit-result.json, the verdict manifest and the decided-
+    # findings ledger were written, discarding the whole run's triage. All
+    # three are written here first and the result is refreshed afterwards.
     result = AuditResult(
         issues=issues,
         scorecard=scorecard,
         config_snapshot=config.config_snapshot,
-        doc_prompts=doc_prompts_result,
+        doc_prompts=None,
     )
     serialize_audit_result(config, result)
 
@@ -840,13 +862,21 @@ async def run_audit_async(
         _record_degradation(config, "manifest-write", exc)
         _emit(config, f"[warn] manifest-write failed; findings kept unverified: {exc}")
 
-    # manifest-write can add a degradation after the scorecard and audit
-    # result were first serialized above; refresh and re-serialize both so
-    # this run's persisted output agrees with the in-memory result returned
-    # below (mirrors the Phase 5.5 doc-prompts re-serialize).
-    scorecard.degraded_phases = _degraded_phases(config)
-    _serialize_json(config.scorecard_path, asdict(scorecard))
-    serialize_audit_result(config, result)
+    # osojicode/work#106: rewrite the doc-analysis cache whenever the phase
+    # ran (always-write; reading is opt-in). Wholesale replacement from this
+    # run's docs prunes docs that vanished. Best-effort like the manifest.
+    if not skip_doc_analysis:
+        try:
+            write_doc_cache(
+                config.doc_analysis_cache_path,
+                doc_session.current,
+                commit=get_head_commit(config.root_path),
+                version=current_version(),
+            )
+        except Exception as exc:
+            _record_degradation(config, "doc-cache-write", exc)
+            _emit(config, f"[warn] doc-cache-write failed; the next --incremental "
+                          f"re-analyzes every doc: {exc}")
 
     # osojicode/work#35: the decided-findings ledger -- every triage verdict
     # decided this run, in one machine-readable file `osoji corpus emit`
@@ -860,6 +890,84 @@ async def run_audit_async(
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "findings": config.decided_ledger,
     })
+
+    # ── Phase 5.5: doc prompts (optional, after everything is on disk) ──
+    # Best-effort like the Triage seams: a failure here is recorded as a
+    # degraded phase, never raised — the audit result above already exists.
+    doc_prompts_result = None
+    phase55_tokens = (0, 0)
+    if doc_prompts and "doc-prompts" not in _exclude:
+        _emit(config, "Osoji: Building concept inventory and writing prompts...")
+        phase_start = time_module.monotonic()
+        from .doc_prompts import build_doc_prompts_async
+
+        def _doc_prompts_progress(stage: str, in_tok: int, out_tok: int) -> None:
+            tok_str = _format_tokens_short(in_tok, out_tok)
+            cum_in, cum_out = rate_limiter.get_cumulative_tokens()
+            cum_str = _format_tokens_short(cum_in, cum_out)
+            _emit(config, f"  [doc prompts: {stage}] {tok_str} (cumulative: {cum_str})")
+
+        try:
+            doc_prompts_result, phase55_tokens = await build_doc_prompts_async(
+                config, scorecard, rate_limiter=rate_limiter,
+                on_stage_complete=_doc_prompts_progress,
+            )
+        except Exception as exc:
+            _record_degradation(config, "doc-prompts", exc)
+            _emit(config, f"[warn] doc-prompts failed; audit result kept "
+                          f"without concept coverage: {exc}")
+        else:
+            result.doc_prompts = doc_prompts_result
+            # Populate concept-centric scorecard fields
+            scorecard.concept_total = doc_prompts_result.total_concepts
+            scorecard.concept_fully_documented = doc_prompts_result.fully_documented
+            scorecard.concept_partially_documented = doc_prompts_result.partially_documented
+            scorecard.concept_undocumented = doc_prompts_result.undocumented
+            scorecard.concept_coverage_by_type = doc_prompts_result.coverage_by_type
+            elapsed = time_module.monotonic() - phase_start
+            tok_str = _format_tokens_short(phase55_tokens[0], phase55_tokens[1])
+            _emit(config, f"  [phase 5.5 doc prompts: {elapsed:.1f}s] {tok_str} "
+                         f"{doc_prompts_result.total_concepts} concepts, "
+                         f"{doc_prompts_result.total_prompts} prompts")
+
+    # manifest-write, doc-cache-write and doc-prompts can add a degradation (and doc-prompts
+    # adds concept coverage) after the scorecard and audit result were first
+    # serialized above; refresh and re-serialize both so this run's persisted
+    # output agrees with the in-memory result returned below.
+    scorecard.degraded_phases = _degraded_phases(config)
+    _serialize_json(config.scorecard_path, asdict(scorecard))
+    serialize_audit_result(config, result)
+
+    # ── Token summary ──
+    # Collect per-phase token counts
+    phase_tokens: dict[str, tuple[int, int]] = {}
+    if shadow_tokens[0] + shadow_tokens[1] > 0:
+        phase_tokens["Shadow docs"] = shadow_tokens
+    if phase2_tokens[0] + phase2_tokens[1] > 0:
+        phase_tokens["Doc analysis"] = phase2_tokens
+    if phase3_tokens[0] + phase3_tokens[1] > 0:
+        phase_tokens["Debris"] = phase3_tokens
+    if phase3_5_tokens[0] + phase3_5_tokens[1] > 0:
+        phase_tokens["Obligations"] = phase3_5_tokens
+    for name, toks in phase4_tokens.items():
+        display_name = _JUNK_NAME_TO_CLI_FLAG.get(name, name)
+        if toks[0] + toks[1] > 0:
+            phase_tokens[display_name] = toks
+    if phase55_tokens[0] + phase55_tokens[1] > 0:
+        phase_tokens["Doc prompts"] = phase55_tokens
+
+    in_tok, out_tok = rate_limiter.get_cumulative_tokens()
+    total_tok = in_tok + out_tok
+    if total_tok > 0:
+        _emit(config, f"API tokens: {in_tok:,}^ {out_tok:,}v ({total_tok:,} total)")
+    if len(phase_tokens) > 1:
+        _emit(config, "Token consumption by phase:")
+        max_name_len = max(len(n) for n in phase_tokens)
+        for name, (pt_in, pt_out) in phase_tokens.items():
+            pt_total = pt_in + pt_out
+            _emit(config, f"  {name:<{max_name_len}}  {pt_in:>10,}^ {pt_out:>8,}v  ({pt_total:,})")
+        _emit(config, f"  {'-' * (max_name_len + 35)}")
+        _emit(config, f"  {'Total':<{max_name_len}}  {in_tok:>10,}^ {out_tok:>8,}v  ({total_tok:,})")
 
     # #160: everything above serialized this run's completed analysis (audit
     # result, scorecard with degraded_phases, decided-findings ledger). Only
@@ -919,7 +1027,11 @@ async def _run_phase2_async(config, rate_limiter, progress_cb, verbose):
         await logging_provider.close()
     elapsed = time_module.monotonic() - phase_start
     tok_str = _format_tokens_short(phase_tokens[0], phase_tokens[1])
-    _emit(config, f"  [phase 2 doc analysis: {elapsed:.1f}s] {tok_str}")
+    doc_session = getattr(config, "doc_cache_session", None)
+    cached = ""
+    if doc_session is not None and doc_session.lookups:
+        cached = f" (cached: {doc_session.hits}/{doc_session.lookups} docs)"
+    _emit(config, f"  [phase 2 doc analysis: {elapsed:.1f}s] {tok_str}{cached}")
     return results, phase_tokens
 
 
@@ -1237,6 +1349,7 @@ def load_audit_result(config: Config) -> AuditResult:
             contract_claims_other=sc.get("contract_claims_other"),
             debris_untriaged=sc.get("debris_untriaged"),
             verdict_cache_hit_rate=sc.get("verdict_cache_hit_rate"),
+            doc_cache_hit_rate=sc.get("doc_cache_hit_rate"),
             concept_total=sc.get("concept_total"),
             concept_fully_documented=sc.get("concept_fully_documented"),
             concept_partially_documented=sc.get("concept_partially_documented"),

@@ -336,21 +336,23 @@ def stats(ctx: click.Context, path: Path, provider: str | None, model: str | Non
 @click.option("--junk", is_flag=True, help="Run all junk code analysis phases")
 @click.option("--obligations", is_flag=True, help="Check cross-file string contracts (no LLM calls)")
 @click.option("--doc-prompts", is_flag=True, help="Generate concept-centric coverage + writing prompts (LLM calls)")
+@click.option("--doc-claims", is_flag=True, help="Verify literal doc claims (scripts, paths) against the checkout (no LLM calls)")
 @click.option("--provider", type=_LLM_PROVIDER_CHOICE, help="LLM provider to use")
 @click.option("--model", help="Model ID to use for LLM requests")
 @click.option("--no-gitignore", is_flag=True, help="Don't use .gitignore for file filtering")
 @click.option("--full", is_flag=True, help="Run all optional audit phases")
 @click.option("--exclude", "exclude_phases", default="",
     help="Comma-separated phases to skip. "
-         "Valid phases: shadow, doc-analysis, debris, obligations, doc-prompts, "
+         "Valid phases: shadow, doc-analysis, doc-claims, debris, obligations, doc-prompts, "
          "dead-code, dead-params, dead-plumbing, dead-deps, dead-cicd, orphaned-files")
 @click.option("--force", "-f", is_flag=True, help="Regenerate all shadow docs and findings from scratch")
 @click.option("--incremental", is_flag=True,
-    help="Reuse cached Triage verdicts from .osoji/audit-manifest.json for findings whose evidence is unchanged")
+    help="Reuse cached Triage verdicts (.osoji/audit-manifest.json) and doc-analysis "
+         "results (.osoji/doc-analysis-cache.json) for inputs unchanged since the last audit")
 @click.option("--since", "since_ref", metavar="REF", default=None,
     help="Report files changed since REF (git); implies --incremental")
 @click.pass_context
-def audit(ctx: click.Context, path: Path, fix: bool, output_format: str, dead_code: bool, dead_params: bool, dead_plumbing: bool, dead_deps: bool, dead_cicd: bool, orphaned_files: bool, junk: bool, obligations: bool, doc_prompts: bool, provider: str | None, model: str | None, no_gitignore: bool, full: bool, exclude_phases: str, force: bool, incremental: bool, since_ref: str | None) -> None:
+def audit(ctx: click.Context, path: Path, fix: bool, output_format: str, dead_code: bool, dead_params: bool, dead_plumbing: bool, dead_deps: bool, dead_cicd: bool, orphaned_files: bool, junk: bool, obligations: bool, doc_prompts: bool, doc_claims: bool, provider: str | None, model: str | None, no_gitignore: bool, full: bool, exclude_phases: str, force: bool, incremental: bool, since_ref: str | None) -> None:
     """Audit your codebase for dead code, stale docs, and semantic issues.
 
     \b
@@ -364,13 +366,16 @@ def audit(ctx: click.Context, path: Path, fix: bool, output_format: str, dead_co
       --dead-cicd, --orphaned-files (or --junk for all)
     - --obligations (cross-file string contracts, no LLM calls)
     - --doc-prompts (concept-centric coverage + writing prompts)
+    - --doc-claims (literal script/path claims verified against the checkout, no LLM; also `osoji claims`)
     - --full (equivalent to --junk --obligations --doc-prompts)
     - --exclude to skip specific phases (e.g. --full --exclude=dead-cicd,doc-prompts)
 
     \b
     Incremental audit:
     - --incremental reuses cached Triage verdicts for findings whose evidence
-      is unchanged since the last audit (--force always re-triages)
+      is unchanged since the last audit, and cached doc-analysis results for
+      docs whose content, matched shadow docs and rules are unchanged
+      (--force always re-triages and re-analyzes)
     - --since REF also reports which files changed since a git ref
 
     Exit codes: 0 = passed, 1 = errors found
@@ -407,7 +412,7 @@ def audit(ctx: click.Context, path: Path, fix: bool, output_format: str, dead_co
     _emit_config_banner(config)
 
     try:
-        result = run_audit(config, fix_shadow=fix, dead_code=dead_code, dead_params=dead_params, dead_plumbing=dead_plumbing, dead_deps=dead_deps, dead_cicd=dead_cicd, orphaned_files=orphaned_files, junk=junk, obligations=obligations, doc_prompts=doc_prompts, verbose=state.verbose, exclude=exclude, incremental=incremental, since=since_ref)
+        result = run_audit(config, fix_shadow=fix, dead_code=dead_code, dead_params=dead_params, dead_plumbing=dead_plumbing, dead_deps=dead_deps, dead_cicd=dead_cicd, orphaned_files=orphaned_files, junk=junk, obligations=obligations, doc_prompts=doc_prompts, doc_claims=doc_claims, verbose=state.verbose, exclude=exclude, incremental=incremental, since=since_ref)
     except RuntimeError as e:
         raise click.ClickException(str(e)) from e
 
@@ -526,6 +531,36 @@ def verify(
 
     if diff.exit_code:
         raise SystemExit(diff.exit_code)
+
+
+@main.command()
+@click.argument("path", type=click.Path(exists=True, file_okay=False, path_type=Path), default=".")
+@click.option("--format", "output_format", type=click.Choice(["text", "json"]), default="text", help="Output format")
+@click.option("--all", "show_all", is_flag=True, help="Show supported and undecidable claims too")
+@click.option("--no-gitignore", is_flag=True, help="Do not use git ls-files / .gitignore for discovery")
+@click.pass_context
+def claims(ctx: click.Context, path: Path, output_format: str, show_all: bool, no_gitignore: bool) -> None:
+    """Verify literal doc claims (scripts, paths) against the checkout. No LLM calls."""
+    from .tier_a import packet_message, run_tier_a
+
+    state = _cli_state(ctx)
+    config = Config(
+        root_path=path.resolve(),
+        respect_gitignore=not no_gitignore,
+        verbose=state.verbose,
+        quiet=state.quiet,
+    )
+    packets = run_tier_a(config)
+    contradicted = [p for p in packets if p.verdict == "contradicted"]
+    shown = packets if show_all else contradicted
+    if output_format == "json":
+        summary = {v: sum(1 for p in packets if p.verdict == v) for v in ("contradicted", "supported", "undecidable")}
+        click.echo(json.dumps({"packets": [p.to_dict() for p in shown], "summary": summary}, indent=2))
+    else:
+        for p in shown:
+            click.echo(f"{p.claim.doc_path}:{p.claim.line} [{p.verdict}] {packet_message(p)}")
+        click.echo(f"{len(contradicted)} contradicted, {len(packets)} claims checked")
+    ctx.exit(1 if contradicted else 0)
 
 
 @main.command()
