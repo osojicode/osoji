@@ -46,7 +46,7 @@ def phrases_of(text: str) -> list[str]:
 def removed_text_by_hunk(repo: Path, base: str, head: str) -> dict[tuple[str, int], str]:
     """Map (old_path, old_start) -> lowercased removed text of that hunk."""
     out = subprocess.run(
-        ["git", "diff", "-M", "--unified=0", f"{base}..{head}"],
+        ["git", "-c", "core.quotePath=false", "diff", "-M", "--unified=0", f"{base}..{head}"],
         cwd=repo, capture_output=True, text=True, encoding="utf-8", errors="replace", check=True,
     ).stdout
     result: dict[tuple[str, int], str] = {}
@@ -62,9 +62,10 @@ def removed_text_by_hunk(repo: Path, base: str, head: str) -> dict[tuple[str, in
     for line in out.splitlines():
         if line.startswith("diff --git"):
             flush(); key = None; buf = []; old_path = None
-        elif line.startswith("--- "):
+        elif line.startswith("--- ") and key is None:
+            # Header lines only occur before a file's first hunk (see audit_vs_diff).
             old_path = None if line[4:] == "/dev/null" else norm(line[6:])
-        elif line.startswith("+++ "):
+        elif line.startswith("+++ ") and key is None:
             if old_path is None:
                 old_path = norm(line[6:])
         elif line.startswith("@@"):

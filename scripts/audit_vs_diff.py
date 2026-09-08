@@ -51,7 +51,7 @@ def norm(p: str) -> str:
 def parse_diff(repo: Path, base: str, head: str) -> tuple[list[dict], dict[str, str]]:
     """Return (hunks, renames) with old-side line ranges. renames maps old->new path."""
     out = subprocess.run(
-        ["git", "diff", "-M", "--unified=0", f"{base}..{head}"],
+        ["git", "-c", "core.quotePath=false", "diff", "-M", "--unified=0", f"{base}..{head}"],
         cwd=repo, capture_output=True, text=True, encoding="utf-8", errors="replace",
         check=True,
     ).stdout
@@ -77,9 +77,11 @@ def parse_diff(repo: Path, base: str, head: str) -> tuple[list[dict], dict[str, 
         if line.startswith("diff --git"):
             flush()
             old_path = new_path = None
-        elif line.startswith("--- "):
+        elif line.startswith("--- ") and cur is None:
+            # Header lines only occur before a file's first hunk; inside a hunk
+            # a removed line whose text starts with "-- " renders as "--- ...".
             old_path = None if line[4:] == "/dev/null" else norm(line[6:])
-        elif line.startswith("+++ "):
+        elif line.startswith("+++ ") and cur is None:
             new_path = None if line[4:] == "/dev/null" else norm(line[6:])
             if old_path and new_path and old_path != new_path:
                 renames[old_path] = new_path
