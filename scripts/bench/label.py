@@ -170,6 +170,11 @@ async def label_rows(
     for row in rows:
         cur = existing.get(row["row_id"])
         merged.append(cur if cur is not None else dict(row))
+    # Rows already in out_path but outside this batch (--limit, a subset
+    # re-run) are written back untouched: the file is the label ledger.
+    by_id = {r["row_id"]: r for r in merged}
+    output = [by_id.get(rid, r) for rid, r in existing.items()]
+    output.extend(r for r in merged if r["row_id"] not in existing)
     counts = {"labeled": 0, "failed": 0, "skipped": 0}
 
     async def one(row: dict) -> None:
@@ -204,7 +209,7 @@ async def label_rows(
     try:
         await gather_with_buffer([lambda r=r: one(r) for r in merged], max_pending=max_pending)
     finally:
-        _write_jsonl(out_path, merged)
+        _write_jsonl(out_path, output)
     return counts
 
 

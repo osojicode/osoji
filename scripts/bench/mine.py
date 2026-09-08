@@ -194,9 +194,11 @@ def parse_hunks(repo: Path, parent: str, commit: str, context: int = 5) -> list[
         if line.startswith("diff --git"):
             flush()
             old_path = new_path = None
-        elif line.startswith("--- "):
+        elif line.startswith("--- ") and cur is None:
+            # Header lines only occur before a file's first hunk; inside a hunk
+            # a removed line whose text starts with "-- " renders as "--- ...".
             old_path = None if line[4:] == "/dev/null" else norm_path(line[6:])
-        elif line.startswith("+++ "):
+        elif line.startswith("+++ ") and cur is None:
             new_path = None if line[4:] == "/dev/null" else norm_path(line[6:])
         elif line.startswith("@@"):
             flush()

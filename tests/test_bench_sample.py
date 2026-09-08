@@ -43,3 +43,12 @@ def test_checklist_has_one_line_per_row_and_an_empty_owner_column():
     assert md.count("| a:c:") == 3
     assert "| owner |" in md.splitlines()[0]
     assert "claim 0" in md
+
+
+def test_more_repos_than_slots_terminates_and_favours_the_largest_repos():
+    rows = []
+    for i in range(12):
+        rows += _rows(f"repo{i:02d}", 5 + i)
+    picked = sample_rows(rows, n=5, seed=1, reader="r1")
+    assert len(picked) == 5
+    assert {r["repo"] for r in picked} == {f"repo{i:02d}" for i in range(7, 12)}

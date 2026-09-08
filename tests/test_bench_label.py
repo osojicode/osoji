@@ -152,6 +152,21 @@ class TestLabelRows:
         assert set(written["labels"]) == {"r1", "r2"}
         assert written["labels"]["r2"]["kind"] == "wrong_count"
 
+    def test_partial_batch_keeps_rows_outside_the_batch(self, temp_dir):
+        """--limit or a subset re-run must never drop rows already in the file."""
+        config = Config(root_path=temp_dir, respect_gitignore=False, quiet=True)
+        out = temp_dir / "rows.labeled.jsonl"
+        asyncio.run(label_rows([_row(1), _row(2), _row(3)], FakeProvider(), config,
+                               model="m", reader="r1", out_path=out))
+
+        asyncio.run(label_rows([_row(2)], FakeProvider(), config, model="m2", reader="r2", out_path=out))
+
+        written = {w["row_id"]: w for w in (json.loads(l) for l in out.read_text(encoding="utf-8").splitlines())}
+        assert list(written) == [_row(i)["row_id"] for i in (1, 2, 3)]
+        assert set(written[_row(1)["row_id"]]["labels"]) == {"r1"}
+        assert set(written[_row(2)["row_id"]]["labels"]) == {"r1", "r2"}
+        assert set(written[_row(3)["row_id"]]["labels"]) == {"r1"}
+
     def test_failure_is_recorded_and_does_not_stop_the_batch(self, temp_dir):
         config = Config(root_path=temp_dir, respect_gitignore=False, quiet=True)
         out = temp_dir / "rows.labeled.jsonl"

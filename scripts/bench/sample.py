@@ -38,13 +38,21 @@ def sample_rows(rows: list[dict], *, n: int, seed: int, reader: str | None) -> l
         return []
     rng = random.Random(seed)
     total = len(labeled)
-    quotas = {repo: max(1, round(n * len(rs) / total)) for repo, rs in by_repo.items()}
-    # trim or top up to exactly n, largest repos absorb the difference
     order = sorted(by_repo, key=lambda k: -len(by_repo[k]))
+    if len(by_repo) > n:
+        # fewer slots than repos: one row from each of the n largest repos
+        quotas = {repo: (1 if i < n else 0) for i, repo in enumerate(order)}
+    else:
+        quotas = {repo: max(1, round(n * len(rs) / total)) for repo, rs in by_repo.items()}
+    # trim or top up to exactly n, largest repos absorb the difference
     while sum(quotas.values()) > n:
+        changed = False
         for repo in order:
             if quotas[repo] > 1 and sum(quotas.values()) > n:
                 quotas[repo] -= 1
+                changed = True
+        if not changed:
+            break
     while sum(quotas.values()) < n:
         for repo in order:
             if quotas[repo] < len(by_repo[repo]) and sum(quotas.values()) < n:

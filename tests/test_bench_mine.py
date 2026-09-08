@@ -137,6 +137,19 @@ class TestParseHunks:
         assert h.context_before == ["# App", ""]
         assert h.context_after == ["", "See docs/guide.md."]
 
+    def test_removed_lines_that_look_like_file_headers_stay_in_the_hunk(self, history):
+        """A removed `-- ...` line renders as `--- ...`; it is content, not a header."""
+        repo, shas = history
+        base = _commit(repo, "add sql doc", {"docs/sql.md": "# SQL\n\n-- select all users\nSELECT * FROM users;\n\nmore\nmore\nmore\n\n++ note\n"})
+        fix = _commit(repo, "fix sql doc", {"docs/sql.md": "# SQL\n\n-- select active users\nSELECT * FROM users WHERE active;\n\nmore\nmore\nmore\n\n++ note fixed\n"})
+
+        hunks = parse_hunks(repo, base, fix)
+
+        assert [h.path for h in hunks] == ["docs/sql.md", "docs/sql.md"]
+        assert hunks[0].minus_text == ["-- select all users", "SELECT * FROM users;"]
+        assert hunks[0].plus_text == ["-- select active users", "SELECT * FROM users WHERE active;"]
+        assert hunks[1].minus_text == ["++ note"] and hunks[1].plus_text == ["++ note fixed"]
+        assert all(h.renamed_to is None for h in hunks)
 
 class TestGroupHunks:
     def _hunk(self, path, old_start, old_len=1):
