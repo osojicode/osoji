@@ -8,12 +8,14 @@ the private second-pass doc-verify LLM gate.
 """
 
 import asyncio
-from dataclasses import dataclass, field
+import copy
+from dataclasses import asdict, dataclass, field, fields
 from pathlib import Path
 from typing import Callable
 
 from .async_utils import gather_with_buffer
 from .config import Config, DIRECTORY_SHADOW_FILENAME, SHADOW_DIR
+from .doc_cache import DocCacheSession, doc_cache_key
 from .evidence_builders import BuildContext
 from .facts import FactsDB
 from .findings_adapter import finding_from_doc
@@ -57,6 +59,14 @@ class DocFinding:
     # DESCRIPTION-gap class marker (decisions/0029): 'ambiguous' or None.
     description_class: str | None = None
 
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "DocFinding":
+        known = {f.name for f in fields(cls)}
+        return cls(**{k: v for k, v in data.items() if k in known})
+
 
 @dataclass
 class DocAnalysisResult:
@@ -73,6 +83,31 @@ class DocAnalysisResult:
     @property
     def is_debris(self) -> bool:
         return self.classification == "process_artifact"
+
+    def to_dict(self) -> dict:
+        """JSON-ready snapshot (osojicode/work#106 doc cache); keeps every
+        field, unlike the audit's inline serializer which drops search_terms."""
+        return {
+            "path": str(self.path).replace("\\", "/"),
+            "classification": self.classification,
+            "confidence": self.confidence,
+            "classification_reason": self.classification_reason,
+            "matched_shadows": list(self.matched_shadows),
+            "findings": [f.to_dict() for f in self.findings],
+            "topic_signature": copy.deepcopy(self.topic_signature),
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "DocAnalysisResult":
+        return cls(
+            path=Path(data["path"]),
+            classification=data["classification"],
+            confidence=data["confidence"],
+            classification_reason=data["classification_reason"],
+            matched_shadows=list(data.get("matched_shadows", [])),
+            findings=[DocFinding.from_dict(f) for f in data.get("findings", [])],
+            topic_signature=copy.deepcopy(data.get("topic_signature")),
+        )
 
 
 # --- Document discovery ---
@@ -561,12 +596,35 @@ async def analyze_docs_async(
                 shadow_contexts.append((source_path, shadow_content))
                 total_chars += len(shadow_content)
 
-            # Large-model analysis (classify + validate). Findings are verified
-            # after all docs are analyzed, in one unified Triage post-pass
-            # (_triage_doc_findings), replacing the old per-doc verify gate.
-            analysis, _analyze_in, _analyze_out = await _analyze_document_async(
-                provider, config, doc_path, content, shadow_contexts, rules_text
-            )
+            # osojicode/work#106: the large-tier proposal is cached on every
+            # input the prompt is built from (doc content as sent, the shadow
+            # docs actually sent, rules, model, impl_hash). A hit skips the
+            # LLM call; the cached proposal still goes through the Triage
+            # post-pass below, where the verdict cache handles its findings.
+            cache: DocCacheSession | None = getattr(config, "doc_cache_session", None)
+            cache_key: str | None = None
+            analysis: DocAnalysisResult | None = None
+            rel_key = str(doc_path.relative_to(config.root_path)).replace("\\", "/")
+            if cache is not None:
+                cache_key = doc_cache_key(
+                    doc_content=content,
+                    shadow_contexts=shadow_contexts,
+                    rules_text=rules_text,
+                    model=config.model_for("large"),
+                )
+                analysis = cache.get(rel_key, cache_key)
+            served_from_cache = analysis is not None
+
+            if analysis is None:
+                # Large-model analysis (classify + validate). Findings are
+                # verified after all docs are analyzed, in one unified Triage
+                # post-pass (_triage_doc_findings), replacing the old per-doc
+                # verify gate.
+                analysis, _analyze_in, _analyze_out = await _analyze_document_async(
+                    provider, config, doc_path, content, shadow_contexts, rules_text
+                )
+                if cache is not None and cache_key is not None:
+                    cache.put(rel_key, cache_key, analysis)  # snapshot before Triage mutates
 
             # Attach topic signature from small-model matching
             analysis.topic_signature = doc_topic_signature
@@ -580,6 +638,8 @@ async def analyze_docs_async(
                     status = f"found {len(analysis.findings)}"
                 else:
                     status = "ok"
+                if served_from_cache:
+                    status = f"cached, {status}"
                 if on_progress:
                     on_progress(completed, total, doc_path, status)
             return analysis
