@@ -303,3 +303,22 @@ def test_backtick_path_claim_is_not_marked_from_link():
     claims = _claims("See `src/server.ts`.\n")
     (claim,) = [c for c in claims if c.kind == "path_exists"]
     assert claim.from_link is False
+
+
+
+def test_shell_comment_in_a_fence_is_not_a_make_claim():
+    # Review finding (PR #206): `# make sure ...` inside a bash fence became a
+    # `make sure` script claim graded error on any repo with a Makefile.
+    claims = _claims("```bash\n# make sure you run this from the repo root\nmake test  # the suite\n```\n")
+    assert [(c.name, c.ecosystem) for c in claims if c.kind == "script_exists"] == [("test", "make")]
+
+
+def test_make_assignments_and_option_arguments_are_not_targets():
+    claims = _claims("Run `make DEBUG=1 test`, `make -C build all`, `make -j 4 lint`, `make -j4 CC=clang` and `make`.\n")
+    assert [c.name for c in claims if c.kind == "script_exists"] == ["test", "all", "lint"]
+
+
+def test_strips_line_and_column_suffixes_from_path_claim_name():
+    # Compiler and linter output is `file:line:col`; the claim is about the file.
+    claims = _claims("The error points at `src/foo.ts:12:5`.\n")
+    assert [(c.name, c.text) for c in claims if c.kind == "path_exists"] == [("src/foo.ts", "src/foo.ts:12:5")]

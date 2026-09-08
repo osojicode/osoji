@@ -16,7 +16,41 @@ from dataclasses import dataclass
 _SCRIPT_RE = re.compile(
     r"\b(?P<pm>npm|pnpm|yarn)\s+(?:run\s+(?P<run>[\w:.\-]+)|(?P<bare>[\w:.\-]+))"
 )
-_MAKE_RE = re.compile(r"\bmake\s+(?P<target>[A-Za-z_][\w.\-]*)")
+# A make invocation is the word followed by at least one argument; the
+# target is picked out of the arguments by `_make_target` (options, the
+# argument an option consumes, and VAR=value assignments are not targets).
+_MAKE_RE = re.compile(r"\bmake\b(?P<args>(?:[ \t]+\S+)+)")
+# GNU make options that consume the following token.
+_MAKE_OPTS_WITH_ARG = {
+    "-C", "-f", "-I", "-o", "-W", "--directory", "--file", "--makefile",
+    "--include-dir", "--old-file", "--assume-old", "--new-file", "--what-if",
+    "--assume-new", "--eval",
+}
+_MAKE_TARGET_RE = re.compile(r"[A-Za-z_][\w.\-]*")
+# A trailing shell comment is not part of the command the reader runs
+# (`# make sure ...` in a bash fence names no target).
+_SHELL_COMMENT_RE = re.compile(r"(?:^|\s)#.*$")
+
+
+def _make_target(args: str) -> str | None:
+    """The first literal target of a ``make`` invocation, or None.
+
+    Skips options, the argument an option consumes, ``VAR=value``
+    assignments and bare numbers (``-j 4``); gives up on anything that is
+    not a literal target name (``$(TARGET)``, ``./configure``).
+    """
+    skip_next = False
+    for tok in args.split():
+        if skip_next:
+            skip_next = False
+            continue
+        if tok.startswith("-"):
+            skip_next = tok in _MAKE_OPTS_WITH_ARG
+            continue
+        if "=" in tok or tok.isdigit():
+            continue
+        return tok if _MAKE_TARGET_RE.fullmatch(tok) else None
+    return None
 _BACKTICK_RE = re.compile(r"`([^`\n]+)`")
 _FENCE_RE = re.compile(r"^\s*(```|~~~)\s*(\S*)")
 # `[label](target)` -- an inline markdown link. The target is everything up
@@ -140,7 +174,8 @@ def _norm_path(token: str) -> str:
     # Suffix-stripping runs before the trailing-slash strip so a trailing
     # slash left behind by an anchor (`docs/architecture/#overview`) is
     # still removed.
-    s = re.sub(r":\d+(-\d+)?$", "", s)
+    # `file:line`, `file:line-line` and compiler-style `file:line:col`.
+    s = re.sub(r"(?::\d+)+(?:-\d+)?$", "", s)
     s = re.sub(r"#[^/]*$", "", s)
     return s.rstrip("/")
 
@@ -186,6 +221,7 @@ def extract_doc_claims(doc_path: str, content: str) -> list[DocClaim]:
         # what the doc marks as code is.
         command_sources = [raw] if in_fence else [m.group(1) for m in _BACKTICK_RE.finditer(raw)]
         for source in command_sources:
+            source = _SHELL_COMMENT_RE.sub("", source)
             for m in _SCRIPT_RE.finditer(source):
                 name = m.group("run") or m.group("bare")
                 # A `-`-prefixed bare token right after the package manager
@@ -204,7 +240,9 @@ def extract_doc_claims(doc_path: str, content: str) -> list[DocClaim]:
                 bare_word = bool(m.group("bare")) and name not in _NPM_SCRIPT_ALIASES
                 add("script_exists", name, i, name, "npm", explicit_run=not bare_word)
             for m in _MAKE_RE.finditer(source):
-                add("script_exists", m.group("target"), i, m.group("target"), "make")
+                target = _make_target(m.group("args"))
+                if target is not None:
+                    add("script_exists", target, i, target, "make")
 
         for m in _BACKTICK_RE.finditer(raw):
             token = m.group(1).strip()

@@ -349,3 +349,18 @@ def test_anchor_rule_accepts_a_top_level_file_as_the_root_segment(temp_dir):
     reg = PathRegistry.from_config(config)
 
     assert reg.exists("README.md/nope").complete is True
+
+
+
+def test_script_registry_makefile_with_includes_is_incomplete_for_misses(temp_dir):
+    # Review finding (PR #206): targets declared in an included makefile are
+    # not indexed, so a miss is a statement about the index, not the world.
+    (temp_dir / "Makefile").write_text("include common.mk\n\nbuild:\n\techo build\n", encoding="utf-8")
+    (temp_dir / "common.mk").write_text("deploy:\n\techo deploy\n", encoding="utf-8")
+    config = Config(root_path=temp_dir, respect_gitignore=False)
+    reg = ScriptRegistry.from_config(config)
+
+    assert reg.exists("build", "make").found
+    miss = reg.exists("deploy", "make")
+    assert not miss.found and not miss.complete
+    assert "include" in miss.note and miss.searched == ["Makefile#targets"]

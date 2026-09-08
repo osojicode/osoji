@@ -292,6 +292,7 @@ class PathRegistry:
 
 
 import json
+import re
 import tomllib
 
 from .junk_cicd import _parse_makefile
@@ -319,6 +320,11 @@ def _scripts_from_package_json(content: str, path: str) -> list[tuple[str, Locat
         line = next((i + 1 for i, l in enumerate(lines) if f'"{name}"' in l), None)
         out.append((str(name), Location(path=path, line=line)))
     return out
+
+
+# `include`, `-include` and `sinclude` pull targets in from other files the
+# registry does not index: a miss against such a Makefile is incomplete.
+_MAKE_INCLUDE_RE = re.compile(r"^\s*-?s?include\s", re.MULTILINE)
 
 
 def _targets_from_makefile(content: str, path: str) -> list[tuple[str, Location]]:
@@ -361,15 +367,19 @@ class ScriptRegistry:
 
     namespace = "scripts"
 
-    def __init__(self, entries: dict[str, dict[str, list[Location]]], manifests: dict[str, list[str]]):
-        # entries[ecosystem][name] -> locations; manifests[ecosystem] -> searched labels
+    def __init__(self, entries: dict[str, dict[str, list[Location]]], manifests: dict[str, list[str]],
+                 incomplete: dict[str, str] | None = None):
+        # entries[ecosystem][name] -> locations; manifests[ecosystem] -> searched labels;
+        # incomplete[ecosystem] -> why a miss in that namespace is not an absence
         self._entries = entries
         self._manifests = manifests
+        self._incomplete = incomplete or {}
 
     @classmethod
     def from_config(cls, config: Config) -> "ScriptRegistry":
         entries: dict[str, dict[str, list[Location]]] = {}
         manifests: dict[str, list[str]] = {}
+        incomplete: dict[str, str] = {}
         osojiignore = config.load_osojiignore()
         paths, _ = list_repo_files(config)
         for path in sorted(paths):
@@ -401,7 +411,9 @@ class ScriptRegistry:
             manifests.setdefault(eco, []).append(label)
             for name, loc in _PARSERS[eco](content, rel):
                 entries.setdefault(eco, {}).setdefault(name, []).append(loc)
-        return cls(entries, manifests)
+            if eco == "make" and _MAKE_INCLUDE_RE.search(content):
+                incomplete.setdefault(eco, f"{rel} includes other makefiles; targets declared there are not indexed")
+        return cls(entries, manifests, incomplete)
 
     @property
     def manifests(self) -> list[str]:
@@ -414,6 +426,13 @@ class ScriptRegistry:
             return RegistryAnswer(name=name, found=False, namespace=self.namespace, searched=[], complete=False)
         locations = [loc for eco in ecos for loc in self._entries.get(eco, {}).get(name, [])]
         universe = sorted({n for eco in ecos for n in self._entries.get(eco, {})})
+        if not locations:
+            notes = [self._incomplete[eco] for eco in ecos if eco in self._incomplete]
+            if notes:
+                return RegistryAnswer(
+                    name=name, found=False, near=_near(name, universe), namespace=self.namespace,
+                    searched=searched, complete=False, note="; ".join(notes),
+                )
         return RegistryAnswer(
             name=name,
             found=bool(locations),
