@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import tomllib
 from collections import Counter, defaultdict
@@ -101,7 +102,8 @@ def render_markdown(summary: dict) -> str:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--bench", type=Path, default=Path("bench"))
+    ap.add_argument("--bench", type=Path, default=Path(os.environ.get("OSOJI_BENCH_DIR", "../osoji-bench")),
+                    help="checkout of osojicode/osoji-bench (default: $OSOJI_BENCH_DIR or ../osoji-bench)")
     ap.add_argument("--reader", default=None)
     ap.add_argument("--markdown", action="store_true")
     args = ap.parse_args()

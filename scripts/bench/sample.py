@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import random
 import sys
 import tomllib
@@ -74,7 +75,8 @@ def render_checklist(rows: list[dict], *, reader: str | None) -> str:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--bench", type=Path, default=Path("bench"))
+    ap.add_argument("--bench", type=Path, default=Path(os.environ.get("OSOJI_BENCH_DIR", "../osoji-bench")),
+                    help="checkout of osojicode/osoji-bench (default: $OSOJI_BENCH_DIR or ../osoji-bench)")
     ap.add_argument("--reader", required=True)
     ap.add_argument("--n", type=int, default=30)
     ap.add_argument("--seed", type=int, default=35)
