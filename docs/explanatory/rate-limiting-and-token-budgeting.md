@@ -112,6 +112,8 @@ Output tokens are the hardest dimension to manage. The system cannot know how ma
 2. **Conservative mode:** During warmup (fewer than 5 observations) or after rate limit hits or under-reservations, reserve `max_output_tokens` -- the safe maximum.
 3. **Adaptive mode:** After warmup, compute the P90 of recent output history, multiply by 1.20. Also compute the mean and multiply by 1.35. Take the larger of these two values, floored at 128 tokens. This balances between wasting budget (over-reservation) and triggering rate limits (under-reservation).
 
+`max_output_tokens` itself is bounded twice before selection: `RateLimitedProvider` passes the request's `max_tokens` after the wrapped provider's own output clamp (so the reservation matches what is actually sent), and `acquire()` caps it at `output_tokens_per_minute` -- the allowance can never hold more than the bucket, so a larger reservation would wait for a refill that never arrives.
+
 When actual output exceeds the reservation, `conservative_remaining` is reset to force conservative reservations before returning to adaptive mode. The reset value depends on the cause: after a rate limit hit (HTTP 429), it resets to 5 conservative reservations (a longer recovery period), whereas a simple under-reservation resets to 2.
 
 ## The `RateLimitedProvider` decorator
