@@ -274,3 +274,61 @@ def test_decided_findings_ledger_written_empty_when_nothing_decided(temp_dir):
     ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
     assert ledger["schema"] == "decided-findings/1"
     assert ledger["findings"] == []
+
+
+# --- Phase 5.5: doc-prompts failure (osojicode/work#104) ------------------------
+
+
+def test_doc_prompts_failure_degrades_and_keeps_audit_artifacts(temp_dir):
+    """A doc-prompts crash used to propagate out of run_audit_async before
+    audit-result.json, the manifest and the ledger were written, discarding
+    the whole run. It must degrade like every other best-effort phase and
+    leave all three artifacts on disk."""
+    _write(temp_dir, "src/x.py", "def f():\n    pass\n")
+    config = Config(root_path=temp_dir, respect_gitignore=False, quiet=True)
+
+    with patch("osoji.audit.create_runtime", return_value=(FakeProvider(), MagicMock())), \
+         patch("osoji.doc_prompts.create_runtime", side_effect=RuntimeError("boom")):
+        result = asyncio.run(run_audit_async(
+            config, fix_shadow=False, doc_prompts=True, exclude=_OBLIGATIONS_EXCLUDE,
+        ))
+
+    assert result.doc_prompts is None
+    assert config.audit_degradations == [{"phase": "doc-prompts", "error": "boom"}]
+    assert result.scorecard.degraded_phases == ["doc-prompts"]
+
+    assert (config.analysis_root / "audit-result.json").exists()
+    assert (config.analysis_root / "decided-findings.json").exists()
+    assert config.audit_manifest_path.exists()
+    persisted = json.loads(
+        (config.analysis_root / "audit-result.json").read_text(encoding="utf-8")
+    )
+    assert persisted["scorecard"]["degraded_phases"] == ["doc-prompts"]
+
+
+def test_doc_prompts_success_is_attached_after_the_reorder(temp_dir):
+    """Serializing before doc-prompts must not lose a successful phase's
+    output: the returned result and the persisted audit-result.json both
+    carry it, and nothing is recorded as degraded."""
+    from unittest.mock import AsyncMock
+
+    from osoji.doc_prompts import DocPromptsResult
+
+    _write(temp_dir, "src/x.py", "def f():\n    pass\n")
+    config = Config(root_path=temp_dir, respect_gitignore=False, quiet=True)
+    fake = DocPromptsResult(concepts=[], writing_prompts=[], total_concepts=3)
+
+    with patch("osoji.audit.create_runtime", return_value=(FakeProvider(), MagicMock())), \
+         patch("osoji.doc_prompts.build_doc_prompts_async",
+               AsyncMock(return_value=(fake, (11, 7)))):
+        result = asyncio.run(run_audit_async(
+            config, fix_shadow=False, doc_prompts=True, exclude=_OBLIGATIONS_EXCLUDE,
+        ))
+
+    assert result.doc_prompts is fake
+    assert result.scorecard.concept_total == 3
+    assert result.scorecard.degraded_phases is None
+    persisted = json.loads(
+        (config.analysis_root / "audit-result.json").read_text(encoding="utf-8")
+    )
+    assert persisted["doc_prompts"]["coverage_summary"]["total_concepts"] == 3

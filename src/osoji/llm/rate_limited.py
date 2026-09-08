@@ -50,6 +50,14 @@ class RateLimitedProvider(LLMProvider):
     def name(self) -> str:
         return self._provider.name
 
+    def _effective_max_tokens(self, options: CompletionOptions) -> int:
+        """Mirror the output clamp the wrapped provider applies to the request,
+        so the reservation matches what will actually be sent."""
+        cap = getattr(self._provider, "max_output_tokens", None)
+        if cap is None:
+            return options.max_tokens
+        return min(options.max_tokens, cap)
+
     async def complete(
         self,
         messages: list[Message],
@@ -79,7 +87,7 @@ class RateLimitedProvider(LLMProvider):
                 reservation_key=reservation_key,
                 estimated_input_tokens=reserved_input_tokens,
                 reserved_output_tokens=options.reserved_output_tokens,
-                max_output_tokens=options.max_tokens,
+                max_output_tokens=self._effective_max_tokens(options),
             )
 
             try:
