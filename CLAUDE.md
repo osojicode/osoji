@@ -110,6 +110,7 @@ export analysis, and string contract checking.
 - `src/osoji/plugins/` — Language-specific AST extraction plugins (Python, TypeScript)
 - `src/osoji/skills/` — Bundled AI agent skill prompts (markdown files with YAML frontmatter); also mirrored at `.claude/skills/<name>/SKILL.md` for Claude Code agents working on this repo (parity enforced by `tests/test_skills_parity.py`)
 - `src/osoji/osoji-observatory.schema.json` — JSON Schema (Draft 2020-12) for the observatory bundle
+- `scripts/bench/` — documentation-drift benchmark tooling (mine docs-fix commits, label, run, score, cost); the data lives in the private `osojicode/osoji-bench` repo and is passed in by path
 
 ## Observatory bundle schema
 
