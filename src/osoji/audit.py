@@ -394,6 +394,7 @@ def run_audit(
     junk: bool = False,
     obligations: bool = False,
     doc_prompts: bool = False,
+    doc_claims: bool = False,
     verbose: bool = False,
     exclude: set[str] | None = None,
     incremental: bool = False,
@@ -412,6 +413,7 @@ def run_audit(
         junk=junk,
         obligations=obligations,
         doc_prompts=doc_prompts,
+        doc_claims=doc_claims,
         verbose=verbose,
         exclude=exclude,
         incremental=incremental,
@@ -431,6 +433,7 @@ async def run_audit_async(
     junk: bool = False,
     obligations: bool = False,
     doc_prompts: bool = False,
+    doc_claims: bool = False,
     verbose: bool = False,
     exclude: set[str] | None = None,
     incremental: bool = False,
@@ -609,21 +612,24 @@ async def run_audit_async(
 
     suppressed_indices: set[int] = debris_result
 
-    # Phase 2a: mechanical doc claims (Tier A, zero LLM)
-    tier_a_start = time_module.monotonic()
-    try:
-        tier_a_list, _tier_a_packets = tier_a_issues(config, exclude=_exclude)
-    except Exception as exc:
-        # #160, extended to phase 2a: Tier A runs outside the phases 2-4
-        # gather, so a registry/parser failure here (a manifest that parses as
-        # valid but is shaped wrongly, an unreadable tree) would abort the run
-        # and discard every other phase's completed work. Degrade to no claims
-        # instead — recorded and visible, like every other best-effort seam.
-        _record_degradation(config, "doc-claims", exc)
-        _emit(config, f"[warn] doc-claims failed; no claims verified: {exc}")
-        tier_a_list, _tier_a_packets = [], []
-    issues.extend(tier_a_list)
-    _emit(config, f"  [phase 2a doc claims: {time_module.monotonic() - tier_a_start:.1f}s] {len(tier_a_list)} contradicted")
+    # Phase 2a: mechanical doc claims (Tier A, zero LLM). Opt-in (`--doc-claims`)
+    # until the benchmark clears it for the default run (osojicode/wiki
+    # decisions/0032 rule 1); `osoji claims` runs the same verifier on its own.
+    if doc_claims and "doc-claims" not in _exclude:
+        tier_a_start = time_module.monotonic()
+        try:
+            tier_a_list, _tier_a_packets = tier_a_issues(config, exclude=_exclude)
+        except Exception as exc:
+            # #160, extended to phase 2a: Tier A runs outside the phases 2-4
+            # gather, so a registry/parser failure here (a manifest that parses as
+            # valid but is shaped wrongly, an unreadable tree) would abort the run
+            # and discard every other phase's completed work. Degrade to no claims
+            # instead — recorded and visible, like every other best-effort seam.
+            _record_degradation(config, "doc-claims", exc)
+            _emit(config, f"[warn] doc-claims failed; no claims verified: {exc}")
+            tier_a_list, _tier_a_packets = [], []
+        issues.extend(tier_a_list)
+        _emit(config, f"  [phase 2a doc claims: {time_module.monotonic() - tier_a_start:.1f}s] {len(tier_a_list)} contradicted")
 
     # Collect issues from Phase 2 (doc analysis)
     for item in analysis_results:

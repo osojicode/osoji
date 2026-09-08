@@ -42,3 +42,15 @@ def test_claims_clean_repo_exits_0(temp_dir):
     (temp_dir / "README.md").write_text("Run `npm run build`.\n", encoding="utf-8")
     result = CliRunner().invoke(main, ["claims", str(temp_dir), "--no-gitignore"])
     assert result.exit_code == 0, result.output
+
+
+def test_audit_verifies_doc_claims_only_with_the_flag(temp_dir):
+    _repo(temp_dir)
+    excluded = ["--exclude", "shadow,doc-analysis,debris", "--no-gitignore"]
+
+    default = CliRunner().invoke(main, ["audit", str(temp_dir), *excluded])
+    assert "test:ui" not in default.output, default.output
+
+    opted_in = CliRunner().invoke(main, ["audit", str(temp_dir), "--doc-claims", *excluded])
+    assert opted_in.exit_code == 1, opted_in.output
+    assert "test:ui" in opted_in.output

@@ -111,7 +111,7 @@ export analysis, and string contract checking.
 - `src/osoji/skills/` — Bundled AI agent skill prompts (markdown files with YAML frontmatter); also mirrored at `.claude/skills/<name>/SKILL.md` for Claude Code agents working on this repo (parity enforced by `tests/test_skills_parity.py`)
 - `src/osoji/osoji-observatory.schema.json` — JSON Schema (Draft 2020-12) for the observatory bundle
 - `scripts/bench/` — documentation-drift benchmark tooling (mine docs-fix commits, label, run, score, cost); the data lives in the private `osojicode/osoji-bench` repo and is passed in by path
-- `src/osoji/factreg.py`, `src/osoji/claims_docs.py`, `src/osoji/tier_a.py` — Tier A: mechanical fact registries (paths, manifest scripts), markdown claim extraction, deterministic verification with evidence packets; runs as audit phase 2a and as `osoji claims`
+- `src/osoji/factreg.py`, `src/osoji/claims_docs.py`, `src/osoji/tier_a.py` — Tier A: mechanical fact registries (paths, manifest scripts), markdown claim extraction, deterministic verification with evidence packets; runs as `osoji claims` and, with `osoji audit --doc-claims`, as audit phase 2a (opt-in until the benchmark clears it)
 
 ## Observatory bundle schema
 

@@ -53,7 +53,7 @@ def test_phase_2a_contradicted_claim_reaches_the_audit_result(temp_dir):
     """The wiring, not just tier_a_issues: a contradicted claim becomes an issue."""
     config = _one_bad_claim(temp_dir)
 
-    result = asyncio.run(run_audit_async(config, fix_shadow=False, exclude=_LLM_PHASES))
+    result = asyncio.run(run_audit_async(config, fix_shadow=False, doc_claims=True, exclude=_LLM_PHASES))
 
     (issue,) = [i for i in result.issues if i.exclude_key == "doc-claims"]
     assert issue.category == "doc_nonexistent_artifact"
@@ -61,6 +61,18 @@ def test_phase_2a_contradicted_claim_reaches_the_audit_result(temp_dir):
     assert "test:ui" in issue.message
     assert config.audit_degradations == []
     assert result.scorecard.degraded_phases is None
+
+
+def test_phase_2a_is_opt_in(temp_dir):
+    """Until the benchmark clears Tier A for the default run (wiki decisions/0032
+    rule 1) the audit verifies doc claims only when asked (`--doc-claims`)."""
+    config = _one_bad_claim(temp_dir)
+
+    result = asyncio.run(run_audit_async(config, fix_shadow=False, exclude=_LLM_PHASES))
+
+    assert [i for i in result.issues if i.exclude_key == "doc-claims"] == []
+    assert not (config.analysis_root / "claims").exists()
+    assert config.audit_degradations == []
 
 
 def test_phase_2a_failure_degrades_without_aborting_the_audit(temp_dir):
@@ -72,7 +84,7 @@ def test_phase_2a_failure_degrades_without_aborting_the_audit(temp_dir):
     config = _one_bad_claim(temp_dir)
 
     with patch("osoji.audit.tier_a_issues", side_effect=AttributeError("boom")):
-        result = asyncio.run(run_audit_async(config, fix_shadow=False, exclude=_LLM_PHASES))
+        result = asyncio.run(run_audit_async(config, fix_shadow=False, doc_claims=True, exclude=_LLM_PHASES))
 
     # The audit completed and every other phase's work survived.
     assert result is not None

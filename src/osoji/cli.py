@@ -336,13 +336,14 @@ def stats(ctx: click.Context, path: Path, provider: str | None, model: str | Non
 @click.option("--junk", is_flag=True, help="Run all junk code analysis phases")
 @click.option("--obligations", is_flag=True, help="Check cross-file string contracts (no LLM calls)")
 @click.option("--doc-prompts", is_flag=True, help="Generate concept-centric coverage + writing prompts (LLM calls)")
+@click.option("--doc-claims", is_flag=True, help="Verify literal doc claims (scripts, paths) against the checkout (no LLM calls)")
 @click.option("--provider", type=_LLM_PROVIDER_CHOICE, help="LLM provider to use")
 @click.option("--model", help="Model ID to use for LLM requests")
 @click.option("--no-gitignore", is_flag=True, help="Don't use .gitignore for file filtering")
 @click.option("--full", is_flag=True, help="Run all optional audit phases")
 @click.option("--exclude", "exclude_phases", default="",
     help="Comma-separated phases to skip. "
-         "Valid phases: shadow, doc-analysis, debris, obligations, doc-prompts, "
+         "Valid phases: shadow, doc-analysis, doc-claims, debris, obligations, doc-prompts, "
          "dead-code, dead-params, dead-plumbing, dead-deps, dead-cicd, orphaned-files")
 @click.option("--force", "-f", is_flag=True, help="Regenerate all shadow docs and findings from scratch")
 @click.option("--incremental", is_flag=True,
@@ -351,7 +352,7 @@ def stats(ctx: click.Context, path: Path, provider: str | None, model: str | Non
 @click.option("--since", "since_ref", metavar="REF", default=None,
     help="Report files changed since REF (git); implies --incremental")
 @click.pass_context
-def audit(ctx: click.Context, path: Path, fix: bool, output_format: str, dead_code: bool, dead_params: bool, dead_plumbing: bool, dead_deps: bool, dead_cicd: bool, orphaned_files: bool, junk: bool, obligations: bool, doc_prompts: bool, provider: str | None, model: str | None, no_gitignore: bool, full: bool, exclude_phases: str, force: bool, incremental: bool, since_ref: str | None) -> None:
+def audit(ctx: click.Context, path: Path, fix: bool, output_format: str, dead_code: bool, dead_params: bool, dead_plumbing: bool, dead_deps: bool, dead_cicd: bool, orphaned_files: bool, junk: bool, obligations: bool, doc_prompts: bool, doc_claims: bool, provider: str | None, model: str | None, no_gitignore: bool, full: bool, exclude_phases: str, force: bool, incremental: bool, since_ref: str | None) -> None:
     """Audit your codebase for dead code, stale docs, and semantic issues.
 
     \b
@@ -365,6 +366,7 @@ def audit(ctx: click.Context, path: Path, fix: bool, output_format: str, dead_co
       --dead-cicd, --orphaned-files (or --junk for all)
     - --obligations (cross-file string contracts, no LLM calls)
     - --doc-prompts (concept-centric coverage + writing prompts)
+    - --doc-claims (literal script/path claims verified against the checkout, no LLM; also `osoji claims`)
     - --full (equivalent to --junk --obligations --doc-prompts)
     - --exclude to skip specific phases (e.g. --full --exclude=dead-cicd,doc-prompts)
 
@@ -410,7 +412,7 @@ def audit(ctx: click.Context, path: Path, fix: bool, output_format: str, dead_co
     _emit_config_banner(config)
 
     try:
-        result = run_audit(config, fix_shadow=fix, dead_code=dead_code, dead_params=dead_params, dead_plumbing=dead_plumbing, dead_deps=dead_deps, dead_cicd=dead_cicd, orphaned_files=orphaned_files, junk=junk, obligations=obligations, doc_prompts=doc_prompts, verbose=state.verbose, exclude=exclude, incremental=incremental, since=since_ref)
+        result = run_audit(config, fix_shadow=fix, dead_code=dead_code, dead_params=dead_params, dead_plumbing=dead_plumbing, dead_deps=dead_deps, dead_cicd=dead_cicd, orphaned_files=orphaned_files, junk=junk, obligations=obligations, doc_prompts=doc_prompts, doc_claims=doc_claims, verbose=state.verbose, exclude=exclude, incremental=incremental, since=since_ref)
     except RuntimeError as e:
         raise click.ClickException(str(e)) from e
 
