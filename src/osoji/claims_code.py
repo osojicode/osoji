@@ -42,6 +42,7 @@ class CodeClaim:
     keys: tuple[str, ...] = field(default_factory=tuple)
     spread: bool = False
     call: bool = False        # the member access is invoked
+    shadowed: bool = False    # an enclosing scope re-declares the object's name; it does not bind to the module level
     receiver: str | None = None        # call: the identifier the method is called on, "this", or None for a bare call
     enclosing_class: str | None = None  # call: the class whose body contains the call, for `this`
     ecosystem: str | None = None   # parity with DocClaim; code claims carry none
@@ -76,7 +77,8 @@ def extract_code_claims(structure: dict[str, dict]) -> list[CodeClaim]:
         for ref in facts.get("member_refs", []):
             add(CodeClaim("member_ref", ref["member"], doc_path, int(ref.get("line") or 0),
                           f"{ref['object']}.{ref['member']}", subject=ref["object"],
-                          optional=bool(ref.get("optional")), call=bool(ref.get("call"))))
+                          optional=bool(ref.get("optional")), call=bool(ref.get("call")),
+                          shadowed=bool(ref.get("shadowed"))))
 
         for decl in facts.get("declarations", []):
             if decl.get("kind") == "class":

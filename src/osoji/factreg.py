@@ -9,6 +9,7 @@ absence is an auditable query rather than a retrieval miss.
 from __future__ import annotations
 
 import difflib
+import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -224,6 +225,27 @@ class PathRegistry:
                 return False
             current = current / segment
         return True
+
+    def gitignored(self, names: list[str]) -> list[str]:
+        """Which of ``names`` git would ignore -- for paths that do not exist.
+
+        ``git check-ignore --no-index`` matches the patterns without needing
+        the path on disk, which is the case that matters: a gitignored module
+        that a build would generate is absent from a bare checkout, and its
+        absence is not evidence. Empty when the root is not a git checkout.
+        """
+        if self._root is None or not names:
+            return []
+        try:
+            out = subprocess.run(
+                ["git", "check-ignore", "--no-index", "--", *names],
+                cwd=self._root, capture_output=True, text=True, encoding="utf-8", timeout=20,
+            )
+        except (OSError, subprocess.SubprocessError):
+            return []
+        if out.returncode not in (0, 1):
+            return []
+        return [line.strip().replace("\\", "/") for line in out.stdout.splitlines() if line.strip()]
 
     def has_entry(self, name: str) -> bool:
         """O(1) membership check against the indexed entries.
@@ -677,7 +699,20 @@ class SymbolRegistry:
                 incomplete.append(f"{cand}: {reason}")
         if incomplete:
             return ResolvedModule("unindexed", candidates=candidates, note="; ".join(incomplete))
-        return ResolvedModule("missing", candidates=candidates)
+        # A generated module is gitignored and absent from a bare checkout, so
+        # the index never covered it. The plugin ranks candidates source-first:
+        # when the source form itself is ignored the module is generated and
+        # its absence says nothing; when only artefact forms (`.js`, `.d.ts`)
+        # are ignored they would be emitted from the missing source, so the
+        # miss stands, at reduced confidence, with the ignored forms named.
+        # Asked of git only on a miss, so this stays cheap.
+        ignored = set(self._paths.gitignored(candidates))
+        if candidates and candidates[0] in ignored:
+            return ResolvedModule("unindexed", candidates=candidates,
+                                  note=f"{candidates[0]} is gitignored (generated); absence cannot be established")
+        note = (f"artefact forms are gitignored ({', '.join(c for c in candidates if c in ignored)}); "
+                f"the source form {candidates[0]} is not, and is absent") if ignored and candidates else ""
+        return ResolvedModule("missing", candidates=candidates, note=note)
 
     # -- binding -------------------------------------------------------------
 

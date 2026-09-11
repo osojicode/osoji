@@ -183,6 +183,52 @@ function classMembers(cls) {
 // per-file extraction
 // ---------------------------------------------------------------------------
 
+/**
+ * True when an enclosing function, method, block or catch clause declares a
+ * parameter or variable named `name`: the identifier then binds there, not to
+ * the module-level declaration the registry knows. Purely syntactic.
+ */
+function isShadowed(node, name) {
+  let parent = node.getParent();
+  while (parent && !Node.isSourceFile(parent)) {
+    try {
+      if (parent.getParameters) {
+        for (const p of parent.getParameters()) {
+          if (p.getName?.() === name) return true;
+          // destructured parameters: ({ config }) => ...
+          const nameNode = p.getNameNode?.();
+          if (nameNode && !Node.isIdentifier(nameNode) && nameNode.getText().split(/[^A-Za-z0-9_$]+/).includes(name)) return true;
+        }
+      }
+      if (Node.isBlock(parent) || Node.isSourceFile(parent) || Node.isCaseClause?.(parent) || Node.isModuleBlock?.(parent)) {
+        for (const stmt of parent.getStatements?.() || []) {
+          if (Node.isVariableStatement(stmt)) {
+            for (const d of stmt.getDeclarations()) {
+              if (d.getName() === name) return true;
+              const nameNode = d.getNameNode?.();
+              if (nameNode && !Node.isIdentifier(nameNode) && nameNode.getText().split(/[^A-Za-z0-9_$]+/).includes(name)) return true;
+            }
+          } else if ((Node.isFunctionDeclaration(stmt) || Node.isClassDeclaration(stmt) || Node.isEnumDeclaration(stmt)) && stmt.getName?.() === name) {
+            return true;
+          }
+        }
+      }
+      if (Node.isCatchClause(parent)) {
+        const v = parent.getVariableDeclaration?.();
+        if (v && v.getName() === name) return true;
+      }
+      if (Node.isForOfStatement?.(parent) || Node.isForInStatement?.(parent) || Node.isForStatement?.(parent)) {
+        const init = parent.getInitializer?.();
+        if (init && Node.isVariableDeclarationList(init)) {
+          for (const d of init.getDeclarations()) if (d.getName() === name) return true;
+        }
+      }
+    } catch (_) { /* keep walking */ }
+    parent = parent.getParent();
+  }
+  return false;
+}
+
 /** The nearest enclosing class name, or null. */
 function enclosingClassName(node) {
   let parent = node.getParent();
@@ -349,7 +395,8 @@ function extractFile(sourceFile) {
         const parent = node.getParent();
         const isCall = Node.isCallExpression(parent) && parent.getExpression() === node;
         const optional = node.hasQuestionDotToken() || (isCall && parent.hasQuestionDotToken?.());
-        memberRefs.push({ object: obj.getText(), member: node.getName(), line: node.getStartLineNumber(), optional: !!optional, call: !!isCall });
+        memberRefs.push({ object: obj.getText(), member: node.getName(), line: node.getStartLineNumber(), optional: !!optional, call: !!isCall,
+                          shadowed: isShadowed(node, obj.getText()) });
       }
     }
     if (Node.isCallExpression(node)) {

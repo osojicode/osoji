@@ -59,6 +59,10 @@ let manager: FakeProxyProcess;
 manager = new FakeProxyProcess('s');
 const other = new FakeProxyProcess('t');
 
+export const config = { debug: false };
+function apply(config: AdapterPolicy) { return config.timeout; }
+function readTop() { return config.debug; }
+
 function run() {
   const x = SessionState.IDLE;
   DefaultPolicy.updateStateOnCommand?.('a', {}, {});
@@ -110,6 +114,8 @@ def test_structure_extraction_end_to_end(tmp_path):
 
     refs = {(r["object"], r["member"]): r for r in f["member_refs"]}
     assert refs[("SessionState", "IDLE")]["call"] is False
+    assert refs[("config", "timeout")]["shadowed"] is True       # parameter shadows the module-level `config`
+    assert refs[("config", "debug")]["shadowed"] is False
     hook = refs[("DefaultPolicy", "updateStateOnCommand")]
     assert hook["optional"] is True and hook["call"] is True
 
@@ -141,6 +147,22 @@ def test_extract_structure_runs_the_structure_runner_and_parses_its_json(tmp_pat
     argv, kwargs = run.call_args
     assert argv[0][:2] == ["node", str(_STRUCTURE_RUNNER)]
     assert json.loads(kwargs["input"]) == {"files": ["a.ts"]}
+
+
+def test_build_symbol_registry_degrades_when_the_plugin_is_unavailable(tmp_path):
+    """No Node: the language contributes no registry; nothing raises (shadow.py's convention)."""
+    from osoji.config import Config
+    from osoji.factreg import PathRegistry
+    from osoji.plugins.base import PluginUnavailableError
+    from osoji.tier_a import build_symbol_registry, run_tier_a_code
+
+    (tmp_path / "a.ts").write_text("export const x = 1;\n", encoding="utf-8")
+    config = Config(root_path=tmp_path, respect_gitignore=False, quiet=True)
+    with patch.object(TypeScriptPlugin, "extract_structure",
+                      side_effect=PluginUnavailableError("Node.js not found", "install node")):
+        symbols, structure = build_symbol_registry(config, PathRegistry.from_config(config))
+        assert structure == {} and symbols.files == []
+        assert run_tier_a_code(config) == []
 
 
 def test_extract_structure_surfaces_runner_failures(tmp_path):

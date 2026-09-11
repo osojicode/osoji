@@ -244,8 +244,9 @@ def _verify_import(claim: CodeClaim, paths: PathRegistry, symbols: SymbolRegistr
     if res.kind == "missing":
         first = res.candidates[0] if res.candidates else claim.name
         answer = paths.exists(first, anchor=False)
+        grade = ("error", 0.8) if res.note else _CODE_GRADES["import_path"]
         return _packet(claim, "contradicted", paths.namespace, rev, searched=res.candidates,
-                       near=answer.near, grade=_CODE_GRADES["import_path"],
+                       near=answer.near, grade=grade,
                        note=f"resolves to {claim.name}; no candidate exists" + (f" ({res.note})" if res.note else ""))
     notes = {"external": res.note or "bare specifier; not a path in this repository",
              "outside": res.note or "resolves outside the repository",
@@ -255,8 +256,11 @@ def _verify_import(claim: CodeClaim, paths: PathRegistry, symbols: SymbolRegistr
 
 
 def _verify_member_ref(claim: CodeClaim, symbols: SymbolRegistry, rev: str) -> EvidencePacket:
-    decl, why = symbols.bind(claim.doc_path, claim.subject)
     ns = symbols.namespace
+    if claim.shadowed:
+        return _packet(claim, "undecidable", ns, rev,
+                       note=f"`{claim.subject}` is re-declared by an enclosing scope; the access does not bind to the module level")
+    decl, why = symbols.bind(claim.doc_path, claim.subject)
     if decl is None:
         return _packet(claim, "undecidable", ns, rev, note=why)
     if decl.kind not in ("enum", "object"):
@@ -273,21 +277,34 @@ def _verify_member_ref(claim: CodeClaim, symbols: SymbolRegistry, rev: str) -> E
     grade = _CODE_GRADES["member_ref"]
     note = f"`{decl.name}` is an {decl.kind} declared at {decl.file}:{decl.line} without `{claim.name}`"
     if decl.kind == "object" and decl.annotation:
-        typ, _ = symbols.resolve_type(decl.file, decl.annotation)
-        if typ is not None:
-            members, _open, _unresolved = symbols.member_set(typ)
-            m = members.get(claim.name)
-            if m is not None and m.get("optional"):
-                if not claim.call:
-                    # A plain read of an absent optional member may be deliberate
-                    # (`expect(policy.hook).toBeUndefined()`); only a call that can
-                    # never fire is dead by construction.
-                    return _packet(claim, "undecidable", ns, rev, locations=[_loc(decl)], searched=searched,
-                                   note=(f"`{claim.name}` is declared optional on {decl.annotation} and absent from "
-                                         f"`{decl.name}`; a read of it may be deliberate"))
-                grade = ("info", 0.6)
-                note = (f"`{claim.name}` is declared optional on {decl.annotation} and `{decl.name}` "
-                        f"({decl.file}:{decl.line}) does not implement it: the optional call never fires")
+        # The annotation governs the value's shape, not the literal alone: an
+        # annotation the registry cannot resolve or cannot close (external,
+        # generic, index signature, foreign base) makes the claim undecidable.
+        typ, why = symbols.resolve_type(decl.file, decl.annotation)
+        if typ is None:
+            return _packet(claim, "undecidable", ns, rev, locations=[_loc(decl)], searched=searched,
+                           note=f"`{decl.name}` is annotated `{decl.annotation}`, which does not resolve in the repository ({why})")
+        members, open_, unresolved = symbols.member_set(typ)
+        if open_ or unresolved:
+            return _packet(claim, "undecidable", ns, rev, locations=[_loc(decl)], searched=searched,
+                           note=f"`{decl.name}` is annotated `{decl.annotation}`, whose members are not a closed set the registry can list")
+        m = members.get(claim.name)
+        if m is not None and m.get("optional"):
+            if not claim.call:
+                # A plain read of an absent optional member may be deliberate
+                # (`expect(policy.hook).toBeUndefined()`); only a call that can
+                # never fire is dead by construction.
+                return _packet(claim, "undecidable", ns, rev, locations=[_loc(decl)], searched=searched,
+                               note=(f"`{claim.name}` is declared optional on {decl.annotation} and absent from "
+                                     f"`{decl.name}`; a read of it may be deliberate"))
+            grade = ("info", 0.6)
+            note = (f"`{claim.name}` is declared optional on {decl.annotation} and `{decl.name}` "
+                    f"({decl.file}:{decl.line}) does not implement it: the optional call never fires")
+        elif m is not None:
+            note = (f"`{claim.name}` is declared required on {decl.annotation} but `{decl.name}` "
+                    f"({decl.file}:{decl.line}) does not provide it")
+        else:
+            note = f"neither `{decl.name}` ({decl.file}:{decl.line}) nor its type {decl.annotation} declares `{claim.name}`"
     return _packet(claim, "contradicted", ns, rev, locations=[_loc(decl)], searched=searched, near=near,
                    grade=grade, note=note)
 
@@ -475,6 +492,11 @@ def build_symbol_registry(config: Config, paths: PathRegistry) -> tuple[SymbolRe
     """Structure facts from every plugin that has a parser for them, as one registry."""
     from .plugins import get_all_plugins
 
+    import logging
+
+    from .plugins.base import FactsExtractionError, PluginUnavailableError
+
+    logger = logging.getLogger(__name__)
     files = _source_files(config)
     structure: dict[str, dict] = {}
     providers = []
@@ -482,7 +504,17 @@ def build_symbol_registry(config: Config, paths: PathRegistry) -> tuple[SymbolRe
         mine = [f for f in files if f.suffix in plugin.extensions]
         if not mine:
             continue
-        facts = plugin.extract_structure(config.root_path, mine)
+        try:
+            facts = plugin.extract_structure(config.root_path, mine)
+        except PluginUnavailableError as exc:
+            # No parser, no registry for this language: the claims it would
+            # have made are simply not compiled (same degradation shadow.py
+            # applies to facts extraction).
+            logger.warning("[%s] structure extraction unavailable: %s (%s)", plugin.name, exc, exc.install_hint)
+            continue
+        except FactsExtractionError as exc:
+            logger.warning("[%s] structure extraction failed: %s", plugin.name, exc)
+            continue
         if facts:
             structure.update(facts)
             providers.append(plugin)

@@ -91,6 +91,25 @@ def test_bare_specifier_is_undecidable_unless_it_is_a_workspace_package():
     assert by_text == {"vitest": "undecidable", "@acme/shared": "supported", "@acme/shared/missing.js": "contradicted"}
 
 
+def test_import_of_a_gitignored_generated_module_is_undecidable(monkeypatch):
+    # codegen writes src/generated/schema.ts and the directory is gitignored:
+    # the source form itself is ignored, so absence says nothing.
+    structure = {"src/a.ts": _file(imports=[_imp("./generated/schema.js", ["Schema"])])}
+    monkeypatch.setattr(PathRegistry, "gitignored", lambda self, names: [n for n in names if "generated" in n])
+    (p,) = [p for p in _verify(structure, _paths("src/a.ts")) if p.claim.kind == "import_path"]
+    assert p.verdict == "undecidable" and "gitignored" in p.note
+
+
+def test_import_whose_only_ignored_candidates_are_build_artefacts_stays_contradicted(monkeypatch):
+    # tests/**/*.js and tests/**/*.d.ts are compiled output of a .ts that does
+    # not exist: the miss stands, at reduced confidence, naming the ignored forms.
+    structure = {"tests/test-utils/mocks/m.ts": _file(imports=[_imp("../../src/x.js", ["x"])]), "src/x.ts": _file()}
+    monkeypatch.setattr(PathRegistry, "gitignored",
+                        lambda self, names: [n for n in names if n.endswith((".js", ".d.ts")) and n.startswith("tests/")])
+    (p,) = _contradicted(_verify(structure, _paths("tests/test-utils/mocks/m.ts", "src/x.ts")), "import_path")
+    assert p.grade == ("error", 0.8) and "tests/src/x.js" in p.note and "tests/src/x.ts is not" in p.note
+
+
 def test_import_escaping_the_repository_is_undecidable():
     structure = {"src/a.ts": _file(imports=[_imp("../../elsewhere/x.js", ["x"])])}
     packets = _verify(structure, _paths("src/a.ts"))
@@ -191,6 +210,41 @@ def test_plain_read_of_an_absent_optional_member_is_undecidable():
     assert p.verdict == "undecidable" and "deliberate" in p.note
 
 
+def test_shadowed_object_name_is_undecidable():
+    # `function apply(config: Full) { return config.timeout }` next to a
+    # module-level `config` literal: the identifier binds to the parameter.
+    structure = {"src/a.ts": _file(
+        declarations=[{"name": "config", "kind": "object", "exported": True, "line": 1, "annotation": None,
+                       "open": False, "members": [{"name": "debug", "kind": "property"}]}],
+        member_refs=[{"object": "config", "member": "timeout", "line": 4, "optional": False, "call": False, "shadowed": True},
+                     {"object": "config", "member": "timeout", "line": 9, "optional": False, "call": False, "shadowed": False}],
+    )}
+    packets = [p for p in _verify(structure, _paths("src/a.ts")) if p.claim.kind == "member_ref"]
+    assert [(p.claim.line, p.verdict) for p in packets] == [(4, "undecidable"), (9, "contradicted")]
+    assert "enclosing scope" in packets[0].note
+
+
+def test_object_literal_annotated_with_an_unresolvable_or_open_type_is_undecidable():
+    # `const opts: RequestInit = { method: 'GET' }; opts.signal` -- the
+    # annotation governs the shape and the registry cannot see it.
+    structure = {
+        "src/a.ts": _file(
+            imports=[_imp("some-http-lib", ["RequestInit"]), _imp("./t.js", ["Open"])],
+            declarations=[{"name": "opts", "kind": "object", "exported": False, "line": 2, "annotation": "RequestInit",
+                           "open": False, "members": [{"name": "method", "kind": "property"}]},
+                          {"name": "bag", "kind": "object", "exported": False, "line": 3, "annotation": "Open",
+                           "open": False, "members": [{"name": "a", "kind": "property"}]}],
+            member_refs=[{"object": "opts", "member": "signal", "line": 5, "optional": False, "call": False},
+                         {"object": "bag", "member": "zzz", "line": 6, "optional": False, "call": False}],
+        ),
+        "src/t.ts": _file(declarations=[{"name": "Open", "kind": "interface", "exported": True, "line": 1, "extends": [],
+                                         "open": True, "members": [{"name": "a", "kind": "property", "optional": False}]}]),
+    }
+    packets = [p for p in _verify(structure, _paths("src/a.ts", "src/t.ts")) if p.claim.kind == "member_ref"]
+    assert [p.verdict for p in packets] == ["undecidable", "undecidable"]
+    assert "does not resolve" in packets[0].note and "closed set" in packets[1].note
+
+
 def test_member_ref_on_a_same_file_declaration_binds_without_an_import():
     structure = {"src/a.ts": _file(
         declarations=[{"name": "Colour", "kind": "enum", "exported": False, "line": 1, "open": False,
@@ -262,6 +316,31 @@ def test_all_members_present_with_an_in_repo_base_is_supported_at_full_confidenc
     kinds = {p.claim.kind: p.verdict for p in packets if p.claim.kind.startswith("implements")}
     assert kinds == {"implements_member": "supported"}
     assert not [p for p in packets if p.claim.kind == "implements_member" and p.verdict == "contradicted"]
+
+
+def test_in_repo_base_class_in_another_file_supplies_inherited_members():
+    # `class Fake extends Base implements IProxyProcess` where Base (another
+    # file) declares pid/kill/sessionId: the extends walk must credit them.
+    structure = _implements_world(
+        [{"name": "sendCommand", "kind": "method", "static": False, "params": 1, "required_params": 1},
+         {"name": "onProxyStatus", "kind": "method", "static": False, "params": 2, "required_params": 2}],
+        base="Base",
+    )
+    structure["tests/start.test.ts"]["imports"].append(_imp("./base.js", ["Base"]))
+    structure["tests/base.ts"] = _file(declarations=[{
+        "name": "Base", "kind": "class", "exported": True, "line": 1, "extends": [], "implements": [], "open": False,
+        "members": [{"name": "pid", "kind": "property", "static": False},
+                    {"name": "sessionId", "kind": "property", "static": False},
+                    {"name": "kill", "kind": "method", "static": False, "params": 1, "required_params": 0}],
+    }])
+    packets = _verify(structure, _paths(*_IMPL_PATHS, "tests/base.ts"))
+    (p,) = [p for p in packets if p.claim.kind == "implements_member"]
+    assert p.verdict == "supported"
+
+    structure["tests/base.ts"]["declarations"][0]["members"].pop(1)      # Base loses sessionId
+    packets = _verify(structure, _paths(*_IMPL_PATHS, "tests/base.ts"))
+    (p,) = _contradicted(packets, "implements_member")
+    assert p.claim.name == "sessionId" and p.grade == ("error", 1.0)
 
 
 def test_narrower_implementation_signature_is_an_info_consistency_finding():
