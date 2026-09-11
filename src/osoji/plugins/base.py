@@ -40,6 +40,24 @@ class ExtractedFacts:
         return d
 
 
+# Structure facts (``LanguagePlugin.extract_structure``): what a file
+# *declares* and *names*, in a language-neutral shape, for the code-claim
+# registries (factreg.SymbolRegistry, claims_code.py). One dict per file:
+#
+#   imports:       [{specifier, names, name_map, default, namespace, line, reexport, star, type_only}]
+#   declarations:  [{name, kind, exported, line, members?, open?, extends?, implements?, annotation?, params?}]
+#                  kind: enum | interface | type | class | object | function | variable
+#                  members: [{name, kind, optional?, params?, required_params?, signature?, static?, param_list?, line?}]
+#                  open: True when the member set is not closed (index signature, spread, computed key)
+#   member_refs:   [{object, member, line, optional, call}]     -- `object.member` where object is an identifier
+#   calls:         [{callee, member, line, args: [{index, keys, spread}]}]  -- only object-literal arguments
+#   local_exports: [{name, alias}]                              -- `export { x as y }` without a module
+#
+# Everything is syntactic: no type resolution, no dependency installed. The
+# plugin also owns its module-specifier conventions (``module_candidates``)
+# and its notion of workspace packages (``workspace_packages``).
+
+
 class PluginUnavailableError(Exception):
     """Raised when a plugin's external tooling is not installed."""
 
@@ -89,3 +107,24 @@ class LanguagePlugin(ABC):
             Dict mapping normalized relative paths (forward-slash) to ExtractedFacts.
         """
         ...
+
+    def extract_structure(self, project_root: Path, files: list[Path]) -> dict[str, dict] | None:
+        """Structure facts for the code-claim registries (see the schema above).
+
+        Returns None when the plugin has no parser for them; the registries
+        then simply do not cover this language.
+        """
+        return None
+
+    def module_candidates(self, base: str) -> list[str]:
+        """Repository-relative paths a normalised module specifier may denote.
+
+        ``base`` is the specifier already joined to the importing file's
+        directory (or a workspace package's source directory); the plugin
+        adds its language's extension and index conventions.
+        """
+        return [base]
+
+    def workspace_packages(self, project_root: Path) -> dict[str, str]:
+        """``{package name: repository-relative source dir}`` for bare specifiers that are in-repo."""
+        return {}

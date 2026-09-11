@@ -537,11 +537,19 @@ def verify(
 @click.argument("path", type=click.Path(exists=True, file_okay=False, path_type=Path), default=".")
 @click.option("--format", "output_format", type=click.Choice(["text", "json"]), default="text", help="Output format")
 @click.option("--all", "show_all", is_flag=True, help="Show supported and undecidable claims too")
+@click.option("--code", "code_claims", is_flag=True,
+              help="Verify code claims instead (imports, member references, implements, call keys, duplicate declarations)")
 @click.option("--no-gitignore", is_flag=True, help="Do not use git ls-files / .gitignore for discovery")
 @click.pass_context
-def claims(ctx: click.Context, path: Path, output_format: str, show_all: bool, no_gitignore: bool) -> None:
-    """Verify literal doc claims (scripts, paths) against the checkout. No LLM calls."""
-    from .tier_a import packet_message, run_tier_a
+def claims(ctx: click.Context, path: Path, output_format: str, show_all: bool, code_claims: bool, no_gitignore: bool) -> None:
+    """Verify literal doc claims (scripts, paths) against the checkout. No LLM calls.
+
+    With --code, verify what the code itself claims about the tree: every
+    import resolves, every `X.member` names a declared member, every class
+    declares what it implements, every object literal passed to a call uses
+    declared keys, and no exported declaration is a copy of another.
+    """
+    from .tier_a import packet_message, run_tier_a, run_tier_a_code
 
     state = _cli_state(ctx)
     config = Config(
@@ -550,7 +558,7 @@ def claims(ctx: click.Context, path: Path, output_format: str, show_all: bool, n
         verbose=state.verbose,
         quiet=state.quiet,
     )
-    packets = run_tier_a(config)
+    packets = run_tier_a_code(config) if code_claims else run_tier_a(config)
     contradicted = [p for p in packets if p.verdict == "contradicted"]
     shown = packets if show_all else contradicted
     if output_format == "json":

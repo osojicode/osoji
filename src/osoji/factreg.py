@@ -9,6 +9,7 @@ absence is an auditable query rather than a retrieval miss.
 from __future__ import annotations
 
 import difflib
+import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -225,6 +226,27 @@ class PathRegistry:
             current = current / segment
         return True
 
+    def gitignored(self, names: list[str]) -> list[str]:
+        """Which of ``names`` git would ignore -- for paths that do not exist.
+
+        ``git check-ignore --no-index`` matches the patterns without needing
+        the path on disk, which is the case that matters: a gitignored module
+        that a build would generate is absent from a bare checkout, and its
+        absence is not evidence. Empty when the root is not a git checkout.
+        """
+        if self._root is None or not names:
+            return []
+        try:
+            out = subprocess.run(
+                ["git", "check-ignore", "--no-index", "--", *names],
+                cwd=self._root, capture_output=True, text=True, encoding="utf-8", timeout=20,
+            )
+        except (OSError, subprocess.SubprocessError):
+            return []
+        if out.returncode not in (0, 1):
+            return []
+        return [line.strip().replace("\\", "/") for line in out.stdout.splitlines() if line.strip()]
+
     def has_entry(self, name: str) -> bool:
         """O(1) membership check against the indexed entries.
 
@@ -250,7 +272,14 @@ class PathRegistry:
         """
         return name.split("/", 1)[0] in self._top_level
 
-    def exists(self, rel_path: str) -> RegistryAnswer:
+    def exists(self, rel_path: str, *, anchor: bool = True) -> RegistryAnswer:
+        """Whether ``rel_path`` is in the index, with the reason when it cannot say.
+
+        ``anchor=False`` skips the anchor rule: a code import's relative
+        specifier has no foreign reading (it is a path in this tree by
+        construction), so a miss is a miss even when the resolved root
+        segment does not exist.
+        """
         name = _norm_rel(rel_path)
         searched = ["git-tracked tree (walker-filtered)"]
         if name in self._entries:
@@ -272,7 +301,7 @@ class PathRegistry:
                 complete=False,
                 note=f"{reason}; absence cannot be established",
             )
-        if not self.anchored(name):
+        if anchor and not self.anchored(name):
             return RegistryAnswer(
                 name=name,
                 found=False,
@@ -442,3 +471,397 @@ class ScriptRegistry:
             searched=searched,
             complete=True,
         )
+
+
+# ---------------------------------------------------------------------------
+# Symbol registry: declarations, members and module resolution from the
+# language plugins' structure facts (osoji.plugins.base, ``extract_structure``).
+# Language-agnostic: the plugin knows its syntax and its module-specifier
+# conventions; this registry only knows names, members and files.
+# ---------------------------------------------------------------------------
+
+import posixpath
+from typing import Callable
+
+
+@dataclass
+class Declaration:
+    name: str
+    kind: str                 # enum | interface | type | class | object | function | variable
+    file: str
+    line: int
+    exported: bool = False
+    members: list[dict] | None = None      # None: no member set (variable, function)
+    open: bool = False                     # index signature / spread / computed key: not a closed set
+    extends: list[str] = field(default_factory=list)
+    implements: list[str] = field(default_factory=list)
+    annotation: str | None = None          # declared or `satisfies`/`as` type of an object literal
+    params: list[dict] = field(default_factory=list)
+
+    @property
+    def member_names(self) -> list[str]:
+        return [m["name"] for m in (self.members or [])]
+
+
+@dataclass
+class ResolvedModule:
+    kind: str                 # file | missing | external | outside | unindexed
+    file: str | None = None
+    candidates: list[str] = field(default_factory=list)
+    note: str = ""
+    # missing only: artefact forms of the module are gitignored (they would be
+    # emitted from the absent source), so the miss is graded lower.
+    artefacts_ignored: bool = False
+
+
+_TYPE_KINDS = {"interface", "type", "class", "enum"}
+
+
+class SymbolRegistry:
+    """Declared symbols and their members, plus per-file import/export resolution."""
+
+    namespace = "symbols"
+
+    def __init__(
+        self,
+        structure: dict[str, dict],
+        *,
+        module_candidates: Callable[[str], list[str]],
+        workspace_packages: dict[str, str] | None,
+        paths: PathRegistry,
+    ) -> None:
+        self._structure = structure
+        self._module_candidates = module_candidates
+        self._workspace = dict(workspace_packages or {})
+        self._paths = paths
+        self._decls: dict[str, list[Declaration]] = {}
+        self._by_name: dict[tuple[str, str], list[Declaration]] = {}
+        self._by_callable: dict[str, list[tuple[Declaration, list[dict]]]] = {}
+        for file, facts in structure.items():
+            local_exports = {e["name"] for e in facts.get("local_exports", [])}
+            decls: list[Declaration] = []
+            for d in facts.get("declarations", []):
+                decl = Declaration(
+                    name=d["name"], kind=d["kind"], file=file, line=int(d.get("line") or 0),
+                    exported=bool(d.get("exported")) or d["name"] in local_exports,
+                    members=d.get("members"), open=bool(d.get("open")),
+                    extends=list(d.get("extends") or []), implements=list(d.get("implements") or []),
+                    annotation=d.get("annotation"), params=list(d.get("params") or []),
+                )
+                decls.append(decl)
+                self._by_name.setdefault((decl.name, decl.kind), []).append(decl)
+                if decl.kind == "function":
+                    self._by_callable.setdefault(decl.name, []).append((decl, decl.params))
+                if decl.kind == "class":
+                    for m in decl.members or []:
+                        if m.get("kind") == "method" and "param_list" in m:
+                            self._by_callable.setdefault(m["name"], []).append((decl, list(m["param_list"])))
+            self._decls[file] = decls
+        self._resolve_cache: dict[tuple[str, str], ResolvedModule] = {}
+        self._ignore_cache: dict[tuple[str, ...], set[str]] = {}
+
+    @classmethod
+    def from_structure(cls, structure, *, module_candidates, workspace_packages, paths) -> "SymbolRegistry":
+        return cls(structure, module_candidates=module_candidates, workspace_packages=workspace_packages, paths=paths)
+
+    @property
+    def files(self) -> list[str]:
+        return sorted(self._structure)
+
+    def facts(self, file: str) -> dict:
+        return self._structure.get(file, {})
+
+    def declarations(self, file: str) -> list[Declaration]:
+        return self._decls.get(file, [])
+
+    def declarations_named(self, name: str, kinds: set[str] | None = None) -> list[Declaration]:
+        out: list[Declaration] = []
+        for (n, k), ds in self._by_name.items():
+            if n == name and (kinds is None or k in kinds):
+                out.extend(ds)
+        return out
+
+    def callables_named(self, name: str) -> list[tuple[Declaration, list[dict]]]:
+        """Every in-repo function or method declared with this name: (owner, params)."""
+        return list(self._by_callable.get(name, []))
+
+    def local_type(self, file: str, name: str) -> tuple[str | None, str]:
+        """The type a local/parameter/property named ``name`` is declared or constructed with."""
+        types = {l["type"] for l in self._structure.get(file, {}).get("locals", []) if l.get("name") == name and l.get("type")}
+        if not types:
+            return None, f"`{name}` has no declared or constructed type in the file"
+        if len(types) > 1:
+            return None, f"`{name}` is declared with more than one type in the file ({', '.join(sorted(types))})"
+        return next(iter(types)), ""
+
+    def method_of(self, decl: Declaration, name: str) -> tuple[Declaration, dict] | None:
+        """``name`` as a method member of ``decl`` or an in-repo base, with its parameter list."""
+        members, _open, _unresolved = self.member_set(decl)
+        m = members.get(name)
+        if not m or m.get("kind") != "method" or "param_list" not in m:
+            return None
+        owner = decl
+        if m not in (decl.members or []):
+            for d in self._walk_bases(decl):
+                if m in (d.members or []):
+                    owner = d
+                    break
+        return owner, list(m["param_list"])
+
+    def _walk_bases(self, decl: Declaration, seen: set | None = None) -> list[Declaration]:
+        seen = seen if seen is not None else set()
+        out: list[Declaration] = []
+        for base_name in decl.extends:
+            base, _ = self.resolve_type(decl.file, base_name)
+            if base is None or (base.file, base.name) in seen:
+                continue
+            seen.add((base.file, base.name))
+            out.append(base)
+            out.extend(self._walk_bases(base, seen))
+        return out
+
+    def resolve_callee(self, file: str, call: dict) -> tuple[list[tuple[Declaration, list[dict], int]], str]:
+        """The declaration(s) a call binds to through its receiver: [(owner, params, line)], or ([], why).
+
+        A bare ``f(...)`` binds ``f``; ``this.m(...)`` binds the enclosing class;
+        ``x.m(...)`` binds ``x``'s declared or constructed type, then ``m`` on it
+        (walking in-repo bases). Nothing is resolved by name alone.
+        """
+        member = call.get("member")
+        receiver = call.get("receiver")
+        if not member:
+            return [], "callee is not a name"
+        if receiver is None:
+            decl, why = self.bind(file, member)
+            if decl is None:
+                return [], why
+            if decl.kind != "function":
+                return [], f"`{member}` binds to a {decl.kind}, not a function"
+            return [(decl, decl.params, decl.line)], ""
+        if receiver == "this":
+            cls_name = call.get("enclosing_class")
+            if not cls_name:
+                return [], "`this` outside a class body"
+            owner = next((d for d in self._decls.get(file, []) if d.kind == "class" and d.name == cls_name), None)
+            if owner is None:
+                return [], f"enclosing class `{cls_name}` not found"
+        elif receiver == "<expression>":
+            return [], "receiver is an expression, not a name"
+        else:
+            type_name, why = self.local_type(file, receiver)
+            if type_name is None:
+                return [], why
+            owner, why = self.resolve_type(file, type_name)
+            if owner is None:
+                return [], why or f"`{type_name}` does not resolve in the repository"
+            if owner.kind not in ("class", "interface"):
+                return [], f"`{type_name}` is a {owner.kind}, not a class or interface"
+        found = self.method_of(owner, member)
+        if found is None:
+            return [], f"`{owner.name}` declares no method `{member}` in the repository"
+        real_owner, params = found
+        line = next((int(m.get("line") or real_owner.line) for m in (real_owner.members or []) if m.get("name") == member), real_owner.line)
+        return [(real_owner, params, line)], ""
+
+    # -- module resolution ---------------------------------------------------
+
+    def resolve_specifier(self, from_file: str, specifier: str) -> ResolvedModule:
+        key = (from_file, specifier)
+        if key not in self._resolve_cache:
+            self._resolve_cache[key] = self._resolve_specifier(from_file, specifier)
+        return self._resolve_cache[key]
+
+    def _resolve_specifier(self, from_file: str, specifier: str) -> ResolvedModule:
+        if specifier.startswith("."):
+            base = posixpath.normpath(posixpath.join(posixpath.dirname(from_file), specifier))
+            if base == ".." or base.startswith("../"):
+                return ResolvedModule("outside", note="specifier resolves outside the repository root")
+            return self._resolve_base(base)
+        for pkg, src_dir in sorted(self._workspace.items(), key=lambda kv: -len(kv[0])):
+            if specifier == pkg or specifier.startswith(pkg + "/"):
+                sub = specifier[len(pkg) + 1:]
+                if sub:
+                    return self._resolve_base(_norm_rel(f"{src_dir}/{sub}"))
+                tried: list[str] = []
+                for entry in ("index", "src/index"):
+                    r = self._resolve_base(_norm_rel(f"{src_dir}/{entry}"))
+                    if r.kind == "file":
+                        return r
+                    tried.extend(r.candidates)
+                return ResolvedModule("missing", candidates=tried,
+                                      note=f"workspace package {pkg} has no index module under {src_dir}")
+        return ResolvedModule("external", note="bare specifier; not a path in this repository")
+
+    def _resolve_base(self, base: str) -> ResolvedModule:
+        candidates = [_norm_rel(c) for c in self._module_candidates(base)]
+        incomplete: list[str] = []
+        for cand in candidates:
+            if self._paths.has_entry(cand):
+                return ResolvedModule("file", file=cand, candidates=candidates)
+            reason = self._paths.outside_index(cand)
+            if reason:
+                incomplete.append(f"{cand}: {reason}")
+        if incomplete:
+            return ResolvedModule("unindexed", candidates=candidates, note="; ".join(incomplete))
+        # A generated module is gitignored and absent from a bare checkout, so
+        # the index never covered it. The plugin ranks candidates source-first:
+        # when the source form itself is ignored the module is generated and
+        # its absence says nothing; when only artefact forms (`.js`, `.d.ts`)
+        # are ignored they would be emitted from the missing source, so the
+        # miss stands, at reduced confidence, with the ignored forms named.
+        # Asked of git only on a miss, so this stays cheap.
+        ignored = self._gitignored(tuple(candidates))
+        if candidates and candidates[0] in ignored:
+            return ResolvedModule("unindexed", candidates=candidates,
+                                  note=f"{candidates[0]} is gitignored (generated); absence cannot be established")
+        if ignored and candidates:
+            return ResolvedModule("missing", candidates=candidates, artefacts_ignored=True,
+                                  note=(f"artefact forms are gitignored ({', '.join(c for c in candidates if c in ignored)}); "
+                                        f"the source form {candidates[0]} is not, and is absent"))
+        return ResolvedModule("missing", candidates=candidates)
+
+    def _gitignored(self, candidates: tuple[str, ...]) -> set[str]:
+        """One `git check-ignore` per distinct candidate set, however many files import it."""
+        if candidates not in self._ignore_cache:
+            self._ignore_cache[candidates] = set(self._paths.gitignored(list(candidates)))
+        return self._ignore_cache[candidates]
+
+    # -- binding -------------------------------------------------------------
+
+    def import_of(self, from_file: str, local_name: str) -> dict | None:
+        for imp in self._structure.get(from_file, {}).get("imports", []):
+            if imp.get("reexport"):
+                continue
+            if local_name in imp.get("names", []):
+                return imp
+        return None
+
+    def lookup_export(self, file: str, name: str, seen: set[tuple[str, str]] | None = None) -> Declaration | None:
+        """The declaration ``file`` exports as ``name``, following re-exports."""
+        seen = seen if seen is not None else set()
+        if (file, name) in seen:
+            return None
+        seen.add((file, name))
+        facts = self._structure.get(file)
+        if facts is None:
+            return None
+        aliases = {e.get("alias"): e["name"] for e in facts.get("local_exports", []) if e.get("alias")}
+        local_name = aliases.get(name, name)
+        for decl in self._decls.get(file, []):
+            if decl.name == local_name and decl.exported:
+                return decl
+        for imp in facts.get("imports", []):
+            if not imp.get("reexport"):
+                continue
+            target = self.resolve_specifier(file, imp["specifier"])
+            if target.kind != "file" or not target.file:
+                continue
+            if imp.get("star"):
+                found = self.lookup_export(target.file, name, seen)
+                if found is not None:
+                    return found
+            elif name in imp.get("names", []):
+                original = (imp.get("name_map") or {}).get(name, name)
+                found = self.lookup_export(target.file, original, seen)
+                if found is not None:
+                    return found
+        return None
+
+    def bind(self, from_file: str, local_name: str) -> tuple[Declaration | None, str]:
+        """Resolve a local identifier to its declaration; the note explains a None.
+
+        Same-file top-level declarations win; otherwise the import that binds
+        the name is followed to the exporting file through re-exports.
+        """
+        for decl in self._decls.get(from_file, []):
+            if decl.name == local_name:
+                return decl, ""
+        imp = self.import_of(from_file, local_name)
+        if imp is None:
+            return None, f"`{local_name}` is neither declared in the file nor imported"
+        if imp.get("namespace") == local_name:
+            return None, f"`{local_name}` is a namespace import"
+        if imp.get("default") == local_name:
+            return None, f"`{local_name}` is a default import"
+        target = self.resolve_specifier(from_file, imp["specifier"])
+        if target.kind != "file" or not target.file:
+            return None, f"`{local_name}` comes from `{imp['specifier']}` ({target.kind}: {target.note or 'not in the tree'})"
+        original = (imp.get("name_map") or {}).get(local_name, local_name)
+        decl = self.lookup_export(target.file, original)
+        if decl is None:
+            return None, f"`{original}` is not exported by {target.file} (re-export chain followed)"
+        return decl, ""
+
+    def resolve_type(self, from_file: str, name: str) -> tuple[Declaration | None, str]:
+        decl, note = self.bind(from_file, name)
+        if decl is not None and decl.kind not in _TYPE_KINDS:
+            return None, f"`{name}` binds to a {decl.kind}, not a type"
+        return decl, note
+
+    # -- member sets ---------------------------------------------------------
+
+    def member_set(self, decl: Declaration, seen: set[tuple[str, str]] | None = None) -> tuple[dict[str, dict], bool, list[str]]:
+        """Members walking ``extends``: (members by name, open, unresolved bases).
+
+        ``open`` is True when any part of the chain admits members the
+        registry cannot list (an index signature, a spread, a computed key);
+        ``unresolved`` names the bases that could not be followed inside the
+        repository.
+        """
+        seen = seen if seen is not None else set()
+        key = (decl.file, decl.name)
+        if key in seen:
+            return {}, False, []
+        seen.add(key)
+        members: dict[str, dict] = {}
+        for m in decl.members or []:
+            members.setdefault(m["name"], m)
+        open_ = decl.open or decl.members is None
+        unresolved: list[str] = []
+        for base_name in decl.extends:
+            base, _ = self.resolve_type(decl.file, base_name)
+            if base is None:
+                unresolved.append(base_name)
+                continue
+            b_members, b_open, b_unresolved = self.member_set(base, seen)
+            for name, m in b_members.items():
+                members.setdefault(name, m)
+            open_ = open_ or b_open
+            unresolved.extend(b_unresolved)
+        return members, open_, unresolved
+
+    def param_member_set(self, from_file: str, param: dict) -> tuple[dict[str, dict] | None, str]:
+        """Closed member set of a parameter's declared type, or (None, why not)."""
+        if param.get("rest"):
+            return None, "rest parameter"
+        if param.get("open"):
+            return None, "parameter type is not a closed member set"
+        refs = ([param["type"]] if param.get("type") else []) + list(param.get("intersection") or [])
+        if not refs and param.get("members") is None:
+            return None, "parameter has no declared type"
+        members: dict[str, dict] = {}
+        for ref in refs:
+            decl, note = self.resolve_type(from_file, ref)
+            if decl is None:
+                return None, note or f"type `{ref}` does not resolve in the repository"
+            if decl.kind not in ("interface", "type"):
+                return None, f"`{ref}` is a {decl.kind}, not a member set"
+            m, open_, unresolved = self.member_set(decl)
+            if open_ or unresolved:
+                return None, f"`{ref}` is open or extends something outside the repository ({', '.join(unresolved) or 'index signature'})"
+            members.update(m)
+        for name in param.get("members") or []:
+            members.setdefault(name, {"name": name})
+        return members, ""
+
+    # -- duplicates ----------------------------------------------------------
+
+    def duplicate_groups(self) -> list[list[Declaration]]:
+        groups: list[list[Declaration]] = []
+        for (name, kind), decls in self._by_name.items():
+            if kind not in _TYPE_KINDS:
+                continue
+            exported = [d for d in decls if d.exported]
+            if len({d.file for d in exported}) >= 2:
+                groups.append(sorted(exported, key=lambda d: (d.file, d.line)))
+        return groups

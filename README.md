@@ -84,6 +84,7 @@ osoji generates shadow documentation to build a semantic model of your codebase,
 | `osoji audit .` | Scan for dead code, stale docs, and semantic issues |
 | `osoji verify` | Zero-LLM closure check: which baseline findings are now closed |
 | `osoji claims .` | Verify literal doc claims (scripts, paths) against the checkout, no LLM |
+| `osoji claims --code .` | Verify what the code claims about the tree (imports, member references, `implements`, call keys, duplicate declarations), no LLM |
 | `osoji shadow .` | Generate shadow documentation |
 | `osoji check .` | Check for stale or missing shadow docs |
 | `osoji diff` | Show documentation impact of source changes |

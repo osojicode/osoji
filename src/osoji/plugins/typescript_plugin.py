@@ -12,6 +12,7 @@ from pathlib import Path
 from .base import ExtractedFacts, FactsExtractionError, LanguagePlugin, PluginUnavailableError
 
 _TS_RUNNER = Path(__file__).parent / "ts_runner" / "extract.js"
+_STRUCTURE_RUNNER = Path(__file__).parent / "ts_runner" / "structure.js"
 
 # Directories to skip when searching for tsconfig files.
 _EXCLUDE_DIRS = {"node_modules", ".git", "dist", "build", ".next", "coverage"}
@@ -245,6 +246,58 @@ class TypeScriptPlugin(LanguagePlugin):
                 member_writes=data.get("member_writes", []),
             )
         return result
+
+    def extract_structure(self, project_root: Path, files: list[Path]) -> dict[str, dict] | None:
+        """Syntax-only structure facts via ts-morph (no tsconfig, no resolution)."""
+        self.check_available(project_root)
+        ts_files = [
+            str(f.relative_to(project_root)).replace("\\", "/")
+            for f in files
+            if f.suffix in self.extensions
+        ]
+        if not ts_files:
+            return {}
+        try:
+            proc = subprocess.run(
+                ["node", str(_STRUCTURE_RUNNER)],
+                cwd=str(project_root),
+                input=json.dumps({"files": ts_files}),
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                timeout=600,
+            )
+        except subprocess.TimeoutExpired:
+            raise FactsExtractionError("ts-morph structure extraction timed out (600s)")
+        except FileNotFoundError:
+            raise FactsExtractionError("node executable not found")
+        if proc.returncode != 0:
+            raise FactsExtractionError(
+                f"ts-morph structure extraction failed (exit {proc.returncode}): {proc.stderr[:500]}"
+            )
+        try:
+            return json.loads(proc.stdout)
+        except json.JSONDecodeError as e:
+            raise FactsExtractionError(f"Invalid JSON from ts-morph structure runner: {e}")
+
+    def module_candidates(self, base: str) -> list[str]:
+        """ESM specifiers name the emitted `.js`; the source is `.ts`/`.tsx`/`.d.ts`."""
+        if base.endswith(".js"):
+            stem = base[:-3]
+            return [stem + ".ts", stem + ".tsx", stem + ".d.ts", base, stem + ".js"]
+        if base.endswith(".mjs"):
+            return [base[:-4] + ".mts", base]
+        if base.endswith(".cjs"):
+            return [base[:-4] + ".cts", base]
+        if base.endswith(".jsx"):
+            return [base[:-4] + ".tsx", base]
+        if base.endswith((".ts", ".tsx", ".mts", ".cts", ".json", ".css", ".svg", ".node")):
+            return [base]
+        return [base + ".ts", base + ".tsx", base + ".d.ts", base + ".js",
+                base + "/index.ts", base + "/index.tsx", base + "/index.d.ts", base + "/index.js"]
+
+    def workspace_packages(self, project_root: Path) -> dict[str, str]:
+        return _detect_workspace_packages(project_root)
 
     @staticmethod
     def _find_tsconfig(project_root: Path) -> Path | None:
