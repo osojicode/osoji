@@ -110,6 +110,24 @@ def test_import_whose_only_ignored_candidates_are_build_artefacts_stays_contradi
     assert p.grade == ("error", 0.8) and "tests/src/x.js" in p.note and "tests/src/x.ts is not" in p.note
 
 
+def test_workspace_package_without_an_index_module_keeps_full_confidence(monkeypatch):
+    # The missing-index note is not the gitignore note: the grade stays 1.0.
+    structure = {"src/a.ts": _file(imports=[_imp("@acme/empty", ["X"])])}
+    paths = _paths("src/a.ts", "packages/empty/package.json")
+    calls = []
+    monkeypatch.setattr(PathRegistry, "gitignored", lambda self, names: calls.append(list(names)) or [])
+    (p,) = _contradicted(_verify(structure, paths, workspace={"@acme/empty": "packages/empty/src"}), "import_path")
+    assert p.grade == ("error", 1.0) and "no index module" in p.note
+
+
+def test_check_ignore_is_asked_once_per_distinct_candidate_set(monkeypatch):
+    structure = {f"src/{i}.ts": _file(imports=[_imp("./gen/schema.js", ["S"])]) for i in range(5)}
+    calls = []
+    monkeypatch.setattr(PathRegistry, "gitignored", lambda self, names: calls.append(list(names)) or [])
+    packets = _verify(structure, _paths(*structure))
+    assert len([p for p in packets if p.claim.kind == "import_path"]) == 5 and len(calls) == 1
+
+
 def test_import_escaping_the_repository_is_undecidable():
     structure = {"src/a.ts": _file(imports=[_imp("../../elsewhere/x.js", ["x"])])}
     packets = _verify(structure, _paths("src/a.ts"))

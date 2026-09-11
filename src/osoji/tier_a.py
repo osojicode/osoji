@@ -244,7 +244,7 @@ def _verify_import(claim: CodeClaim, paths: PathRegistry, symbols: SymbolRegistr
     if res.kind == "missing":
         first = res.candidates[0] if res.candidates else claim.name
         answer = paths.exists(first, anchor=False)
-        grade = ("error", 0.8) if res.note else _CODE_GRADES["import_path"]
+        grade = ("error", 0.8) if res.artefacts_ignored else _CODE_GRADES["import_path"]
         return _packet(claim, "contradicted", paths.namespace, rev, searched=res.candidates,
                        near=answer.near, grade=grade,
                        note=f"resolves to {claim.name}; no candidate exists" + (f" ({res.note})" if res.note else ""))

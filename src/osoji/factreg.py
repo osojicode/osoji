@@ -509,6 +509,9 @@ class ResolvedModule:
     file: str | None = None
     candidates: list[str] = field(default_factory=list)
     note: str = ""
+    # missing only: artefact forms of the module are gitignored (they would be
+    # emitted from the absent source), so the miss is graded lower.
+    artefacts_ignored: bool = False
 
 
 _TYPE_KINDS = {"interface", "type", "class", "enum"}
@@ -555,6 +558,7 @@ class SymbolRegistry:
                             self._by_callable.setdefault(m["name"], []).append((decl, list(m["param_list"])))
             self._decls[file] = decls
         self._resolve_cache: dict[tuple[str, str], ResolvedModule] = {}
+        self._ignore_cache: dict[tuple[str, ...], set[str]] = {}
 
     @classmethod
     def from_structure(cls, structure, *, module_candidates, workspace_packages, paths) -> "SymbolRegistry":
@@ -706,13 +710,21 @@ class SymbolRegistry:
         # are ignored they would be emitted from the missing source, so the
         # miss stands, at reduced confidence, with the ignored forms named.
         # Asked of git only on a miss, so this stays cheap.
-        ignored = set(self._paths.gitignored(candidates))
+        ignored = self._gitignored(tuple(candidates))
         if candidates and candidates[0] in ignored:
             return ResolvedModule("unindexed", candidates=candidates,
                                   note=f"{candidates[0]} is gitignored (generated); absence cannot be established")
-        note = (f"artefact forms are gitignored ({', '.join(c for c in candidates if c in ignored)}); "
-                f"the source form {candidates[0]} is not, and is absent") if ignored and candidates else ""
-        return ResolvedModule("missing", candidates=candidates, note=note)
+        if ignored and candidates:
+            return ResolvedModule("missing", candidates=candidates, artefacts_ignored=True,
+                                  note=(f"artefact forms are gitignored ({', '.join(c for c in candidates if c in ignored)}); "
+                                        f"the source form {candidates[0]} is not, and is absent"))
+        return ResolvedModule("missing", candidates=candidates)
+
+    def _gitignored(self, candidates: tuple[str, ...]) -> set[str]:
+        """One `git check-ignore` per distinct candidate set, however many files import it."""
+        if candidates not in self._ignore_cache:
+            self._ignore_cache[candidates] = set(self._paths.gitignored(list(candidates)))
+        return self._ignore_cache[candidates]
 
     # -- binding -------------------------------------------------------------
 

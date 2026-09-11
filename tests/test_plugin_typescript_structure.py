@@ -62,6 +62,10 @@ const other = new FakeProxyProcess('t');
 export const config = { debug: false };
 function apply(config: AdapterPolicy) { return config.timeout; }
 function readTop() { return config.debug; }
+function blockScoped() { const config = { z: 1 }; return config.z; }
+const destructured = ({ config }: { config: AdapterPolicy }) => config.name;
+function caught() { try { return 1; } catch (config) { return config.message; } }
+for (const config of [] as AdapterPolicy[]) { void config.loop; }
 
 function run() {
   const x = SessionState.IDLE;
@@ -116,6 +120,10 @@ def test_structure_extraction_end_to_end(tmp_path):
     assert refs[("SessionState", "IDLE")]["call"] is False
     assert refs[("config", "timeout")]["shadowed"] is True       # parameter shadows the module-level `config`
     assert refs[("config", "debug")]["shadowed"] is False
+    assert refs[("config", "z")]["shadowed"] is True             # block-scoped const
+    assert refs[("config", "name")]["shadowed"] is True          # destructured parameter
+    assert refs[("config", "message")]["shadowed"] is True       # catch clause variable
+    assert refs[("config", "loop")]["shadowed"] is True          # for-of variable
     hook = refs[("DefaultPolicy", "updateStateOnCommand")]
     assert hook["optional"] is True and hook["call"] is True
 
