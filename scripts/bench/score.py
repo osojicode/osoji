@@ -164,7 +164,7 @@ def _load_findings_dir(path: Path) -> dict[str, list[dict]]:
     for file in sorted(path.glob("*.json")):
         data = json.loads(file.read_text(encoding="utf-8"))
         issues = data.get("issues") if isinstance(data, dict) else data
-        out[file.stem] = [i for i in (issues or []) if i.get("exclude_key") in (None, "doc-analysis", "doc-claims")]
+        out[file.stem] = [i for i in (issues or []) if i.get("exclude_key") in (None, "doc-analysis", "doc-claims", "code-claims")]
     return out
 
 

@@ -112,6 +112,7 @@ export analysis, and string contract checking.
 - `src/osoji/osoji-observatory.schema.json` — JSON Schema (Draft 2020-12) for the observatory bundle
 - `scripts/bench/` — documentation-drift benchmark tooling (mine docs-fix commits, label, run, score, cost); the data lives in the private `osojicode/osoji-bench` repo and is passed in by path
 - `src/osoji/factreg.py`, `src/osoji/claims_docs.py`, `src/osoji/tier_a.py` — Tier A: mechanical fact registries (paths, manifest scripts), markdown claim extraction, deterministic verification with evidence packets; runs as `osoji claims` and, with `osoji audit --doc-claims`, as audit phase 2a (opt-in until the benchmark clears it)
+- `src/osoji/claims_code.py`, `factreg.SymbolRegistry`, `plugins/ts_runner/structure.js` — Tier A on code claims (`osoji claims --code`): imports, member references, `implements`, object-literal call keys and duplicate declarations verified against registries built from the plugins' syntax-only *structure facts* (schema in `plugins/base.py`); no compiler, no LLM
 
 ## Observatory bundle schema
 

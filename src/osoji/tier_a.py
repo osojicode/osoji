@@ -11,14 +11,15 @@ import subprocess
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
+from .claims_code import CodeClaim
 from .claims_docs import DocClaim
 from .config import Config
-from .factreg import Location, PathRegistry, RegistryAnswer, ScriptRegistry
+from .factreg import Declaration, Location, PathRegistry, RegistryAnswer, ScriptRegistry, SymbolRegistry, _near
 
 
 @dataclass
 class EvidencePacket:
-    claim: DocClaim
+    claim: DocClaim | CodeClaim
     verdict: str                     # "contradicted" | "supported" | "undecidable"
     namespace: str
     searched: list[str] = field(default_factory=list)
@@ -26,6 +27,10 @@ class EvidencePacket:
     near: list[str] = field(default_factory=list)
     index_revision: str = ""
     note: str = ""
+    # (severity, confidence) chosen by the verifier when the grade depends on
+    # the case rather than on the claim kind alone (code claims); None lets
+    # the audit grade by kind.
+    grade: tuple[str, float] | None = None
 
     def to_dict(self) -> dict:
         d = asdict(self)
@@ -203,7 +208,319 @@ def verify_doc_claims(
     return packets
 
 
+# ---------------------------------------------------------------------------
+# Code claims (claims_code.py) against the path and symbol registries.
+# ---------------------------------------------------------------------------
+
+_CODE_GRADES = {
+    "import_path": ("error", 1.0),
+    "member_ref": ("warning", 0.8),
+    "implements_member": ("error", 1.0),
+    "implements_signature": ("info", 0.6),
+    "call_arg_keys": ("warning", 0.7),
+    "duplicate_declaration": ("warning", 0.7),
+}
+
+
+def _loc(decl: Declaration) -> Location:
+    return Location(path=decl.file, line=decl.line)
+
+
+def _packet(claim: CodeClaim, verdict: str, namespace: str, rev: str, *, note: str = "",
+            searched: list[str] | None = None, locations: list[Location] | None = None,
+            near: list[str] | None = None, grade: tuple[str, float] | None = None) -> EvidencePacket:
+    return EvidencePacket(
+        claim=claim, verdict=verdict, namespace=namespace, searched=list(searched or []),
+        locations=list(locations or []), near=list(near or []), index_revision=rev, note=note,
+        grade=grade if verdict == "contradicted" else None,
+    )
+
+
+def _verify_import(claim: CodeClaim, paths: PathRegistry, symbols: SymbolRegistry, rev: str) -> EvidencePacket:
+    res = symbols.resolve_specifier(claim.doc_path, claim.text)
+    if res.kind == "file" and res.file:
+        return _packet(claim, "supported", paths.namespace, rev, locations=[Location(path=res.file)],
+                       searched=res.candidates)
+    if res.kind == "missing":
+        first = res.candidates[0] if res.candidates else claim.name
+        answer = paths.exists(first, anchor=False)
+        return _packet(claim, "contradicted", paths.namespace, rev, searched=res.candidates,
+                       near=answer.near, grade=_CODE_GRADES["import_path"],
+                       note=f"resolves to {claim.name}; no candidate exists" + (f" ({res.note})" if res.note else ""))
+    notes = {"external": res.note or "bare specifier; not a path in this repository",
+             "outside": res.note or "resolves outside the repository",
+             "unindexed": res.note or "candidate lies outside the indexed universe"}
+    return _packet(claim, "undecidable", paths.namespace, rev, searched=res.candidates,
+                   note=notes.get(res.kind, res.note))
+
+
+def _verify_member_ref(claim: CodeClaim, symbols: SymbolRegistry, rev: str) -> EvidencePacket:
+    decl, why = symbols.bind(claim.doc_path, claim.subject)
+    ns = symbols.namespace
+    if decl is None:
+        return _packet(claim, "undecidable", ns, rev, note=why)
+    if decl.kind not in ("enum", "object"):
+        return _packet(claim, "undecidable", ns, rev, locations=[_loc(decl)],
+                       note=f"`{claim.subject}` binds to a {decl.kind}; its members are not a closed set the registry can list")
+    if decl.open:
+        return _packet(claim, "undecidable", ns, rev, locations=[_loc(decl)],
+                       note=f"`{claim.subject}` has a spread or computed key; its members are not a closed set")
+    names = decl.member_names
+    searched = [f"{decl.file}:{decl.line} {decl.kind} {decl.name}"]
+    if claim.name in names:
+        return _packet(claim, "supported", ns, rev, locations=[_loc(decl)], searched=searched)
+    near = _near(claim.name, names) or names[:5]
+    grade = _CODE_GRADES["member_ref"]
+    note = f"`{decl.name}` is an {decl.kind} declared at {decl.file}:{decl.line} without `{claim.name}`"
+    if decl.kind == "object" and decl.annotation:
+        typ, _ = symbols.resolve_type(decl.file, decl.annotation)
+        if typ is not None:
+            members, _open, _unresolved = symbols.member_set(typ)
+            m = members.get(claim.name)
+            if m is not None and m.get("optional"):
+                if not claim.call:
+                    # A plain read of an absent optional member may be deliberate
+                    # (`expect(policy.hook).toBeUndefined()`); only a call that can
+                    # never fire is dead by construction.
+                    return _packet(claim, "undecidable", ns, rev, locations=[_loc(decl)], searched=searched,
+                                   note=(f"`{claim.name}` is declared optional on {decl.annotation} and absent from "
+                                         f"`{decl.name}`; a read of it may be deliberate"))
+                grade = ("info", 0.6)
+                note = (f"`{claim.name}` is declared optional on {decl.annotation} and `{decl.name}` "
+                        f"({decl.file}:{decl.line}) does not implement it: the optional call never fires")
+    return _packet(claim, "contradicted", ns, rev, locations=[_loc(decl)], searched=searched, near=near,
+                   grade=grade, note=note)
+
+
+def _verify_implements(claim: CodeClaim, symbols: SymbolRegistry, rev: str) -> list[EvidencePacket]:
+    from dataclasses import replace
+
+    ns = symbols.namespace
+    cls = next((d for d in symbols.declarations(claim.doc_path)
+                if d.kind == "class" and d.name == claim.subject and d.line == claim.line), None)
+    if cls is None:
+        return [_packet(claim, "undecidable", ns, rev, note="class declaration not found in the structure facts")]
+    iface, why = symbols.resolve_type(claim.doc_path, claim.target)
+    if iface is None or iface.kind not in ("interface", "type"):
+        return [_packet(claim, "undecidable", ns, rev,
+                        note=why or f"`{claim.target}` is not an interface declared in the repository")]
+    required, open_, unresolved_ifaces = symbols.member_set(iface)
+    if open_:
+        return [_packet(claim, "undecidable", ns, rev, locations=[_loc(iface)],
+                        note=f"`{claim.target}` admits members the registry cannot list (index signature)")]
+    have, _have_open, unresolved_bases = symbols.member_set(cls)
+    searched = [f"{iface.file}:{iface.line} {iface.kind} {iface.name}"]
+    out: list[EvidencePacket] = []
+    missing = [name for name, m in required.items() if not m.get("optional") and name not in have]
+    foreign = f"; base class {', '.join(unresolved_bases)} is outside the repository and may declare it" if unresolved_bases else ""
+    partial = f" (interface also extends {', '.join(unresolved_ifaces)}, not followed)" if unresolved_ifaces else ""
+    for name in missing:
+        if unresolved_bases:
+            # v0.1 (sources/0008): a base outside the repository can declare any
+            # of these, and in the v0 run it usually did (10 of 11 such packets
+            # were EventEmitter members). Tier A's rule: an incomplete index is
+            # undecidable, never contradicted.
+            out.append(_packet(replace(claim, name=name), "undecidable", ns, rev, locations=[_loc(iface)],
+                               searched=searched,
+                               note=f"`{claim.subject}` declares no `{name}` in the repository{foreign}{partial}"))
+            continue
+        out.append(_packet(replace(claim, name=name), "contradicted", ns, rev, locations=[_loc(iface)], searched=searched,
+                           near=_near(name, sorted(have)), grade=_CODE_GRADES["implements_member"],
+                           note=f"`{claim.subject}` declares no `{name}`, required by {claim.target}{partial}"))
+    if not missing:
+        out.append(_packet(claim, "supported", ns, rev, locations=[_loc(iface)], searched=searched,
+                           note=(f"all required members present" + foreign + partial)))
+    for name, m in required.items():
+        c = have.get(name)
+        if not c or m.get("kind") != "method" or c.get("kind") != "method":
+            continue
+        want, got = m.get("required_params"), c.get("required_params")
+        if want is None or got is None or want == got:
+            continue
+        out.append(_packet(replace(claim, kind="implements_signature", name=name, line=int(c.get("line") or claim.line)),
+                           "contradicted", ns, rev,
+                           locations=[_loc(iface)], searched=searched, grade=_CODE_GRADES["implements_signature"],
+                           note=(f"`{claim.subject}.{name}` declares {got} required parameter(s); "
+                                 f"{claim.target}.{name} declares {want}")))
+    return out
+
+
+def _verify_call_arg_keys(claim: CodeClaim, symbols: SymbolRegistry, rev: str) -> list[EvidencePacket]:
+    from dataclasses import replace
+
+    ns = symbols.namespace
+    if claim.spread:
+        return [_packet(claim, "undecidable", ns, rev, note="argument spreads another object; its keys are not literal")]
+    call = {"member": claim.target, "receiver": claim.receiver, "enclosing_class": claim.enclosing_class}
+    decls, why = symbols.resolve_callee(claim.doc_path, call)
+    if not decls:
+        return [_packet(claim, "undecidable", ns, rev, note=why)]
+    universes: list[dict[str, dict]] = []
+    locations: list[Location] = []
+    types: list[str] = []
+    for owner, params, line in decls:
+        loc = Location(path=owner.file, line=line)
+        if claim.arg_index >= len(params):
+            return [_packet(claim, "undecidable", ns, rev, locations=[loc],
+                            note=f"`{claim.target}` at {owner.file}:{line} declares fewer parameters than the call passes")]
+        param = params[claim.arg_index]
+        members, why = symbols.param_member_set(owner.file, param)
+        if members is None:
+            return [_packet(claim, "undecidable", ns, rev, locations=[loc],
+                            note=f"`{claim.target}` at {owner.file}:{line}: {why}")]
+        universes.append(members)
+        locations.append(loc)
+        types.append(param.get("type") or "{...}")
+    searched = [f"{l.path}:{l.line} {claim.target}({t})" for l, t in zip(locations, types)]
+    declared = set().union(*(set(u) for u in universes))
+    missing = [k for k in claim.keys if k not in declared]
+    if not missing:
+        return [_packet(claim, "supported", ns, rev, locations=locations, searched=searched)]
+    out = []
+    for key in missing:
+        out.append(_packet(replace(claim, name=key, text=f"{claim.target}({{ {key} }})"), "contradicted", ns, rev,
+                           locations=locations, searched=searched,
+                           near=_near(key, sorted(declared)) or sorted(declared)[:5], grade=_CODE_GRADES["call_arg_keys"],
+                           note=(f"`{key}` is not declared by the parameter type of any of the {len(decls)} "
+                                 f"declaration(s) of `{claim.target}` ({', '.join(sorted(set(types)))}); the callee drops it")))
+    return out
+
+
+def _member_sig(m: dict) -> tuple:
+    return (m.get("name"), m.get("kind"), bool(m.get("optional")), m.get("params"), m.get("required_params"), m.get("signature"))
+
+
+def _verify_duplicate(claim: CodeClaim, symbols: SymbolRegistry, rev: str) -> EvidencePacket:
+    ns = symbols.namespace
+    group = [d for d in symbols.declarations_named(claim.name, {claim.subject}) if d.exported]
+    me = next((d for d in group if d.file == claim.doc_path and d.line == claim.line), None)
+    others = [d for d in group if d is not me and d.file != claim.doc_path]
+    if me is None or not others:
+        return _packet(claim, "undecidable", ns, rev, note="no other exported declaration of this name")
+    mine = set(me.member_names)
+    my_sigs = {_member_sig(m) for m in (me.members or [])}
+    identical: list[Declaration] = []
+    diverged: list[tuple[Declaration, set[str], set[str]]] = []
+    for o in others:
+        theirs = set(o.member_names)
+        shared = mine & theirs
+        containment = len(shared) / max(1, min(len(mine), len(theirs)))
+        if mine == theirs and my_sigs == {_member_sig(m) for m in (o.members or [])}:
+            identical.append(o)
+        elif (len(shared) >= 2 and containment >= 0.5) or (mine == theirs):
+            diverged.append((o, mine - theirs, theirs - mine))
+    searched = [f"{o.file}:{o.line}" for o in others]
+    if identical:
+        note = f"identical copy of {claim.subject} {claim.name} at " + ", ".join(f"{o.file}:{o.line}" for o in identical)
+        if diverged:
+            note += "; diverged copy at " + ", ".join(f"{o.file}:{o.line}" for o, _, _ in diverged)
+        return _packet(claim, "contradicted", ns, rev, locations=[_loc(o) for o in identical + [d for d, _, _ in diverged]],
+                       searched=searched, grade=("info", 0.5), note=note)
+    if diverged:
+        parts = []
+        for o, only_here, only_there in diverged:
+            detail = []
+            if only_here:
+                detail.append(f"only here: {', '.join(sorted(only_here))}")
+            if only_there:
+                detail.append(f"only there: {', '.join(sorted(only_there))}")
+            if not detail:
+                detail.append("same member names, different signatures")
+            parts.append(f"{o.file}:{o.line} ({'; '.join(detail)})")
+        return _packet(claim, "contradicted", ns, rev, locations=[_loc(o) for o, _, _ in diverged], searched=searched,
+                       grade=("warning", 0.7), note=f"diverged from the copy at " + "; ".join(parts))
+    return _packet(claim, "supported", ns, rev, searched=searched,
+                   note="same name, different members: not a copy")
+
+
+def verify_code_claims(claims: list[CodeClaim], paths: PathRegistry, symbols: SymbolRegistry,
+                       index_revision: str = "") -> list[EvidencePacket]:
+    packets: list[EvidencePacket] = []
+    for claim in claims:
+        if claim.kind == "import_path":
+            packets.append(_verify_import(claim, paths, symbols, index_revision))
+        elif claim.kind == "member_ref":
+            packets.append(_verify_member_ref(claim, symbols, index_revision))
+        elif claim.kind == "implements_member":
+            packets.extend(_verify_implements(claim, symbols, index_revision))
+        elif claim.kind == "call_arg_keys":
+            packets.extend(_verify_call_arg_keys(claim, symbols, index_revision))
+        elif claim.kind == "duplicate_declaration":
+            packets.append(_verify_duplicate(claim, symbols, index_revision))
+    return packets
+
+
+def _source_files(config: Config) -> list[Path]:
+    """The walker's file list with the same ignore filters the registries apply."""
+    from .walker import _matches_ignore, list_repo_files
+
+    osojiignore = config.load_osojiignore()
+    out: list[Path] = []
+    paths, _ = list_repo_files(config)
+    for path in paths:
+        p = path if path.is_absolute() else config.root_path / path
+        try:
+            relative = p.relative_to(config.root_path)
+        except ValueError:
+            continue
+        if _matches_ignore(relative, config.ignore_patterns):
+            continue
+        if osojiignore and _matches_ignore(relative, osojiignore):
+            continue
+        out.append(p)
+    return out
+
+
+def build_symbol_registry(config: Config, paths: PathRegistry) -> tuple[SymbolRegistry, dict[str, dict]]:
+    """Structure facts from every plugin that has a parser for them, as one registry."""
+    from .plugins import get_all_plugins
+
+    files = _source_files(config)
+    structure: dict[str, dict] = {}
+    providers = []
+    for plugin in get_all_plugins():
+        mine = [f for f in files if f.suffix in plugin.extensions]
+        if not mine:
+            continue
+        facts = plugin.extract_structure(config.root_path, mine)
+        if facts:
+            structure.update(facts)
+            providers.append(plugin)
+
+    def candidates(base: str) -> list[str]:
+        out: list[str] = []
+        for plugin in providers:
+            for c in plugin.module_candidates(base):
+                if c not in out:
+                    out.append(c)
+        return out or [base]
+
+    workspace: dict[str, str] = {}
+    for plugin in providers:
+        workspace.update(plugin.workspace_packages(config.root_path))
+    return SymbolRegistry.from_structure(structure, module_candidates=candidates,
+                                        workspace_packages=workspace, paths=paths), structure
+
+
+def run_tier_a_code(config: Config) -> list[EvidencePacket]:
+    """Compile code claims from the tree and verify them against the registries. Zero LLM."""
+    from .claims_code import extract_code_claims
+
+    paths = PathRegistry.from_config(config)
+    symbols, structure = build_symbol_registry(config, paths)
+    claims = extract_code_claims(structure)
+    return verify_code_claims(claims, paths, symbols, index_revision=_index_revision(config.root_path))
+
+
+_CODE_WHAT = {
+    "import_path": "imports", "member_ref": "reads member", "implements_member": "implements",
+    "implements_signature": "implements", "call_arg_keys": "passes key", "duplicate_declaration": "declares",
+}
+
+
 def packet_message(p: EvidencePacket) -> str:
+    if isinstance(p.claim, CodeClaim):
+        return _code_packet_message(p)
     what = "script" if p.claim.kind == "script_exists" else "path"
     if p.verdict == "contradicted":
         near = f"; nearest declared: {', '.join(p.near)}" if p.near else ""
@@ -215,9 +532,40 @@ def packet_message(p: EvidencePacket) -> str:
     return f"Doc names {what} `{p.claim.text}`; {p.note}"
 
 
+def _code_packet_message(p: EvidencePacket) -> str:
+    c = p.claim
+    if p.verdict == "contradicted":
+        near = f"; nearest declared: {', '.join(p.near)}" if p.near else ""
+        if c.kind == "import_path":
+            return f"Code imports `{c.text}` but no module exists at {c.name} (searched {', '.join(p.searched)}{near})"
+        if c.kind == "member_ref":
+            return f"Code reads `{c.text}` but {p.note}{near}"
+        if c.kind == "implements_member":
+            return f"`{c.text}` but {p.note}{near}"
+        if c.kind == "implements_signature":
+            return f"`{c.text}` but {p.note}"
+        if c.kind == "call_arg_keys":
+            return f"Code calls `{c.text}` but `{c.name}` {p.note.split(' ', 1)[1] if p.note.startswith('`') else p.note}{near}"
+        if c.kind == "duplicate_declaration":
+            return f"`{c.text}` is declared more than once: {p.note}"
+    if p.verdict == "supported":
+        where = ", ".join(f"{l.path}:{l.line}" if l.line else l.path for l in p.locations)
+        return f"Code {_CODE_WHAT.get(c.kind, 'names')} `{c.text}`; declared at {where}" if where else f"`{c.text}`; {p.note}"
+    return f"Code {_CODE_WHAT.get(c.kind, 'names')} `{c.text}`; {p.note}"
+
+
 def packet_remediation(p: EvidencePacket) -> str:
     if p.verdict != "contradicted":
         return ""
+    if isinstance(p.claim, CodeClaim):
+        c = p.claim
+        if c.kind == "import_path":
+            return f"Fix the specifier `{c.text}`" + (f" (nearest: {p.near[0]})" if p.near else "") + " or add the module."
+        if c.kind == "duplicate_declaration":
+            return f"Keep one declaration of `{c.name}` and re-export it from the others."
+        if c.kind == "implements_signature":
+            return f"Align `{c.subject}.{c.name}` with `{c.target}.{c.name}` or change the interface."
+        return f"Declare `{c.name}`" + (f" (nearest: {p.near[0]})" if p.near else "") + " or remove the reference."
     if p.near:
         return f"Replace `{p.claim.text}` with the declared name (nearest: {p.near[0]}), or declare it."
     return f"Declare `{p.claim.text}` or remove the reference from the doc."

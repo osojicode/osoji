@@ -365,7 +365,7 @@ def tier_a_issues(config: Config, exclude: set[str] | None = None) -> tuple[list
     issues = [
         AuditIssue(
             path=config.root_path / p.claim.doc_path,
-            severity=grade.get(p.claim.kind, ("warning", 0.8))[0],
+            severity=(p.grade or grade.get(p.claim.kind, ("warning", 0.8)))[0],
             category="doc_nonexistent_artifact",
             message=packet_message(p),
             remediation=packet_remediation(p),
@@ -374,7 +374,7 @@ def tier_a_issues(config: Config, exclude: set[str] | None = None) -> tuple[list
             origin={"source": "static", "plugin": "tier_a"},
             exclude_key="doc-claims",
             verdict="confirmed",
-            confidence=grade.get(p.claim.kind, ("warning", 0.8))[1],
+            confidence=(p.grade or grade.get(p.claim.kind, ("warning", 0.8)))[1],
             triage_reasoning=f"Deterministic: {p.namespace} namespace searched ({', '.join(p.searched)}); index {p.index_revision}",
         )
         for p in packets if p.verdict == "contradicted"
