@@ -49,6 +49,7 @@ from .audit_manifest import (
     get_head_commit,
     load_manifest,
     merge_verdicts,
+    model_profile,
     write_manifest,
 )
 from .triage import TRIAGE_SYSTEM_PROMPT
@@ -484,7 +485,7 @@ async def run_audit_async(
     previous_manifest = load_manifest(config.audit_manifest_path)
     manifest_current = (
         previous_manifest is not None
-        and previous_manifest.get("osoji_version") == current_version()
+        and previous_manifest.get("osoji_version") == current_version(model_profile=model_profile(config))
     )
     verdict_cache: dict[tuple[str, str], dict] = {}
     if use_cache:
@@ -501,7 +502,7 @@ async def run_audit_async(
     previous_doc_cache = load_doc_cache(config.doc_analysis_cache_path)
     doc_cache_current = (
         previous_doc_cache is not None
-        and previous_doc_cache.get("osoji_version") == current_version()
+        and previous_doc_cache.get("osoji_version") == current_version(model_profile=model_profile(config))
     )
     doc_session = DocCacheSession(
         previous=previous_doc_cache["entries"] if (use_cache and doc_cache_current) else {},
@@ -853,7 +854,7 @@ async def run_audit_async(
             config.audit_manifest_path,
             merge_verdicts(prev_verdicts, session.harvested, producers),
             commit=get_head_commit(config.root_path),
-            version=current_version(),
+            version=current_version(model_profile=model_profile(config)),
         )
     except Exception as exc:
         # the manifest is an optimization; never fail the audit over it — but
@@ -871,7 +872,7 @@ async def run_audit_async(
                 config.doc_analysis_cache_path,
                 doc_session.current,
                 commit=get_head_commit(config.root_path),
-                version=current_version(),
+                version=current_version(model_profile=model_profile(config)),
             )
         except Exception as exc:
             _record_degradation(config, "doc-cache-write", exc)

@@ -187,3 +187,6 @@ class CompletionResult:
     stop_reason: str | None
     rate_limit: RateLimitMetadata | None = None
     response_headers: dict[str, str] | None = None
+    # max_tokens the last request actually carried, which can exceed what the
+    # call site asked for (thinking floor). None from providers that don't say.
+    max_tokens_sent: int | None = None

@@ -37,7 +37,23 @@ class IncrementalAuditError(RuntimeError):
     """Raised when an incremental-audit precondition fails (e.g. bad --since)."""
 
 
-def current_version(project_rules: str | None = None) -> str:
+def model_profile(config) -> str:
+    """The models and request knobs that produce cached verdicts and analyses.
+
+    Folded into :func:`current_version` so switching a tier's model, or
+    turning thinking or effort on, starts a day-zero audit instead of
+    silently reusing results another model produced (osojicode/work#108).
+    """
+
+    from .llm.anthropic import request_knobs_stamp
+
+    provider = config.provider or "anthropic"
+    tiers = "|".join(f"{tier}={config.model_for(tier)}" for tier in ("small", "medium", "large"))
+    knobs = request_knobs_stamp() if provider == "anthropic" else ""
+    return f"{provider}:{tiers}|{knobs}"
+
+
+def current_version(project_rules: str | None = None, model_profile: str | None = None) -> str:
     """Return the osoji logic version stamp for manifest validation.
 
     ``project_rules`` (maintainer-declared triage intent, work#35) folds into the
@@ -45,10 +61,13 @@ def current_version(project_rules: str | None = None) -> str:
     the Triage user message, so a rules edit is a logic change for cache
     purposes. Absent or blank rules leave the stamp byte-identical to the
     pre-rules version — existing manifests stay valid (no invalidation for
-    users who declare none).
+    users who declare none). ``model_profile`` (:func:`model_profile`) folds
+    in the same way.
     """
 
     base = f"{CLAIM_BUILDER_SCHEMA_VERSION}:{compute_impl_hash()}"
+    if model_profile:
+        base += ":models-" + hashlib.sha256(model_profile.encode("utf-8")).hexdigest()[:16]
     if not (project_rules and project_rules.strip()):
         return base
     digest = hashlib.sha256(project_rules.encode("utf-8")).hexdigest()[:16]

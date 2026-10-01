@@ -86,6 +86,28 @@ class DirectProvider(LLMProvider):
             return requested
         return min(requested, cap)
 
+    def planned_max_tokens(self, options: CompletionOptions) -> int:
+        """The max_tokens a request with ``options`` will carry on the wire.
+
+        The rate limiter reserves output budget with this, so it must agree
+        with ``_wire_request_kwargs``.
+        """
+        return self._clamp_max_tokens(options.max_tokens)
+
+    def _wire_request_kwargs(self, request_kwargs: dict[str, Any]) -> dict[str, Any]:
+        """What actually goes to the SDK for ``request_kwargs``.
+
+        Every attempt passes through here, so a provider that rewrites
+        requests (or learns from a rejection) applies it to every retry.
+        The default sends the request unchanged.
+        """
+        return request_kwargs
+
+    def _learn_from_rejection(self, wire_kwargs: dict[str, Any], exc: BaseException) -> bool:
+        """Return True when ``exc`` taught the provider to send a different
+        request for this model, so the same attempt should be sent again."""
+        return False
+
     def __init__(self) -> None:
         _disable_wmi_if_needed()
         self._interaction_log_path: Path | None = None
@@ -154,6 +176,13 @@ class DirectProvider(LLMProvider):
         current_max_tokens = options.max_tokens
 
         parsed = await self._request_and_parse(request_kwargs, attempt=1)
+        # A provider can send more than the call site asked for (a thinking
+        # floor); the retry budget arithmetic starts from what was sent, or a
+        # truncated response would be retried at the same budget.
+        sent = parsed.result.max_tokens_sent
+        if sent is not None and sent > options.max_tokens:
+            options = replace(options, max_tokens=sent)
+            current_max_tokens = sent
         total_input_tokens = parsed.result.input_tokens
         total_output_tokens = parsed.result.output_tokens
 
@@ -175,7 +204,10 @@ class DirectProvider(LLMProvider):
                     and self.max_output_tokens is not None
                     and current_max_tokens >= self.max_output_tokens
                 )
-                if attempts >= _MAX_TOOL_VALIDATION_ATTEMPTS or truncated_at_cap:
+                # A safety refusal is a decision, not a slip: asking again
+                # bills the same refusal.
+                refused = parsed.result.stop_reason == "refusal"
+                if attempts >= _MAX_TOOL_VALIDATION_ATTEMPTS or truncated_at_cap or refused:
                     raise RequiredToolCallError(
                         tool_name=required_tool_name,
                         attempts=attempts,
@@ -218,6 +250,7 @@ class DirectProvider(LLMProvider):
                     model=parsed.result.model,
                     stop_reason=parsed.result.stop_reason,
                     response_headers=parsed.result.response_headers,
+                    max_tokens_sent=parsed.result.max_tokens_sent,
                 )
 
             if parsed.assistant_message is None or attempts >= _MAX_TOOL_VALIDATION_ATTEMPTS:
@@ -254,13 +287,24 @@ class DirectProvider(LLMProvider):
         *,
         attempt: int,
     ) -> _ParsedResponse:
-        try:
-            response = await self._call_api(**request_kwargs)
-        except Exception as exc:
-            self._log_interaction(request_kwargs=request_kwargs, attempt=attempt, error=exc)
-            raise
+        while True:
+            wire_kwargs = self._wire_request_kwargs(request_kwargs)
+            try:
+                response = await self._call_api(**wire_kwargs)
+                break
+            except Exception as exc:
+                self._log_interaction(
+                    request_kwargs=request_kwargs, wire_kwargs=wire_kwargs, attempt=attempt, error=exc,
+                )
+                # Learning only ever removes something from the next request,
+                # so this loop ends: a repeat of the same rejection is not new.
+                if not self._learn_from_rejection(wire_kwargs, exc):
+                    raise
         parsed = self._parse_sdk_response(response)
-        self._log_interaction(request_kwargs=request_kwargs, attempt=attempt, parsed=parsed)
+        parsed.result.max_tokens_sent = wire_kwargs.get("max_tokens")
+        self._log_interaction(
+            request_kwargs=request_kwargs, wire_kwargs=wire_kwargs, attempt=attempt, parsed=parsed,
+        )
         return parsed
 
     def _log_interaction(
@@ -268,11 +312,13 @@ class DirectProvider(LLMProvider):
         *,
         request_kwargs: dict[str, Any],
         attempt: int,
+        wire_kwargs: dict[str, Any] | None = None,
         parsed: _ParsedResponse | None = None,
         error: Exception | None = None,
     ) -> None:
         if self._interaction_log_path is None:
             return
+        wire = request_kwargs if wire_kwargs is None else wire_kwargs
         self._interaction_log_sequence += 1
         entry: dict[str, Any] = {
             "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -280,14 +326,22 @@ class DirectProvider(LLMProvider):
             "provider": self.name,
             "attempt": attempt,
             "request": {
-                "model": request_kwargs.get("model"),
-                "messages": request_kwargs.get("messages"),
-                "max_tokens": request_kwargs.get("max_tokens"),
-                "temperature": request_kwargs.get("temperature"),
-                "tools": request_kwargs.get("tools"),
+                "model": wire.get("model"),
+                "messages": wire.get("messages"),
+                "max_tokens": wire.get("max_tokens"),
+                "temperature": wire.get("temperature"),
+                "tools": wire.get("tools"),
+                # What the call site asked for; cost attribution filters on it.
                 "tool_choice": request_kwargs.get("tool_choice"),
             },
         }
+        if wire.get("tool_choice") != request_kwargs.get("tool_choice"):
+            entry["request"]["wire_tool_choice"] = wire.get("tool_choice")
+        body = {**wire, **(wire.get("extra_body") or {})}
+        if body.get("thinking"):
+            entry["request"]["thinking"] = body["thinking"].get("type")
+        if (body.get("output_config") or {}).get("effort"):
+            entry["request"]["effort"] = body["output_config"]["effort"]
         if parsed is not None:
             entry["response"] = {
                 "format": parsed.response_format,
@@ -344,6 +398,14 @@ class DirectProvider(LLMProvider):
                     name=self._field(block, "name", ""),
                     input=tool_input,
                 ))
+            elif block_type in ("thinking", "redacted_thinking"):
+                # Passed back unchanged on a retry turn, as the API documents
+                # for thinking models; empty thinking text (the default
+                # display) still carries the signature that binds it.
+                assistant_blocks.append(self._block_as_dict(block))
+
+        if all(b["type"] in ("thinking", "redacted_thinking") for b in assistant_blocks):
+            assistant_blocks = []  # nothing but thinking: no turn to replay
 
         result = CompletionResult(
             content="".join(text_blocks) or None,
@@ -651,3 +713,8 @@ class DirectProvider(LLMProvider):
         if isinstance(obj, dict):
             return obj.get(key, default)
         return getattr(obj, key, default)
+
+    def _block_as_dict(self, block: Any) -> dict[str, Any]:
+        if isinstance(block, dict):
+            return dict(block)
+        return block.model_dump(exclude_none=True)
