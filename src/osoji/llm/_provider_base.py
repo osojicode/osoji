@@ -176,6 +176,13 @@ class DirectProvider(LLMProvider):
         current_max_tokens = options.max_tokens
 
         parsed = await self._request_and_parse(request_kwargs, attempt=1)
+        # A provider can send more than the call site asked for (a thinking
+        # floor); the retry budget arithmetic starts from what was sent, or a
+        # truncated response would be retried at the same budget.
+        sent = parsed.result.max_tokens_sent
+        if sent is not None and sent > options.max_tokens:
+            options = replace(options, max_tokens=sent)
+            current_max_tokens = sent
         total_input_tokens = parsed.result.input_tokens
         total_output_tokens = parsed.result.output_tokens
 
@@ -243,6 +250,7 @@ class DirectProvider(LLMProvider):
                     model=parsed.result.model,
                     stop_reason=parsed.result.stop_reason,
                     response_headers=parsed.result.response_headers,
+                    max_tokens_sent=parsed.result.max_tokens_sent,
                 )
 
             if parsed.assistant_message is None or attempts >= _MAX_TOOL_VALIDATION_ATTEMPTS:
@@ -293,6 +301,7 @@ class DirectProvider(LLMProvider):
                 if not self._learn_from_rejection(wire_kwargs, exc):
                     raise
         parsed = self._parse_sdk_response(response)
+        parsed.result.max_tokens_sent = wire_kwargs.get("max_tokens")
         self._log_interaction(
             request_kwargs=request_kwargs, wire_kwargs=wire_kwargs, attempt=attempt, parsed=parsed,
         )
@@ -328,10 +337,11 @@ class DirectProvider(LLMProvider):
         }
         if wire.get("tool_choice") != request_kwargs.get("tool_choice"):
             entry["request"]["wire_tool_choice"] = wire.get("tool_choice")
-        if wire.get("thinking"):
-            entry["request"]["thinking"] = wire["thinking"].get("type")
-        if (wire.get("output_config") or {}).get("effort"):
-            entry["request"]["effort"] = wire["output_config"]["effort"]
+        body = {**wire, **(wire.get("extra_body") or {})}
+        if body.get("thinking"):
+            entry["request"]["thinking"] = body["thinking"].get("type")
+        if (body.get("output_config") or {}).get("effort"):
+            entry["request"]["effort"] = body["output_config"]["effort"]
         if parsed is not None:
             entry["response"] = {
                 "format": parsed.response_format,

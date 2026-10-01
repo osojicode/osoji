@@ -72,7 +72,8 @@ class LoggingProvider(LLMProvider):
             self._stats.length_stop_count += 1
             example = (
                 f"{options.reservation_key} "
-                f"(model={result.model or options.model}, max_tokens={options.max_tokens})"
+                f"(model={result.model or options.model}, "
+                f"max_tokens={result.max_tokens_sent or options.max_tokens})"
             )
             self._stats.length_stop_examples.append(example)
 

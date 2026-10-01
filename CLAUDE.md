@@ -149,7 +149,8 @@ In non-quiet mode, `osoji push` prints which source each config value was resolv
   Call sites keep forcing their tool. `AnthropicProvider` sends a forced tool as `auto`
   plus an instruction when thinking is on (a forced tool suppresses it) or when a model
   rejects forced choice. It learns each unsupported feature from the API's 400 per model
-  (no model table), and the retry loop still requires the tool.
+  (no model table), and the retry loop still requires a named tool (`"type": "tool"`;
+  an `"any"` choice sent as `auto` is not enforced, and no call site uses `"any"`).
 
 ## Pipeline engineering principles
 

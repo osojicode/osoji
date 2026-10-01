@@ -34,6 +34,9 @@ _FEATURE_REJECTIONS = (
     ("forced_tool_choice", 'tool_choice: type "tool" and "any" are not supported'),
     ("thinking", "thinking is not supported on this model"),
     ("effort", "does not support the effort parameter"),
+    # A level the model lacks (Sonnet 4.6 has no xhigh): the model's default
+    # effort is used instead, with a warning.
+    ("effort", "does not support effort level"),
 )
 
 
@@ -152,8 +155,12 @@ class AnthropicProvider(DirectProvider):
         unsupported = self._unsupported.get(model or "", set())
         thinking = self._thinking if "thinking" not in unsupported else None
         effort = self._effort if "effort" not in unsupported else None
-        forced = tool_choice_type in ("tool", "any")
-        downgrade = forced and (thinking is not None or "forced_tool_choice" in unsupported)
+        # Only a named tool is downgraded for thinking: the retry loop
+        # enforces a named tool, not "any" (no call site uses "any"; it is
+        # downgraded only where the model refuses it outright).
+        downgrade = (tool_choice_type == "tool" and thinking is not None) or (
+            tool_choice_type in ("tool", "any") and "forced_tool_choice" in unsupported
+        )
         return thinking, effort, downgrade
 
     def planned_max_tokens(self, options: CompletionOptions) -> int:
@@ -176,10 +183,15 @@ class AnthropicProvider(DirectProvider):
                 *(request_kwargs.get("system") or []),
                 {"type": "text", "text": _tool_instruction(tool_choice)},
             ]
+        # Sent through extra_body so they reach the API on any SDK version the
+        # dependency floor admits; older SDKs reject them as keyword arguments.
+        extra_body = dict(request_kwargs.get("extra_body") or {})
         if thinking is not None:
-            wire["thinking"] = {"type": thinking}
+            extra_body["thinking"] = {"type": thinking}
         if effort is not None:
-            wire["output_config"] = {"effort": effort}
+            extra_body["output_config"] = {"effort": effort}
+        if extra_body:
+            wire["extra_body"] = extra_body
         if thinking is not None or downgrade:
             # A downgraded call goes to a model that may think on its own.
             wire["max_tokens"] = self._clamp_max_tokens(max(wire["max_tokens"], THINKING_MAX_TOKENS_FLOOR))
@@ -190,10 +202,11 @@ class AnthropicProvider(DirectProvider):
             return False
         text = _error_text(exc)
         model = wire_kwargs.get("model") or ""
+        body = wire_kwargs.get("extra_body") or {}
         sent = {
             "forced_tool_choice": (wire_kwargs.get("tool_choice") or {}).get("type") in ("tool", "any"),
-            "thinking": "thinking" in wire_kwargs,
-            "effort": "effort" in (wire_kwargs.get("output_config") or {}),
+            "thinking": "thinking" in body,
+            "effort": "effort" in (body.get("output_config") or {}),
         }
         for feature, marker in _FEATURE_REJECTIONS:
             if marker in text and sent[feature]:

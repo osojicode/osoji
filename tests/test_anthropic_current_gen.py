@@ -97,6 +97,11 @@ def _calls(provider):
     return [c.kwargs for c in provider._client.messages.create.call_args_list]
 
 
+def _body(sent):
+    """thinking and output_config travel in extra_body (SDK-version independent)."""
+    return sent.get("extra_body") or {}
+
+
 # --- no knobs, a model that accepts forced choice: nothing changes -------------
 
 
@@ -112,7 +117,7 @@ def test_default_request_is_unchanged_for_shipping_models(make_provider):
     (sent,) = _calls(provider)
     assert sent["tool_choice"] == FORCED
     assert sent["max_tokens"] == 1024
-    assert "thinking" not in sent and "output_config" not in sent
+    assert "extra_body" not in sent
     assert len(sent["system"]) == 1
 
 
@@ -203,8 +208,8 @@ def test_thinking_on_a_46_model_downgrades_the_forced_tool(make_provider):
     ])
     _complete(provider, model="claude-sonnet-4-6", max_tokens=2048)
     (sent,) = _calls(provider)
-    assert sent["thinking"] == {"type": "adaptive"}
-    assert sent["output_config"] == {"effort": "high"}
+    assert _body(sent)["thinking"] == {"type": "adaptive"}
+    assert _body(sent)["output_config"] == {"effort": "high"}
     assert sent["tool_choice"] == {"type": "auto"}  # a forced tool would suppress thinking
     assert sent["max_tokens"] == 8192
 
@@ -215,7 +220,7 @@ def test_effort_alone_keeps_forced_choice(make_provider):
     ])
     _complete(provider, model="claude-sonnet-4-6")
     (sent,) = _calls(provider)
-    assert sent["output_config"] == {"effort": "medium"}
+    assert _body(sent)["output_config"] == {"effort": "medium"}
     assert sent["tool_choice"] == FORCED
     assert sent["max_tokens"] == 1024
 
@@ -228,9 +233,9 @@ def test_small_tier_learns_it_supports_neither_knob(make_provider):
     ])
     _complete(provider, model="claude-haiku-4-5-20251001")
     first, second, third = _calls(provider)
-    assert first["thinking"] == {"type": "adaptive"} and first["tool_choice"] == {"type": "auto"}
-    assert "thinking" not in second and second["output_config"] == {"effort": "high"}
-    assert "thinking" not in third and "output_config" not in third
+    assert _body(first)["thinking"] == {"type": "adaptive"} and first["tool_choice"] == {"type": "auto"}
+    assert "thinking" not in _body(second) and _body(second)["output_config"] == {"effort": "high"}
+    assert "extra_body" not in third
     assert third["tool_choice"] == FORCED  # no thinking, so no reason to downgrade
     assert third["max_tokens"] == 1024
 
@@ -285,3 +290,69 @@ def test_rate_limiter_reserves_the_thinking_floor(make_provider):
 
     plain = make_provider()
     assert RateLimitedProvider(plain, RateLimiter(RateLimiterConfig()))._effective_max_tokens(options) == 1024
+
+
+# --- review fixes ---------------------------------------------------------------
+
+
+def test_truncated_thinking_call_grows_its_budget(make_provider):
+    """The retry arithmetic starts from the floored budget actually sent, so
+    a truncated thinking response is retried with more room, not the same."""
+    provider = make_provider(thinking="adaptive", responses=[
+        _response(stop_reason="max_tokens", model="claude-sonnet-4-6",
+                  blocks_before=[{"type": "thinking", "thinking": "", "signature": "s"}]),
+        _response(tool_input={"value": "ok"}, model="claude-sonnet-4-6"),
+    ])
+    result = _complete(provider, model="claude-sonnet-4-6", max_tokens=1024)
+    first, second = _calls(provider)
+    assert first["max_tokens"] == 8192
+    assert second["max_tokens"] == 16384
+    assert result.max_tokens_sent == 16384
+
+
+def test_budget_follows_a_rejection_learned_on_the_first_attempt(make_provider):
+    provider = make_provider(responses=[
+        _FakeStatusError(FORCED_REJECTED),
+        _response(stop_reason="max_tokens"),
+        _response(tool_input={"value": "ok"}),
+    ])
+    _complete(provider, model="claude-opus-5-5", max_tokens=1024)
+    _, second, third = _calls(provider)
+    assert second["max_tokens"] == 8192
+    assert third["max_tokens"] == 16384
+
+
+def test_an_effort_level_the_model_lacks_falls_back_to_its_default(make_provider):
+    provider = make_provider(effort="xhigh", responses=[
+        _FakeStatusError("This model does not support effort level 'xhigh'. Supported levels: high, low, max, medium."),
+        _response(tool_input={"value": "ok"}, model="claude-sonnet-4-6"),
+    ])
+    _complete(provider, model="claude-sonnet-4-6")
+    first, second = _calls(provider)
+    assert _body(first)["output_config"] == {"effort": "xhigh"}
+    assert "extra_body" not in second
+
+
+def test_any_choice_is_not_downgraded_for_thinking(make_provider):
+    provider = make_provider(thinking="adaptive", responses=[
+        _response(tool_input={"value": "ok"}, model="claude-sonnet-4-6"),
+    ])
+    _complete(provider, model="claude-sonnet-4-6", tool_choice={"type": "any"})
+    (sent,) = _calls(provider)
+    assert sent["tool_choice"] == {"type": "any"}
+    assert len(sent["system"]) == 1
+
+
+def test_length_stop_diagnostics_report_the_budget_sent(make_provider):
+    from osoji.llm.logging import LoggingProvider
+
+    provider = make_provider(thinking="adaptive", responses=[
+        _response(tool_input={"value": "ok"}, model="claude-sonnet-4-6", stop_reason="length"),
+    ])
+    logged = LoggingProvider(provider)
+    asyncio.run(logged.complete(
+        messages=[Message(role=MessageRole.USER, content="Go")],
+        system="Use the tool.",
+        options=CompletionOptions(model="claude-sonnet-4-6", max_tokens=1024, tools=[TOOL], tool_choice=FORCED),
+    ))
+    assert "max_tokens=8192" in logged._stats.length_stop_examples[0]
