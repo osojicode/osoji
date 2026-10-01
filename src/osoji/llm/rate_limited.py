@@ -53,6 +53,9 @@ class RateLimitedProvider(LLMProvider):
     def _effective_max_tokens(self, options: CompletionOptions) -> int:
         """Mirror the output clamp the wrapped provider applies to the request,
         so the reservation matches what will actually be sent."""
+        planned = getattr(type(self._provider), "planned_max_tokens", None)
+        if callable(planned):
+            return planned(self._provider, options)
         cap = getattr(self._provider, "max_output_tokens", None)
         if cap is None:
             return options.max_tokens

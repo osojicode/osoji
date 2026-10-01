@@ -25,6 +25,7 @@ from osoji.audit_manifest import (
     cache_from_verdicts,
     current_version,
     load_manifest,
+    model_profile,
     write_manifest,
 )
 from osoji.claim_builder import build_debris_claims
@@ -141,7 +142,7 @@ def test_day_zero_run_writes_manifest(temp_dir):
     assert provider.calls == 1
     manifest = load_manifest(config.audit_manifest_path)
     assert manifest is not None
-    assert manifest["osoji_version"] == current_version()
+    assert manifest["osoji_version"] == current_version(model_profile=model_profile(config))
     assert manifest["verdicts"], "day-zero run must harvest verdicts"
     entry = next(iter(manifest["verdicts"].values()))
     assert entry["detector"].startswith("obligations:")
@@ -195,6 +196,42 @@ def test_stale_osoji_version_forces_day_zero(temp_dir):
     assert result2.scorecard.verdict_cache_hit_rate == 0.0
 
 
+def test_switching_model_or_knobs_forces_day_zero(temp_dir, monkeypatch):
+    """Verdicts another model (or another thinking/effort setting) produced are
+    not reused: the profile is part of the version stamp (osojicode/work#108)."""
+    monkeypatch.delenv("OSOJI_EFFORT", raising=False)
+    monkeypatch.delenv("OSOJI_MODEL_LARGE", raising=False)
+    _one_implicit_contract_env(temp_dir)
+    _run_audit(temp_dir, FakeProvider())
+
+    monkeypatch.setenv("OSOJI_EFFORT", "high")
+    provider = FakeProvider()
+    _config, result = _run_audit(temp_dir, provider, incremental=True)
+    assert provider.calls == 1
+    assert result.scorecard.verdict_cache_hit_rate == 0.0
+
+    monkeypatch.setenv("OSOJI_MODEL_LARGE", "claude-opus-5-5")
+    provider = FakeProvider()
+    _run_audit(temp_dir, provider, incremental=True)
+    assert provider.calls == 1
+
+    provider = FakeProvider()  # same profile again: the cache serves it
+    _config, result = _run_audit(temp_dir, provider, incremental=True)
+    assert provider.calls == 0
+
+
+def test_model_profile_names_tiers_and_knobs(monkeypatch, temp_dir):
+    monkeypatch.delenv("OSOJI_THINKING", raising=False)
+    monkeypatch.delenv("OSOJI_EFFORT", raising=False)
+    config = Config(root_path=temp_dir, respect_gitignore=False, quiet=True)
+    plain = model_profile(config)
+    monkeypatch.setenv("OSOJI_THINKING", "adaptive")
+    assert model_profile(config) != plain
+    assert "thinking=adaptive" in model_profile(config)
+    assert current_version() == current_version(model_profile=None)
+    assert current_version(model_profile=plain) != current_version()
+
+
 def test_force_wins_over_incremental(temp_dir):
     _one_implicit_contract_env(temp_dir)
     _run_audit(temp_dir, FakeProvider())
@@ -225,7 +262,7 @@ def test_merge_keeps_foreign_producers_and_drops_disappeared(temp_dir):
         "severity": "warning", "contract_class": None,
     }
     write_manifest(config1.audit_manifest_path, verdicts,
-                   commit=None, version=current_version())
+                   commit=None, version=current_version(model_profile=model_profile(config1)))
 
     config2, _ = _run_audit(temp_dir, FakeProvider(), incremental=True)
 
@@ -412,7 +449,7 @@ def test_day_zero_doc_run_writes_doc_cache(temp_dir):
 
     cache = load_doc_cache(config.doc_analysis_cache_path)
     assert cache is not None
-    assert cache["osoji_version"] == current_version()
+    assert cache["osoji_version"] == current_version(model_profile=model_profile(config))
     assert set(cache["entries"]) == {"README.md"}
     assert result.scorecard.doc_cache_hit_rate is None   # nothing was looked up
 

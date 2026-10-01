@@ -19,8 +19,12 @@ import json
 from collections import defaultdict
 from pathlib import Path
 
-#: Sticker prices, USD per million tokens (input, output). Dated 2026-09-05.
+#: Sticker prices, USD per million tokens (input, output). Dated 2026-09-05;
+#: the 5.x rows 2026-10-01.
 PRICES_USD_PER_MTOK: dict[str, tuple[float, float]] = {
+    "claude-fable-5-1": (10.0, 50.0),
+    "claude-opus-5-5": (4.0, 20.0),
+    "claude-sonnet-5-5": (2.0, 10.0),
     "claude-opus-4-6": (5.0, 25.0),
     "claude-sonnet-4-6": (3.0, 15.0),
     "claude-haiku-4-5-20251001": (1.0, 5.0),
